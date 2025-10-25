@@ -1,0 +1,31 @@
+# Node & React (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.DS_Store
+
+# Python & FastAPI (backend)
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/.env
+backend/alembic.ini
+backend/alembic/versions/__pycache__/
+backend/alembic/versions/*.pyc
+backend/.DS_Store
+
+# IDE & System files
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+*.env
