@@ -33,7 +33,7 @@ pip install -r requirements.txt
 # Chạy server
 uvicorn app.main:app --reload
 Mở: http://127.0.0.1:8000/docs
-
+```
 ## 🚀 Deployment
 
 📬 Liên hệ
@@ -42,6 +42,6 @@ Tác giả: NamGoPhim
 
 Email: nam23062002@gmail.com
 
-Web: namgophim.vercel.app
+Web: https://namgophim.vercel.app
 
-Zalo: 0914837433
+👉 Liên hệ với tôi ngay nhé

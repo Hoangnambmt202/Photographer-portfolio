@@ -14,3 +14,8 @@ python-dotenv==1.1.1
 
 # --- Optional utilities ---
 pydantic==2.12.3
+pydantic[email]==2.12.3
+pwdlib[argon2]
+python-jose[cryptography]
+python-multipart
+PyJWT
