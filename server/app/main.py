@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.database import Base, engine
-from app.routers import user, album, photo, contact, auth
+from app.routers import user, album, photo, contact, auth, category, setting
 
 # Import models để Alembic biết
 Base.metadata.create_all(bind=engine)
@@ -12,7 +12,7 @@ app = FastAPI(title="Photographer Portfolio API")
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -27,6 +27,9 @@ app.include_router(album.router)
 app.include_router(photo.router)
 app.include_router(contact.router)
 app.include_router(auth.router)
+app.include_router(category.router)
+app.include_router(setting.router)
+
 
 @app.get("/")
 def root():

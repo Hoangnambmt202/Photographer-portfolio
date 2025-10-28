@@ -10,11 +10,17 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-
+    is_admin: Optional[bool] = False
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+    
 class UserResponse(UserBase):
     id: int
     is_admin: bool
     created_at: datetime
+    
+    model_config = {
+        "from_attributes": True
+    }
 
-    class Config:
-        from_attribute = True

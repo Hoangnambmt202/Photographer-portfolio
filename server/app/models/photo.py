@@ -1,7 +1,14 @@
-from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, DateTime, Table
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.config.database import Base
+
+photo_tags = Table(
+    "photo_tags",
+    Base.metadata,
+    Column("photo_id", Integer, ForeignKey("photos.id")),
+    Column("tag_id", Integer, ForeignKey("tags.id")),
+)
 
 class Photo(Base):
     __tablename__ = "photos"
@@ -18,5 +25,5 @@ class Photo(Base):
 
     # Quan hệ
     album = relationship("Album", back_populates="photos")
-    user = relationship("User", backref="photos")
+    user = relationship("User", back_populates="photos")
     tags = relationship("Tag", secondary="photo_tags", back_populates="photos")

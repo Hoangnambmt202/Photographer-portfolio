@@ -4,16 +4,18 @@ from datetime import datetime
 
 class AlbumBase(BaseModel):
     title: str
+    slug: Optional[str] = None
     description: Optional[str] = None
+    status: Optional[str] = "active"
     cover_image: Optional[str] = None
 
 class AlbumCreate(AlbumBase):
-    user_id: int
+    pass
 
 class AlbumResponse(AlbumBase):
     id: int
-    user_id: int
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

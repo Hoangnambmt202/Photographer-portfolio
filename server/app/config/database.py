@@ -15,6 +15,5 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
-        print("Database session created successfully.")
     finally:
         db.close()
