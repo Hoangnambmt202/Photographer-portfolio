@@ -4,6 +4,7 @@ from datetime import datetime, date
 
 class PhotoBase(BaseModel):
     title: Optional[str] = None
+    slug: Optional[str] = None
     description: Optional[str] = None
     image_url: str
     taken_at: Optional[date] = None

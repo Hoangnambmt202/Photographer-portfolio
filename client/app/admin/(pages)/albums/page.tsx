@@ -40,8 +40,8 @@ export default function AlbumsPage() {
   const [maxPhotos, setMaxPhotos] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-const [deleteId, setDeleteId] = useState<number | null>(null);
-   useEffect(() => {
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  useEffect(() => {
     fetchAlbums();
   }, [fetchAlbums]);
   // Categories và statuses
@@ -85,10 +85,10 @@ const [deleteId, setDeleteId] = useState<number | null>(null);
       // }
 
       // Photos count filter
-      if (minPhotos < (minPhotos)) {
+      if (minPhotos < minPhotos) {
         return false;
       }
-      if (maxPhotos > (maxPhotos)) {
+      if (maxPhotos > maxPhotos) {
         return false;
       }
 
@@ -101,7 +101,6 @@ const [deleteId, setDeleteId] = useState<number | null>(null);
         case "title":
           compareValue = a.title.localeCompare(b.title);
           break;
-       
       }
 
       return sortOrder === "asc" ? compareValue : -compareValue;
@@ -137,7 +136,7 @@ const [deleteId, setDeleteId] = useState<number | null>(null);
       setDeleteId(null);
     }
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Header with Title and Add Button */}
@@ -386,10 +385,16 @@ const [deleteId, setDeleteId] = useState<number | null>(null);
                     <Eye className="w-4 h-4" />
                     <span className="text-sm">View</span>
                   </button>
-                  <button className="flex items-center justify-center p-2 bg-blue-300 rounded-lg hover:bg-blue-400 transition-colors" onClick={() => openEditModal(album)}>
+                  <button
+                    className="flex items-center justify-center p-2 bg-blue-300 rounded-lg hover:bg-blue-400 transition-colors"
+                    onClick={() => openEditModal(album)}
+                  >
                     <Edit2 className="w-4 h-4 " />
                   </button>
-                  <button className="flex items-center justify-center p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors" onClick={() => setDeleteId(album.id)}>
+                  <button
+                    className="flex items-center justify-center p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                    onClick={() => setDeleteId(album.id)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -410,21 +415,21 @@ const [deleteId, setDeleteId] = useState<number | null>(null);
           </div>
         )}
       </div>
-       {isModalOpen && (
+      {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
-                    <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                      <h2 className="text-xl font-bold text-gray-900">Album</h2>
-                      <button
-                        onClick={closeModal}
-                        className="text-gray-400 hover:text-gray-600 transition"
-                      >
-                        <X className="w-6 h-6" />
-                      </button>
-                    </div>
-                    <AlbumForm />
-                  </div>
-                </div>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Album</h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <AlbumForm />
+          </div>
+        </div>
       )}
       <DeleteModal
         isOpen={deleteId !== null}

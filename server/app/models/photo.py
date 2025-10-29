@@ -15,6 +15,7 @@ class Photo(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(150), nullable=True)
+    slug = Column(String(150), unique=True)
     description = Column(Text, nullable=True)
     image_url = Column(String(255), nullable=False)
     taken_at = Column(Date, nullable=True)

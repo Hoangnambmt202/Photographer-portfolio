@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from slugify import slugify
 from app.config.database import SessionLocal, get_db
 from app import models
 from app.schemas import photo
@@ -10,6 +11,7 @@ router = APIRouter(prefix="/photos", tags=["Photos"])
 def create_photo(photo: photo.PhotoCreate, db: Session = Depends(get_db)):
     new_photo = models.Photo(
         title=photo.title,
+        slug=slugify(photo.title),
         description=photo.description,
         image_url=photo.image_url,
         taken_at=photo.taken_at,
@@ -33,6 +35,7 @@ def list_photos(db: Session = Depends(get_db)):
         photo.PhotoResponse(
             id=p.id,
             title=p.title,
+            slug=p.slug,
             description=p.description,
             image_url=p.image_url,
             taken_at=p.taken_at,
