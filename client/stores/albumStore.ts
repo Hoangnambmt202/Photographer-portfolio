@@ -16,6 +16,7 @@ export interface Album {
 interface AlbumState {
   albums: Album[];
   formData: Partial<Album>;
+  modalMode: "add" | "edit";
   editingAlbum: Album | null;
   isModalOpen: boolean;
   fetchAlbums: () => Promise<void>;
@@ -32,6 +33,7 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
   formData: {},
   editingAlbum: null,
   isModalOpen: false,
+  modalMode: "add",
 
   fetchAlbums: async () => {
     const res = await getAlbums();
@@ -42,9 +44,19 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
     set((state) => ({ formData: { ...state.formData, ...data } })),
 
   openAddModal: () =>
-    set({ editingAlbum: null, isModalOpen: true, formData: {} }),
+    set({
+      editingAlbum: null,
+      modalMode: "add",
+      isModalOpen: true,
+      formData: {},
+    }),
   openEditModal: (album) =>
-    set({ editingAlbum: album, isModalOpen: true, formData: album }),
+    set({
+      editingAlbum: album,
+      modalMode: "edit",
+      isModalOpen: true,
+      formData: album,
+    }),
   closeModal: () =>
     set({ isModalOpen: false, formData: {}, editingAlbum: null }),
 
@@ -52,15 +64,15 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
     const { editingAlbum, formData } = get();
 
     // Tách riêng slug ra để không gửi trong request
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { slug, ...payload } = formData;
 
     if (editingAlbum) {
       const res = await updateAlbum(editingAlbum.id, payload);
-      showToast.success(res.message, {duration: 3000});
+      showToast.success(res.message, { duration: 3000 });
     } else {
       const res = await createAlbum(payload);
-      showToast.success(res.message, {duration: 3000});
-
+      showToast.success(res.message, { duration: 3000 });
     }
 
     await get().fetchAlbums();
@@ -68,15 +80,14 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
   },
 
   removeAlbum: async (id) => {
-  try {
-    const res = await deleteAlbum(id);
-    await get().fetchAlbums();
-    showToast.success(res.message, {duration: 3000});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error(error);
-    showToast.error( "Xóa album thất bại", {duration: 3000} );
-  }
-},
-
+    try {
+      const res = await deleteAlbum(id);
+      await get().fetchAlbums();
+      showToast.success(res.message, { duration: 3000 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error(error);
+      showToast.error("Xóa album thất bại", { duration: 3000 });
+    }
+  },
 }));

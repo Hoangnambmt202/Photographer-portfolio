@@ -1,7 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, date
-
+from enum import Enum
+class PhotoStatus(str, Enum):
+    public = "public"
+    private = "private"
+    archived = "archived"
+    draft = "draft"
 class PhotoBase(BaseModel):
     title: Optional[str] = None
     slug: Optional[str] = None
@@ -9,6 +14,7 @@ class PhotoBase(BaseModel):
     image_url: str
     taken_at: Optional[date] = None
     location: Optional[str] = None
+    status: Optional[PhotoStatus] = PhotoStatus.draft
 
 class PhotoCreate(PhotoBase):
     album_id: Optional[int] = None

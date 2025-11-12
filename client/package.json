@@ -15,6 +15,9 @@
     "nextjs-toast-notify": "^1.57.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "sass": "^1.93.3",
+    "tailwind-merge": "^3.3.1",
+    "use-debounce": "^10.0.6",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

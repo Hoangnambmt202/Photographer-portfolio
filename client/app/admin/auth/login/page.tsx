@@ -18,11 +18,13 @@ export default function AdminLogin() {
   await login(email, password);
   const user = useAuthStore.getState().user;
   if (user) {
-    showToast.success("Đăng nhập thành công!");
+    showToast.success("Đăng nhập thành công!", {
+      duration: 2000
+    });
     setTimeout(() => {
       router.push("/admin"); // redirect
       
-    }, 10000);
+    }, 2000);
   } else {
     showToast.error("Email hoặc mật khẩu không đúng!");
   }
@@ -130,6 +132,7 @@ export default function AdminLogin() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition"
+                  tabIndex={-1}
                 >
                   {showPassword ? (
                     <svg

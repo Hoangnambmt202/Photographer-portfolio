@@ -17,6 +17,9 @@ import {
   SortDesc,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import SearchInput from "@/components/common/SearchInput";
+import { useCategoryStore } from "@/stores/categoryStore";
+
 
 export default function AlbumsPage() {
   const {
@@ -27,7 +30,9 @@ export default function AlbumsPage() {
     removeAlbum,
     isModalOpen,
     closeModal,
+    modalMode,
   } = useAlbumStore();
+  const {categories, fetchCategories} = useCategoryStore() 
 
   // Filter states
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
@@ -43,16 +48,9 @@ export default function AlbumsPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   useEffect(() => {
     fetchAlbums();
-  }, [fetchAlbums]);
+    fetchCategories();
+  }, [fetchAlbums, fetchCategories]);
   // Categories và statuses
-  const categories = [
-    "all",
-    "Wedding",
-    "Portrait",
-    "Nature",
-    "Event",
-    "Product",
-  ];
   const statuses = ["all", "active", "archived", "draft"];
 
   // Filter và sort logic
@@ -146,14 +144,14 @@ export default function AlbumsPage() {
           {/* Basic Filters - Always visible */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Search */}
-            <div className="relative flex-1 min-w-[250px]">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
+            <div className="relative flex-1 min-w-[150px]">
+              <SearchInput
                 placeholder="Tìm kiếm album..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                onSearch={async (value) => {
+                  // giả lập API
+                  await new Promise((r) => setTimeout(r, 800));
+                  setSearchTerm(value);
+                }}
               />
             </div>
 
@@ -163,9 +161,10 @@ export default function AlbumsPage() {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="px-4 py-2 border  rounded-lg focus:outline-none focus:border-blue-500"
             >
+              <option value="">Danh mục</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat === "all" ? "Tất cả danh mục" : cat}
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -419,7 +418,9 @@ export default function AlbumsPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Album</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                {modalMode === "add" ? "Thêm album mới" : "Chỉnh sửa album"}
+              </h2>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 transition"
