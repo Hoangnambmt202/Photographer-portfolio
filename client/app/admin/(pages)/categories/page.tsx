@@ -12,7 +12,6 @@ export default function CategoriesPage() {
     fetchCategories,
     openAddModal,
     openEditModal,
-    openDeleteModal,
     isModalOpen,
     closeModal,
     deleteCategory,

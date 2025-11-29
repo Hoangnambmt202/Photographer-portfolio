@@ -27,12 +27,7 @@
       "@/*": [
         "./*"
       ],
-      "@/store": [
-        "./stores"
-      ],
-      "@/components/*": [
-        "./components/*"
-      ],
+      
 
       
     }
