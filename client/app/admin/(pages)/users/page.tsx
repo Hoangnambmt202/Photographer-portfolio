@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Edit2, Trash2 } from "lucide-react";
 import { useState } from "react";
 

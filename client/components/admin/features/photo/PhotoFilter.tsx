@@ -20,13 +20,16 @@ export default function PhotoFilters({
 
   const { openAddModal } = usePhotoStore();
   const statuses = [
-  { value: "draft", label: "Nháp" },
-  { value: "public", label: "Công khai" },
-  { value: "private", label: "Riêng tư" },
-  { value: "archived", label: "Lưu trữ" },
-];
+    { value: "draft", label: "Nháp" },
+    { value: "public", label: "Công khai" },
+    { value: "private", label: "Riêng tư" },
+    { value: "archived", label: "Lưu trữ" },
+  ];
   const hasActiveFilters =
-    searchTerm || selectedAlbum !== "all" || selectedCategory !== "all" || selectedStatus !=="all";
+    searchTerm ||
+    selectedAlbum !== "all" ||
+    selectedCategory !== "all" ||
+    selectedStatus !== "all";
 
   const resetFilters = () => {
     setSelectedAlbum("all");
@@ -77,9 +80,7 @@ export default function PhotoFilters({
           <option value="all">Trạng thái</option>
           {statuses.map((status) => (
             <option key={status.value} value={status.value}>
-              {
-                status.label
-              }
+              {status.label}
             </option>
           ))}
         </select>

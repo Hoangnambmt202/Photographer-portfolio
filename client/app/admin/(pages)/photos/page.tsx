@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import DeleteModal from "@/components/admin/DeleteModal";
 import PhotoForm from "@/components/admin/features/photo/PhotoForm";
-import Pagination from "@/components/common/pagination";
+import Pagination from "@/components/common/Pagination";
 import { useAlbumStore } from "@/stores/albumStore";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { usePhotoStore } from "@/stores/photoStore";
@@ -76,14 +76,14 @@ export default function PhotosPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4  h-screen py-2 overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Upload ảnh</h2>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 cursor-pointer" />
               </button>
             </div>
             <PhotoForm />

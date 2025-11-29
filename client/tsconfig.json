@@ -29,7 +29,11 @@
       ],
       "@/store": [
         "./stores"
-      ]
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+
       
     }
   },

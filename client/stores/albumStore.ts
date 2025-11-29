@@ -7,7 +7,7 @@ export interface Album {
   title: string;
   slug: string;
   description?: string;
-  cover?: string;
+  cover_image?: string;
   status?: string;
   category_id?: number;
   created_at?: Date;

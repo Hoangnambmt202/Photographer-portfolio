@@ -2,13 +2,12 @@
 
 import AlbumForm from "@/components/admin/features/album/AlbumForm";
 import DeleteModal from "@/components/admin/DeleteModal";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { useAlbumStore } from "@/stores/albumStore";
 import {
   Edit2,
   Eye,
   Trash2,
-  Search,
   Filter,
   X,
   Calendar,
@@ -19,6 +18,7 @@ import {
 import { useEffect, useState } from "react";
 import SearchInput from "@/components/common/SearchInput";
 import { useCategoryStore } from "@/stores/categoryStore";
+import Image from "next/image";
 
 
 export default function AlbumsPage() {
@@ -348,6 +348,7 @@ export default function AlbumsPage() {
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="h-48 bg-linear-to-br from-blue-100 to-purple-100 relative">
+                <Image src={album.cover_image}  width={100} height={100} className="w-full h-full" alt={album.title}/>
                 <div className="absolute top-2 right-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -415,8 +416,8 @@ export default function AlbumsPage() {
         )}
       </div>
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 ">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-h-140 max-w-md mx-4  overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">
                 {modalMode === "add" ? "Thêm album mới" : "Chỉnh sửa album"}

@@ -1,4 +1,5 @@
 "use client";
+import InputImage from "@/components/common/InputImage";
 import { useAlbumStore } from "@/stores/albumStore";
 
 export default function AlbumForm() {
@@ -27,9 +28,9 @@ export default function AlbumForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6">
+    <form onSubmit={handleSubmit} className="space-y-4 p-6 ">
       <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           Tên album
         </label>
         <input
@@ -57,6 +58,22 @@ export default function AlbumForm() {
           onChange={(e) => setFormData({ description: e.target.value })}
           className="w-full border rounded px-3 py-2"
         />
+      </div>
+      <div>
+        <label htmlFor="">Ảnh thumbnail album</label>
+        <InputImage />
+      </div>
+      <div>
+        <label className="block text-sm mb-2">Trạng thái</label>
+        <select
+          value={formData.status || "draft"}
+          onChange={(e) => setFormData({ status: e.target.value })}
+          className="w-full border rounded px-3 py-2"
+        >
+          <option value="active">Hoạt động</option>
+          <option value="draft">Nháp</option>
+          <option value="archived">Lưu trữ</option>
+        </select>
       </div>
 
       <div className="flex justify-end gap-3">

@@ -4,7 +4,7 @@ import DeleteModal from "@/components/admin/DeleteModal";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 
 export default function CategoriesPage() {
   const {

@@ -5,7 +5,7 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import ServiceFilters from "@/components/admin/features/service/ServiceFilter";
 import ServiceCard from "@/components/admin/features/service/ServiceCard";
 import DeleteModal from "@/components/admin/DeleteModal";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { Plus } from "lucide-react";
 import { Service } from "@/types/service";
 import ServiceFormModal from "@/components/admin/features/service/ServiceForm";

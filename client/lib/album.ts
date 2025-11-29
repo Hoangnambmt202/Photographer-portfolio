@@ -10,26 +10,43 @@ export async function getAlbums() {
 }
 
 export async function createAlbum(data: any) {
+  const form = new FormData();
+
+  if (data.title) form.append("title", data.title);
+  if (data.description) form.append("description", data.description);
+  if (data.status) form.append("status", data.status);
+  if (data.cover_image instanceof File) {
+    form.append("cover_image", data.cover_image);
+  }
+
   const res = await fetch(`${API_BASE}/albums`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    body: form,
     credentials: "include",
-    body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Không thể tạo album");
-  return await res.json();
+
+  return res.json();
 }
 
 export async function updateAlbum(id: number, data: any) {
+  const form = new FormData();
+
+  if (data.title) form.append("title", data.title);
+  if (data.description) form.append("description", data.description);
+  if (data.status) form.append("status", data.status);
+  if (data.cover_image instanceof File) {
+    form.append("cover_image", data.cover_image);
+  }
+
   const res = await fetch(`${API_BASE}/albums/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    body: form,
     credentials: "include",
-    body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Không thể cập nhật album");
-  return await res.json();
+
+  return res.json();
 }
+
 
 export async function deleteAlbum(id: number) {
   const res = await fetch(`${API_BASE}/albums/${id}`, {

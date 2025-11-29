@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import Header from "@/components/public/layouts/Header";
+import BackToTopButton from "@/components/common/BackToTopButton";
+import SocialSidebar from "@/components/public/SocialSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,8 +27,10 @@ export default function PublicLayout({
 }>) {
   return (
     <section>
-      
+      <Header/>
+      <SocialSidebar />
       {children}
+      <BackToTopButton/>
     </section>
   
   );

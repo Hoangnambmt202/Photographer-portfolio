@@ -25,40 +25,57 @@ export default function AdminSidebar() {
 
   // Danh sách menu với submenu
   const menuItems = [
-    { id: "dashboard", name: "Trang chủ", icon: LayoutDashboard, path: "/admin" },
-    { 
-      id: "albums", 
-      name: "Albums", 
-      icon: FolderOpen, 
+    {
+      id: "dashboard",
+      name: "Trang chủ",
+      icon: LayoutDashboard,
+      path: "/admin",
+    },
+    {
+      id: "albums",
+      name: "Albums",
+      icon: FolderOpen,
       path: "/admin/albums",
     },
-    { 
-      id: "photos", 
-      name: "Ảnh", 
-      icon: Image, 
+    {
+      id: "photos",
+      name: "Ảnh",
+      icon: Image,
       path: "/admin/photos",
-      
     },
     { id: "inbox", name: "Inbox", icon: Inbox, path: "/admin/inbox" },
-    { id: "users", name: "Khách hàng", icon: Users, path: "/admin/contacts",
-       submenu: [
+    {
+      id: "users",
+      name: "Khách hàng",
+      icon: Users,
+      path: "/admin/contacts",
+      submenu: [
         { id: "contacts", name: "Khách hàng", path: "/admin/contacts" },
         { id: "users", name: "Users", path: "/admin/users" },
-      ]
-     },
-    { id: "categories", name: "Danh mục", icon: Filter, path: "/admin/categories" },
+      ],
+    },
+    {
+      id: "categories",
+      name: "Danh mục",
+      icon: Filter,
+      path: "/admin/categories",
+    },
     { id: "services", name: "Dịch vụ", icon: Package, path: "/admin/service" },
     { id: "calendar", name: "Lịch", icon: Calendar, path: "/admin/calendar" },
-    { 
-      id: "settings", 
-      name: "Cài đặt", 
-      icon: Settings, 
+    {
+      id: "settings",
+      name: "Cài đặt",
+      icon: Settings,
       path: "/admin/settings",
       submenu: [
-        { id: "general", name: "Cài đặt chung", path: "/admin/settings/general" },
+        {
+          id: "general",
+          name: "Cài đặt chung",
+          path: "/admin/settings/general",
+        },
         { id: "profile", name: "Hồ sơ", path: "/admin/settings/profile" },
         { id: "security", name: "Bảo mật", path: "/admin/settings/security" },
-      ]
+      ],
     },
   ];
 
@@ -66,8 +83,8 @@ export default function AdminSidebar() {
   const currentPage =
     [...menuItems]
       .sort((a, b) => b.path.length - a.path.length)
-      .find((item) =>
-        pathname === item.path || pathname.startsWith(item.path + "/")
+      .find(
+        (item) => pathname === item.path || pathname.startsWith(item.path + "/")
       )?.id || "dashboard";
 
   // Toggle submenu
@@ -171,9 +188,13 @@ export default function AdminSidebar() {
 
                 {/* Tooltip khi sidebar đóng */}
                 {!sidebarOpen && (
-                  <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50">
+                  <div
+                    className="absolute left-full ml-2 top-1/2 -translate-y-1/2 
+  opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-9999"
+                  >
                     <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg whitespace-nowrap">
                       <div className="font-medium">{item.name}</div>
+
                       {hasSubmenu && (
                         <div className="mt-2 space-y-1 border-t border-gray-700 pt-2">
                           {item.submenu.map((subItem) => (

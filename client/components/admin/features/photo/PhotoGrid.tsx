@@ -26,7 +26,7 @@ export default function PhotoGrid({ photos, onDelete, searchTerm }: PhotoGridPro
       {filtered.map((photo) => (
         <div
           key={photo.id}
-          className="bg-white rounded-lg shadow-lg border overflow-hidden group hover:scale-105 transform transition-all duration-300"
+          className="bg-white rounded-lg shadow-lg overflow-hidden group hover:scale-105 transform transition-all duration-300"
         >
           <div className="relative h-48 w-full bg-gray-200 overflow-hidden">
             <Image

@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Service, ServiceFormData, ServiceModalMode } from "@/types/service";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/Button";
 import { useCategoryStore } from "@/stores/categoryStore";
 
 interface ServiceFormModalProps {
