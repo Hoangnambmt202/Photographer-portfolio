@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, useMotionValue } from 'framer-motion';
+import { motion, useMotionValue, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
 const CoverFlowCarousel = () => {
@@ -24,7 +24,7 @@ const CoverFlowCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(7);
   const dragX = useMotionValue(0);
   
-  const onDragEnd = (event, info) => {
+  const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const threshold = 25;
     const velocity = info.velocity.x;
     const offset = info.offset.x;

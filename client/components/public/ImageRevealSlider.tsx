@@ -1,17 +1,18 @@
 import { useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate , PanInfo } from 'framer-motion';
 import { MoveHorizontal } from 'lucide-react';
+import Image from 'next/image';
 
 const ImageRevealSlider = () => {
   const [isDragging, setIsDragging] = useState(false);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const sliderPosition = useMotionValue(50);
   
   // Ảnh demo - thay thế bằng ảnh của bạn
   const beforeImage = "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&h=600&fit=crop";
   const afterImage = "https://images.unsplash.com/photo-1682687221038-404cb8830901?w=800&h=600&fit=crop";
 
-  const handleDrag = ({event, info}:any) => {
+  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (!containerRef.current) return;
     
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -64,7 +65,9 @@ const ImageRevealSlider = () => {
         >
           {/* Ảnh After (nền) */}
           <div className="absolute inset-0">
-            <img
+            <Image
+            width={100}
+            height={100}
               src={afterImage}
               alt="After"
               className="w-full h-full object-cover"
@@ -79,7 +82,9 @@ const ImageRevealSlider = () => {
             className="absolute inset-0 pointer-events-none"
             style={{ clipPath }}
           >
-            <img
+            <Image
+            width={100}
+            height={100}
               src={beforeImage}
               alt="Before"
               className="w-full h-full object-cover"

@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from "react";
 
 export default function AdminHeader() {
   const { user } = useAuthStore();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const {  toggleSidebar } = useUIStore();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
