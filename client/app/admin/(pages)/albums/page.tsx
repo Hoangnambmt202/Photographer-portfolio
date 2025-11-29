@@ -52,7 +52,7 @@ export default function AlbumsPage() {
   }, [fetchAlbums, fetchCategories]);
   // Categories và statuses
   const statuses = ["all", "active", "archived", "draft"];
-
+const placeholderImage = "https://images.unsplash.com/photo-1654124803058-c814dc42f60c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   // Filter và sort logic
   const filteredAlbums = albums
     .filter((album) => {
@@ -348,7 +348,7 @@ export default function AlbumsPage() {
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="h-48 bg-linear-to-br from-blue-100 to-purple-100 relative">
-                <Image src={album.cover_image}  width={100} height={100} className="w-full h-full" alt={album.title}/>
+                <Image src={(album.cover_image ?? placeholderImage ) as string}  width={100} height={100} className="w-full h-full" alt={album.title}/>
                 <div className="absolute top-2 right-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
