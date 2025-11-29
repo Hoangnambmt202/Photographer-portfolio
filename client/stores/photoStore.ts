@@ -1,46 +1,20 @@
 import { create } from "zustand";
 import { createPhoto, deletePhoto, getPhotos, updatePhoto } from "@/lib/photo";
 import { showToast } from "nextjs-toast-notify";
+import { Photo, PhotoBaseState, PhotoFormData } from "@/types";
 
-export interface Photo {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string;
-  image_url?: string;
-  taken_at?: Date | null;
-  location?: string;
-  album_id?: number | null;
-  user_id?: number | null;
-  created_at?: Date | null;
-  status: string;
-}
-
-interface PhotoState {
-  photos: Photo[];
-  formData: Partial<Photo>;
-  editingPhoto: Photo | null;
-  isModalOpen: boolean;
-  isUploading: boolean;
-  uploadedPhotoId: number | null;
-
-  // Phân trang backend
-  currentPage: number;
-  totalPages: number;
-  itemsPerPage: number;
-  totalItems: number;
-
+interface PhotoState extends PhotoBaseState {
   fetchPhotos: (page?: number) => Promise<void>;
-  setFormData: (data: Partial<Photo>) => void;
+  setFormData: (data: Partial<PhotoFormData>) => void; 
   openAddModal: () => void;
   openEditModal: (album: Photo) => void;
   closeModal: () => void;
-  addOrUpdatePhoto: () => Promise<void>;
+  // Sửa lại kiểu cho payload
+  addOrUpdatePhoto: (payload: PhotoFormData) => Promise<void>; 
   removePhoto: (id: number) => Promise<void>;
   startUploadAnimation: (id: number) => void;
   setPage: (page: number) => void;
 }
-
 export const usePhotoStore = create<PhotoState>((set, get) => ({
   photos: [],
   formData: {},
@@ -83,7 +57,7 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   closeModal: () =>
     set({ isModalOpen: false, formData: {}, editingPhoto: null }),
 
-  addOrUpdatePhoto: async (payload) => {
+  addOrUpdatePhoto: async (payload: Partial<Photo>) => {
     const { editingPhoto, currentPage } = get();
     try {
       let res;

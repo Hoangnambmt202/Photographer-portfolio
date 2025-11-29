@@ -1,24 +1,9 @@
 import { create } from "zustand";
 import { getAlbums, createAlbum, updateAlbum, deleteAlbum } from "@/lib/album";
 import { showToast } from "nextjs-toast-notify";
+import { Album, AlbumBaseState, AlbumFormData } from "@/types";
 
-export interface Album {
-  id: number;
-  title: string;
-  slug: string;
-  description?: string;
-  cover_image?: string| File| undefined;
-  status?: string;
-  category_id?: number;
-  created_at?: Date;
-}
-
-interface AlbumState {
-  albums: Album[];
-  formData: Partial<Album>;
-  modalMode: "add" | "edit";
-  editingAlbum: Album | null;
-  isModalOpen: boolean;
+interface AlbumState extends AlbumBaseState {
   fetchAlbums: () => Promise<void>;
   setFormData: (data: Partial<Album>) => void;
   openAddModal: () => void;
@@ -30,7 +15,7 @@ interface AlbumState {
 
 export const useAlbumStore = create<AlbumState>((set, get) => ({
   albums: [],
-  formData: {},
+  formData: {} as AlbumFormData,
   editingAlbum: null,
   isModalOpen: false,
   modalMode: "add",
@@ -48,17 +33,17 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
       editingAlbum: null,
       modalMode: "add",
       isModalOpen: true,
-      formData: {},
+     formData: {} as AlbumFormData,
     }),
   openEditModal: (album) =>
     set({
       editingAlbum: album,
       modalMode: "edit",
       isModalOpen: true,
-      formData: album,
+      formData: album as AlbumFormData,
     }),
   closeModal: () =>
-    set({ isModalOpen: false, formData: {}, editingAlbum: null }),
+    set({ isModalOpen: false, formData: {} as AlbumFormData, editingAlbum: null }),
 
   addOrUpdateAlbum: async () => {
     const { editingAlbum, formData } = get();
