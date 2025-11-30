@@ -1,7 +1,7 @@
 // PhotoCard.tsx
 import Image from "next/image";
 import { Eye, Download, Trash2 } from "lucide-react";
-import type { Photo } from "@/stores/photoStore";
+import  { Photo } from "@/types";
 
 interface PhotoCardProps {
   photo: Photo;

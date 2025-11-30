@@ -5,8 +5,10 @@ from slugify import slugify
 import cloudinary.uploader
 from datetime import datetime
 from typing import Optional, List
+from app.config.security import get_current_admin
 from app.config.database import get_db
 from app.schemas.photo import PhotoResponse
+from app.schemas.response import BaseResponse
 from app.models.photo import Photo
 
 from pydantic import BaseModel
@@ -14,45 +16,52 @@ from pydantic import BaseModel
 router = APIRouter(prefix="/api/photos", tags=["Photos"])
 
 # 🟩 1. POST /photos (Tạo mới)
-@router.post("/", response_model=PhotoResponse)
+@router.post("/", response_model=BaseResponse)
 async def create_photo(
     title: str = Form(...),
-    description: Optional[str] = Form(None),
-    taken_at: Optional[str] = Form(None),
+    description: str = Form(None),
+    taken_at: str = Form(None),
     location: Optional[str] = Form(None),
     album_id: Optional[int] = Form(None),
-    image_file: Optional[UploadFile] = File(None),
-    image_url: Optional[str] = Form(None),
-    db: Session = Depends(get_db)
+    image_url: UploadFile = File(...),
+    status: str = Form("draft"),
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin)
 ):
-    image_url = None
+    slug = slugify(title)
     # Nếu có file upload
-    if image_file:
-        try:
-            upload_result = cloudinary.uploader.upload(
-                image_file.file,
-                folder="portfolio/photos",
-                public_id=slugify(title),
-                resource_type="image"
-            )
-            image_url = upload_result.get("secure_url")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Lỗi upload Cloudinary: {e}")
+    if db.query(Photo).filter(Photo.slug == slug).first():
+        raise HTTPException(status_code=400, detail="Slug đã tồn tại")
+    # Upload ảnh lên Cloudinary
+    uploaded_url = None
+    if image_url:
+        upload = cloudinary.uploader.upload(
+            image_url.file,
+            folder="photographer_photos",
+            resource_type="image"
+        )
+        uploaded_url = upload.get("secure_url")
 
-    new_photo = Photo(
+    photo = Photo(
         title=title,
-        slug=slugify(title),
+        slug=slug,
         description=description,
-        image_url=image_url,
+        image_url=uploaded_url,  
+        status=status,
         taken_at=datetime.fromisoformat(taken_at) if taken_at else None,
         location=location,
         album_id=album_id,
     )
 
-    db.add(new_photo)
+
+    db.add(photo)
     db.commit()
-    db.refresh(new_photo)
-    return new_photo
+    db.refresh(photo)
+    return BaseResponse(
+        status="success",
+        message="Tạo ảnh thành công",
+        data=PhotoResponse.model_validate(photo)
+        )
 
 
 # 🟩 2. GET /photos

@@ -15,9 +15,9 @@ export interface Photo {
 }
 
 // Kiểu dữ liệu cho Form Data (có thể chứa File khi upload)
-export interface PhotoFormData extends Partial<Photo> {
+export interface PhotoFormData extends Omit<Partial<Photo>, 'image_url'> {
     // cover_image có thể là File khi upload, hoặc string URL khi ở chế độ edit
-    image_file?: File; 
+    image_url?: string | File ;
 }
 
 // Các trạng thái cơ bản (không bao gồm các hàm)

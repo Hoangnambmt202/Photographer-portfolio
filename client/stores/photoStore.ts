@@ -1,23 +1,24 @@
 import { create } from "zustand";
 import { createPhoto, deletePhoto, getPhotos, updatePhoto } from "@/lib/photo";
 import { showToast } from "nextjs-toast-notify";
+
 import { Photo, PhotoBaseState, PhotoFormData } from "@/types";
 
 interface PhotoState extends PhotoBaseState {
+
   fetchPhotos: (page?: number) => Promise<void>;
-  setFormData: (data: Partial<PhotoFormData>) => void; 
+  setFormData: (data: PhotoFormData) => void;
   openAddModal: () => void;
   openEditModal: (album: Photo) => void;
   closeModal: () => void;
-  // Sửa lại kiểu cho payload
-  addOrUpdatePhoto: (payload: PhotoFormData) => Promise<void>; 
+  addOrUpdatePhoto: () => Promise<void>;
   removePhoto: (id: number) => Promise<void>;
-  startUploadAnimation: (id: number) => void;
   setPage: (page: number) => void;
 }
+
 export const usePhotoStore = create<PhotoState>((set, get) => ({
   photos: [],
-  formData: {},
+  formData: {} as PhotoFormData,
   editingPhoto: null,
   isModalOpen: false,
   isUploading: false,
@@ -50,17 +51,19 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
     set((state) => ({ formData: { ...state.formData, ...data } })),
 
   openAddModal: () =>
-    set({ editingPhoto: null, isModalOpen: true, formData: {} }),
+    set({ editingPhoto: null, isModalOpen: true, formData: {} as PhotoFormData }),
 
   openEditModal: (photo) =>
-    set({ editingPhoto: photo, isModalOpen: true, formData: photo }),
+    set({ editingPhoto: photo, isModalOpen: true, formData: photo as PhotoFormData }),
   closeModal: () =>
-    set({ isModalOpen: false, formData: {}, editingPhoto: null }),
+    set({ isModalOpen: false, formData: {} as PhotoFormData, editingPhoto: null }),
 
-  addOrUpdatePhoto: async (payload: Partial<Photo>) => {
-    const { editingPhoto, currentPage } = get();
+  addOrUpdatePhoto: async () => {
+    const { editingPhoto, currentPage, formData } = get();
     try {
       let res;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { slug, ...payload } = formData;
       if (editingPhoto) {
         res = await updatePhoto(editingPhoto.id, payload);
         showToast.success(res.message || "Cập nhật ảnh thành công", {
@@ -90,11 +93,6 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
       console.error(error);
       showToast.error("Xóa ảnh thất bại", { duration: 3000 });
     }
-  },
-
-  startUploadAnimation: (id: number) => {
-    set({ isUploading: true, uploadedPhotoId: id });
-    setTimeout(() => set({ isUploading: false, uploadedPhotoId: null }), 6000);
   },
 
   // Cập nhật trang hiện tại

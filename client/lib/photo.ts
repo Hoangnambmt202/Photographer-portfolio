@@ -28,15 +28,29 @@ export async function getPhotos(
 
 // ✅ Tạo ảnh (FormData hoặc JSON)
 export async function createPhoto(data: any) {
+  const form = new FormData();
+
+  if (data.title) form.append("title", data.title);
+  if (data.description) form.append("description", data.description);
+  if (data.status) form.append("status", data.status);
+  if (data.album_id) form.append("album_id", String(data.album_id));
+  if (data.taken_at) form.append("taken_at", data.taken_at);
+
+  // File
+  if (data.image_url instanceof File) {
+    form.append("image_url", data.image_url); // ✔ backend yêu cầu image_url
+  }
+
   const res = await fetch(`${API_BASE}/photos`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    body: form,
     credentials: "include",
-    body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Không thể tạo photo");
+
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
+
 
 export async function updatePhoto(id: number, data: any) {
   const res = await fetch(`${API_BASE}/photos/${id}`, {

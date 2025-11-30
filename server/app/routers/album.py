@@ -34,7 +34,7 @@ async def create_album(
     if cover_image:
         upload = cloudinary.uploader.upload(
             cover_image.file,
-            folder="albums/covers",
+            folder="photographer_albums",
             resource_type="image"
         )
         cover_url = upload.get("secure_url")

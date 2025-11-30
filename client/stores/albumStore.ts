@@ -5,7 +5,7 @@ import { Album, AlbumBaseState, AlbumFormData } from "@/types";
 
 interface AlbumState extends AlbumBaseState {
   fetchAlbums: () => Promise<void>;
-  setFormData: (data: Partial<Album>) => void;
+  setFormData: (data: AlbumFormData) => void;
   openAddModal: () => void;
   openEditModal: (album: Album) => void;
   closeModal: () => void;

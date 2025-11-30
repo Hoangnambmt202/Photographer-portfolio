@@ -2,25 +2,32 @@
 import UploadButton from "@/components/common/UploadButton";
 import { usePhotoStore } from "@/stores/photoStore";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function PhotoForm() {
   const { formData, setFormData, addOrUpdatePhoto, closeModal } =
     usePhotoStore();
-  const [uploadType, setUploadType] = useState<"file" | "drive">("file");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
-  // 🔹 Tạo slug chỉ để hiển thị (server sẽ tự tạo)
+  useEffect(() => {
+    // Khi edit album, load ảnh từ DB
+    if (formData.image_url && typeof formData.image_url === "string") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPreview(formData.image_url);
+    }
+  }, [formData.image_url]);
+  // Tạo slug
   function toSlug(str: string) {
     return str
-      .normalize("NFD") // tách dấu khỏi ký tự
-      .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "d")
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-") // thay ký tự đặc biệt bằng dấu "-"
-      .replace(/^-+|-+$/g, ""); // xóa dấu "-" đầu và cuối
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,138 +35,123 @@ export default function PhotoForm() {
     const slug = toSlug(title);
     setFormData({ title, slug });
   };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handleSubmit = (e: React.FormEvent) => {
+    setFormData({ image_url: file });
+
+    setPreview(URL.createObjectURL(file));
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addOrUpdatePhoto();
+    await addOrUpdatePhoto();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto scrollbar-hide ">
+    <form
+      onSubmit={handleSubmit}
+      className="p-6 space-y-4 overflow-y-auto scrollbar-hide"
+    >
+      {/* Tên ảnh */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Tên ảnh
         </label>
         <input
           type="text"
-          value={formData.title}
+          value={formData.title ?? ""}
           onChange={handleTitleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
           placeholder="Nhập tên ảnh"
           required
         />
       </div>
 
+      {/* Slug */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Slug
         </label>
         <input
           type="text"
-          value={formData.slug}
+          value={formData.slug ?? ""}
           onChange={(e) => setFormData({ slug: e.target.value })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Slug tự động tạo, có thể chỉnh.
-        </p>
       </div>
 
+      {/* Chi tiết */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Chi tiết
         </label>
         <input
           type="text"
-          value={formData.description}
+          value={formData.description ?? ""}
           onChange={(e) => setFormData({ description: e.target.value })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
         />
       </div>
-      <div className="flex justify-between">
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={uploadType === "file"}
-              onChange={() => setUploadType("file")}
-            />
-            <span className="text-sm text-gray-700">Upload file ảnh</span>
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={uploadType === "drive"}
-              onChange={() => setUploadType("drive")}
-            />
-            <span className="text-sm text-gray-700 ">Link ảnh từ Drive</span>
-          </label>
-        </div>
+      {/* Trạng thái */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Trạng thái
+        </label>
+        <select
+          value={formData.status || "draft"}
+          onChange={(e) => setFormData({ status: e.target.value })}
+          className="w-full border rounded px-3 py-2"
+        >
+          <option value="public">Công khai</option>
+          <option value="private">Riêng tư</option>
+          <option value="draft">Nháp</option>
+          <option value="archived">Lưu trữ</option>
+        </select>
       </div>
 
       {/* Upload file */}
-      {uploadType === "file" && (
-        <div className="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl">
-          <div className="md:flex">
-            <div className="w-full p-3">
-              <div className="relative h-48 rounded-lg border-2 border-blue-500 bg-gray-50 flex justify-center items-center shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
-                <div className="absolute flex flex-col items-center">
+      <div className="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl">
+        <div className="md:flex">
+          <div className="w-full p-3">
+            <div className="relative h-48 rounded-lg border-2 border-blue-500 bg-gray-50 flex justify-center items-center shadow-lg hover:shadow-xl transition">
+              {/* Preview nếu có ảnh */}
+              {preview ? (
+                <Image
+                  src={preview}
+                  alt="Preview"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              ) : (
+                <div className="absolute text-center pointer-events-none ">
                   <Image
-                    alt="File Icon"
-                    className="mb-3"
                     src="https://img.icons8.com/dusk/64/000000/file.png"
+                    alt="icon"
                     width={80}
                     height={80}
+                    className="text-center"
                   />
-                  <span className="block text-gray-500 font-semibold">
-                    Kéo &amp; Thả file tại đây
-                  </span>
-                  <span className="block text-gray-400 font-normal mt-1">
-                    hoặc click để upload
-                  </span>
+                  <p className="text-gray-500">Kéo thả hoặc click để upload</p>
                 </div>
-                <input
-                  className="h-full w-full opacity-0 cursor-pointer"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setFile(e.target.files[0]);
-                    }
-                  }}
-                />
-              </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="h-full w-full opacity-0 cursor-pointer"
+                onChange={handleChange}
+              />
             </div>
           </div>
         </div>
-      )}
-
-      {/* Upload từ Drive */}
-      {uploadType === "drive" && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Link ảnh từ Drive
-          </label>
-
-          <input
-            type="text"
-            value={formData.image_url || ""}
-            onChange={(e) => setFormData({ image_url: e.target.value })}
-            className=" px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-          />
-          <label className="block text-sm font-medium text-gray-700">
-            Upload từ drive
-          </label>
-        </div>
-      )}
+      </div>
 
       {/* Buttons */}
       <div className="flex space-x-3 pt-4 justify-end">
         <button
           type="button"
           onClick={closeModal}
-          className=" px-4 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+          className="px-4 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 transition"
         >
           Hủy
         </button>
