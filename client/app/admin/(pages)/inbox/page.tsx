@@ -306,8 +306,8 @@ export default function InboxPage() {
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
-                  <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                  <div className="relative shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                       {getInitials(conv.userName)}
                     </div>
                     {conv.isOnline && (
@@ -326,7 +326,7 @@ export default function InboxPage() {
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                         )}
                       </div>
-                      <span className="text-xs text-gray-500 flex-shrink-0">
+                      <span className="text-xs text-gray-500 shrink-0">
                         {conv.lastMessageTime}
                       </span>
                     </div>
@@ -335,7 +335,7 @@ export default function InboxPage() {
                         {conv.lastMessage}
                       </p>
                       {conv.unreadCount > 0 && (
-                        <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full flex-shrink-0">
+                        <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full shrink-0">
                           {conv.unreadCount}
                         </span>
                       )}
@@ -369,7 +369,7 @@ export default function InboxPage() {
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                   {getInitials(selectedConversation.userName)}
                 </div>
                 {selectedConversation.isOnline && (
@@ -476,13 +476,13 @@ export default function InboxPage() {
           {/* Input Area */}
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-end gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
                 <Paperclip className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
                 <ImageIcon className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0">
                 <Smile className="w-5 h-5 text-gray-600" />
               </button>
               <textarea
@@ -501,7 +501,7 @@ export default function InboxPage() {
               <button
                 onClick={handleSendMessage}
                 disabled={!messageInput.trim()}
-                className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors flex-shrink-0"
+                className="p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors shrink-0"
               >
                 <Send className="w-5 h-5 text-white" />
               </button>
@@ -534,7 +534,7 @@ export default function InboxPage() {
           </div>
 
           <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-semibold">
+            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-semibold">
               {getInitials(selectedConversation.userName)}
             </div>
             <h4 className="font-semibold text-lg text-gray-900">
