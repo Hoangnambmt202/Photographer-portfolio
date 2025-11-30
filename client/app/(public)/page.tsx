@@ -1,5 +1,4 @@
-'use client'
-
+"use client";
 import HeroSection from "@/components/public/sections/HeroSection";
 import AlbumSection from "@/components/public/sections/AlbumSection";
 import ServicesSection from "@/components/public/sections/ServiceSection";

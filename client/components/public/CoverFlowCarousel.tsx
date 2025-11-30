@@ -1,5 +1,6 @@
-'use client'
-import  { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
@@ -24,12 +25,22 @@ const CoverFlowCarousel = () => {
 
   const [currentIndex, setCurrentIndex] = useState(7);
   const dragX = useMotionValue(0);
-  
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  // Lấy chiều rộng cửa sổ trên client
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize(); // set lúc mount
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const threshold = 25;
     const velocity = info.velocity.x;
     const offset = info.offset.x;
-    
+
     if ((offset > threshold || velocity > 400) && currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     } else if ((offset < -threshold || velocity < -400) && currentIndex < images.length - 1) {
@@ -37,103 +48,103 @@ const CoverFlowCarousel = () => {
     }
   };
 
-  const handleImageClick = (index:number) => {
+  const handleImageClick = (index: number) => {
     if (index !== currentIndex) {
       setCurrentIndex(index);
     }
   };
 
+  // Hàm tính translateX dựa trên width
+  const getTranslateX = (offset: number) => {
+    if (windowWidth < 640) return offset * 120;
+    if (windowWidth < 1024) return offset * 160;
+    return offset * 220;
+  };
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center overflow-hidden p-4 md:p-8">
-        
-      <div className="w-full h-full block md:flex items-center justify-center">
-        {/* Heading */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Những khoảnh khắc đáng nhớ
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Kéo để khám phá bộ sưu tập ảnh của tôi
-          </p>
-        </div>
-        {/* Carousel Container */}
-        <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center perspective-1000">
-          {/* Left Blur Overlay */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
-          
-          {/* Right Blur Overlay */}
-          <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center overflow-hidden p-4 md:p-8">
+      {/* Heading */}
+      <div className="text-center mb-16">
+        <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          Những khoảnh khắc đáng nhớ
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Kéo để khám phá bộ sưu tập ảnh của tôi
+        </p>
+      </div>
 
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            dragTransition={{ bounceStiffness: 800, bounceDamping: 30 }}
-            onDragEnd={onDragEnd}
-            style={{ x: dragX }}
-            className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          >
-            {images.map((image, index) => {
-              const offset = index - currentIndex;
-              const absOffset = Math.abs(offset);
-              
-              const rotateY = offset * 40;
-              const translateX = offset * (window.innerWidth < 640 ? 120 : window.innerWidth < 1024 ? 160 : 220);
-              const translateZ = -absOffset * 250;
-              const scale = 1 - absOffset * 0.22;
-              const opacity = absOffset < 3 ? 1 - absOffset * 0.3 : 0;
-              const blur = absOffset > 0 ? Math.min(absOffset * 4, 12) : 0;
-              const zIndex = images.length - absOffset;
+      {/* Carousel Container */}
+      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center perspective-1000">
+        {/* Left Blur */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
+        {/* Right Blur */}
+        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
 
-              return (
-                <motion.div
-                  key={image.id}
-                  onClick={() => handleImageClick(index)}
-                  className="absolute"
-                  style={{ zIndex }}
-                  animate={{
-                    rotateY,
-                    x: translateX,
-                    z: translateZ,
-                    scale,
-                    opacity,
-                    filter: `blur(${blur}px)`
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 35,
-                    mass: 0.4
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          dragTransition={{ bounceStiffness: 800, bounceDamping: 30 }}
+          onDragEnd={onDragEnd}
+          style={{ x: dragX }}
+          className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+        >
+          {images.map((image, index) => {
+            const offset = index - currentIndex;
+            const absOffset = Math.abs(offset);
+
+            const rotateY = offset * 40;
+            const translateX = getTranslateX(offset); // dùng hàm safe
+            const translateZ = -absOffset * 250;
+            const scale = 1 - absOffset * 0.22;
+            const opacity = absOffset < 3 ? 1 - absOffset * 0.3 : 0;
+            const blur = absOffset > 0 ? Math.min(absOffset * 4, 12) : 0;
+            const zIndex = images.length - absOffset;
+
+            return (
+              <motion.div
+                key={image.id}
+                onClick={() => handleImageClick(index)}
+                className="absolute"
+                style={{ zIndex }}
+                animate={{
+                  rotateY,
+                  x: translateX,
+                  z: translateZ,
+                  scale,
+                  opacity,
+                  filter: `blur(${blur}px)`
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 500,
+                  damping: 35,
+                  mass: 0.4
+                }}
+              >
+                <div
+                  className={`relative w-48 h-64 sm:w-64 sm:h-80 md:w-80 md:h-96 lg:w-96 lg:h-112 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl transform-gpu ${
+                    offset === 0 ? 'cursor-default' : 'cursor-pointer'
+                  }`}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    backfaceVisibility: 'hidden'
                   }}
                 >
-                  <div 
-                    className={`relative w-48 h-64 sm:w-64 sm:h-80 md:w-80 md:h-96 lg:w-96 lg:h-112 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl transform-gpu ${
-                      offset === 0 ? 'cursor-default' : 'cursor-pointer'
-                    }`}
-                    style={{
-                      transformStyle: 'preserve-3d',
-                      backfaceVisibility: 'hidden'
-                    }}
-                  >
-                    <Image
-                      width={"100"}
-                      height={"100"}
-                      src={image.url}
-                      alt={`Slide ${index + 1}`}
-                      className="w-full h-full object-cover cursor-grab"
-                      draggable="false"
-                    />
-                    
-                    {/* Subtle overlay for non-active images */}
-                    {offset !== 0 && (
-                      <div className="absolute inset-0 bg-black/20" />
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
+                  <Image
+                    width={100}
+                    height={100}
+                    src={image.url}
+                    alt={`Slide ${index + 1}`}
+                    className="w-full h-full object-cover cursor-grab"
+                    draggable={false}
+                  />
+                  {offset !== 0 && <div className="absolute inset-0 bg-black/20" />}
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
 
       <style jsx>{`

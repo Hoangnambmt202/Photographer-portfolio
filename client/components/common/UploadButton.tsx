@@ -1,4 +1,4 @@
-'use client';
+
 import styles from "@/styles/UploadButton.module.scss";
 
 const UploadButton = () => {

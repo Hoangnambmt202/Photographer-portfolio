@@ -1,4 +1,4 @@
-// Bắt buộc phải là Client Component để dùng hooks
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -37,10 +37,7 @@ const BackToTopButton = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Sử dụng Tailwind CSS để xử lý hiệu ứng xuất hiện / biến mất
-        - `opacity-0` và `scale-90` khi ẩn (isVisible = false)
-        - `opacity-100` và `scale-100` khi hiện (isVisible = true)
-      */}
+    
       <button
         type="button"
         onClick={scrollToTop}
