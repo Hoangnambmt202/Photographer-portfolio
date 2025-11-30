@@ -3,6 +3,7 @@
 import { useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import {motion} from "framer-motion"
+import Image from "next/image";
 const HeroSection = () => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -20,7 +21,9 @@ const HeroSection = () => {
         style={{ y }}
       >
         <div className="absolute inset-0 bg-linear-to-br from-gray-900 to-gray-700">
-          <img
+          <Image
+            width={100}
+            height={100}
             src="https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=1920&q=80" 
             alt="Hero" 
             className="w-full h-full object-cover opacity-60"
