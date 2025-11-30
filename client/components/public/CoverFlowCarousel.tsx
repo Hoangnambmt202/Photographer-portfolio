@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+'use client'
+import  { useState } from 'react';
 import { motion, useMotionValue, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 

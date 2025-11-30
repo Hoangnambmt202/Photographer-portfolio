@@ -1,6 +1,8 @@
+'use client'
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import {motion} from "framer-motion";
+import Image from "next/image";
 
 const ContactSection = () => {
   const ref = useRef(null);
@@ -9,10 +11,13 @@ const ContactSection = () => {
   return (
     <section ref={ref} id="contact" className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0">
-        <img
+        <Image
+        width={100}
+        height={100}
           src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80" 
           alt="Contact" 
           className="w-full h-full object-cover"
+          
         />
         <div className="absolute inset-0 bg-linear-to-br from-black/70 to-black/50"></div>
       </div>

@@ -1,6 +1,8 @@
+'use client'
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import {motion} from "framer-motion";
+import Image from "next/image";
 
 const ServicesSection = () => {
   const ref = useRef(null);
@@ -17,7 +19,9 @@ const ServicesSection = () => {
   return (
     <section ref={ref} id="services" className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0">
-        <img
+        <Image
+          width={100}
+          height={100}
           src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1920&q=80" 
           alt="Services" 
           className="w-full h-full object-cover"

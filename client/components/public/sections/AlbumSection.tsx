@@ -1,7 +1,7 @@
 import { useInView, motion } from "framer-motion";
 import { useRef, useState } from "react";
 
-const AlbumCard = ({ title, count, coverImage, index }:any) => {
+const AlbumCard = ({ title, count, coverImage, index }:{title:string, count:number, coverImage:string, index:number}) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [isHovered, setIsHovered] = useState(false);

@@ -1,3 +1,4 @@
+'use client'
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate , PanInfo } from 'framer-motion';
 import { MoveHorizontal } from 'lucide-react';
