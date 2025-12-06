@@ -30,6 +30,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_contacts_id'), 'contacts', ['id'], unique=False)
+
     op.create_table('tags',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
@@ -48,7 +49,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+
     op.create_index(op.f('ix_albums_id'), 'albums', ['id'], unique=False)
+
     op.create_table('photos',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=150), nullable=True),
@@ -63,6 +66,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
+
     op.create_index(op.f('ix_photos_id'), 'photos', ['id'], unique=False)
     op.create_table('photo_tags',
     sa.Column('photo_id', sa.Integer(), nullable=False),

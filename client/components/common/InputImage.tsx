@@ -40,6 +40,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       <input
         type="file"
         accept="image/*"
+       multiple
         className="absolute inset-0 opacity-0 cursor-pointer"
         onChange={handleChange}
       />

@@ -27,6 +27,7 @@ class PhotoResponse(PhotoBase):
     user_id: Optional[int]
     created_at: datetime
     tags: List[str] = []
+    order: Optional[int] = None
 
     class Config:
         from_attributes = True

@@ -14,12 +14,13 @@ import {
   Image as ImageIcon,
   SortAsc,
   SortDesc,
+  Share2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import SearchInput from "@/components/common/SearchInput";
 import { useCategoryStore } from "@/stores/categoryStore";
 import Image from "next/image";
-
+import {useRouter} from "next/navigation";
 
 export default function AlbumsPage() {
   const {
@@ -46,6 +47,7 @@ export default function AlbumsPage() {
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const router = useRouter();
   useEffect(() => {
     fetchAlbums();
     fetchCategories();
@@ -377,13 +379,19 @@ const placeholderImage = "https://images.unsplash.com/photo-1654124803058-c814dc
                 <div className="flex items-center justify-between text-gray-500 text-sm mb-4">
                   {/* <span>{album.photos} photos</span> */}
                   <span>
-                    {/* {new Date(album.date).toLocaleDateString("vi-VN")} */}
+                    {/* {new Date(album.created_at).toLocaleDateString("vi-VN")} */}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                  <button className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" onClick={() => {
+                    router.push(`/admin/albums/${album.id}`)
+                  }}>
                     <Eye className="w-4 h-4" />
                     <span className="text-sm">View</span>
+                  </button>
+                  <button  className="flex items-center justify-center p-2 bg-gray-100 rounded-lg hover:bg-blue-400 transition-colors">
+                    <Share2 className="w-4 h-4" />
+                   
                   </button>
                   <button
                     className="flex items-center justify-center p-2 bg-blue-300 rounded-lg hover:bg-blue-400 transition-colors"

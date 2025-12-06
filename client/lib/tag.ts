@@ -1,0 +1,29 @@
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+// ✅ Lấy danh sách tags
+export async function getTags() {
+  const res = await fetch(`${API_BASE}/tags`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Không thể tải danh sách tags: ${err}`);
+  }
+
+  return await res.json();
+}
+
+// ✅ Tạo tag mới
+export async function createTag(data: { name: string }) {
+  const res = await fetch(`${API_BASE}/tags`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}

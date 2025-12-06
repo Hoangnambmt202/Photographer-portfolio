@@ -102,7 +102,7 @@ const PhotoSection = () => {
             className="col-span-12 md:col-span-8 md:row-span-1 flex items-center justify-center p-6"
             initial={{ opacity: 0, rotate: -5 }}
             animate={isInView ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: -5 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={{ duration: 0.8 }}
           >
             <p className={`"text-4xl md:text-5xl lg:text-6xl leading-relaxed text-right  text-gray-800" ${alex_brush_font.className}`}>
               Hãy để tôi ghi lại <br /> những khoảnh khắc đẹp nhất của bạn

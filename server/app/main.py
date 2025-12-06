@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.database import Base, engine
-from app.routers import user, album, photo, contact, auth, category, setting
+from app.routers import user, album, photo, contact, auth, category, setting, tag
 
 # Import models để Alembic biết
 Base.metadata.create_all(bind=engine)
@@ -29,6 +29,7 @@ app.include_router(contact.router)
 app.include_router(auth.router)
 app.include_router(category.router)
 app.include_router(setting.router)
+app.include_router(tag.router)
 
 
 @app.get("/")

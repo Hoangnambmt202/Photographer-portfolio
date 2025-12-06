@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createPhoto, deletePhoto, getPhotos, updatePhoto } from "@/lib/photo";
+import { createPhoto, deletePhoto, getPhotos, updatePhoto, getAlbumPhotos, reorderAlbumPhotos, setFeaturedPhoto } from "@/lib/photo";
 import { showToast } from "nextjs-toast-notify";
 
 import { Photo, PhotoBaseState, PhotoFormData } from "@/types";
@@ -14,6 +14,13 @@ interface PhotoState extends PhotoBaseState {
   addOrUpdatePhoto: () => Promise<void>;
   removePhoto: (id: number) => Promise<void>;
   setPage: (page: number) => void;
+  isLoading?: boolean;
+  
+  // New actions for album photos
+  albumPhotos: Photo[];
+  fetchAlbumPhotos: (albumId: number) => Promise<void>;
+  reorderPhotos: (albumId: number, photos: Array<{ id: number; order: number }>) => Promise<void>;
+  setFeatured: (photoId: number, albumId: number) => Promise<void>;
 }
 
 export const usePhotoStore = create<PhotoState>((set, get) => ({
@@ -28,10 +35,15 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   totalPages: 1,
   itemsPerPage: 10,
   totalItems: 0,
-
+  isLoading: false,
+  
+  // Album photos
+  albumPhotos: [],
+  
   // Lấy danh sách ảnh theo trang
   fetchPhotos: async (page = 1) => {
     try {
+      set({ isLoading: true });
       const { itemsPerPage } = get();
       const res = await getPhotos(page, itemsPerPage); // API cần hỗ trợ params page + limit
       set({
@@ -44,6 +56,9 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
     } catch (error) {
       console.error(error);
       showToast.error("Không thể tải danh sách ảnh", { duration: 3000 });
+    }
+    finally {
+      set({ isLoading: false });
     }
   },
 
@@ -97,4 +112,46 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
 
   // Cập nhật trang hiện tại
   setPage: (page: number) => set({ currentPage: page }),
+  
+  // ✅ Fetch album photos
+  fetchAlbumPhotos: async (albumId: number) => {
+    try {
+      set({ isLoading: true });
+      const res = await getAlbumPhotos(albumId);
+      set({ albumPhotos: res.data });
+    } catch (error) {
+      console.error(error);
+      showToast.error("Không thể tải ảnh trong album", { duration: 3000 });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  // ✅ Reorder photos in album
+  reorderPhotos: async (albumId: number, photos: Array<{ id: number; order: number }>) => {
+    try {
+      const res = await reorderAlbumPhotos(albumId, photos);
+      set({ albumPhotos: res.data });
+      showToast.success("Sắp xếp ảnh thành công", { duration: 3000 });
+    } catch (error) {
+      console.error(error);
+      showToast.error("Sắp xếp ảnh thất bại", { duration: 3000 });
+    }
+  },
+
+  // ✅ Set featured photo
+  setFeatured: async (photoId: number, albumId: number) => {
+    try {
+      const res = await setFeaturedPhoto(photoId, albumId);
+      // Update albumPhotos if it's loaded
+      const { albumPhotos } = get();
+      if (albumPhotos.length > 0) {
+        await get().fetchAlbumPhotos(albumId); // Refresh
+      }
+      showToast.success("Đặt ảnh nổi bật thành công", { duration: 3000 });
+    } catch (error) {
+      console.error(error);
+      showToast.error("Đặt ảnh nổi bật thất bại", { duration: 3000 });
+    }
+  },
 }));

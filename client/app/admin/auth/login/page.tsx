@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import {showToast} from "nextjs-toast-notify";
-
+import { showToast } from "nextjs-toast-notify";
+import LoaderInline from "@/components/common/LoaderInline";
 
 export default function AdminLogin() {
   const { login, error, loading } = useAuthStore();
@@ -14,38 +14,38 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  await login(email, password);
-  const user = useAuthStore.getState().user;
-  if (user) {
-    showToast.success("Đăng nhập thành công!", {
-      duration: 2000
-    });
-    setTimeout(() => {
-      router.push("/admin"); // redirect
-      
-    }, 2000);
-  } else {
-    showToast.error("Email hoặc mật khẩu không đúng!");
-  }
-};
+    e.preventDefault();
+    await login(email, password);
+    const user = useAuthStore.getState().user;
+    if (user) {
+      showToast.success("Đăng nhập thành công!", {
+        duration: 2000
+      });
+      setTimeout(() => {
+        router.push("/admin");
+      }, 2000);
+    } else {
+      showToast.error("Email hoặc mật khẩu không đúng!");
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated background elements */}
+    <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      {/* Animated background elements - smaller on mobile */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute -top-20 -right-20 w-40 h-40 md:-top-40 md:-right-40 md:w-80 md:h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 md:-bottom-40 md:-left-40 md:w-80 md:h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative w-full max-w-md px-6">
-        {/* Card with glassmorphism effect */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-purple-500 to-blue-600 rounded-2xl mb-4 shadow-lg">
+      {/* Main container - responsive width */}
+      <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg">
+        {/* Card with glassmorphism effect - smaller padding on mobile */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6 sm:p-8">
+          {/* Header - smaller on mobile */}
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-purple-500 to-blue-600 rounded-2xl mb-3 sm:mb-4 shadow-lg">
               <svg
-                className="w-8 h-8 text-white"
+                className="w-6 h-6 sm:w-8 sm:h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -58,15 +58,15 @@ export default function AdminLogin() {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
               Photographer Admin
             </h1>
-            <p className="text-gray-300 text-sm">
+            <p className="text-gray-300 text-xs sm:text-sm">
               Đăng nhập để quản lý hệ thống
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Email Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-200 block">
@@ -91,7 +91,7 @@ export default function AdminLogin() {
                 <input
                   type="email"
                   placeholder="admin@example.com"
-                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 pr-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -123,7 +123,7 @@ export default function AdminLogin() {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                  className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 pr-12 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -172,36 +172,27 @@ export default function AdminLogin() {
                 </button>
               </div>
             </div>
-            {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+            
+            {/* Error message */}
+            {error && (
+              <div className="mt-2">
+                <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-linear-to-r from-purple-500 to-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-6"
+              className="w-full bg-linear-to-r from-purple-500 to-blue-600 text-white font-semibold py-2.5 sm:py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-4 text-sm sm:text-base"
             >
               {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Đang đăng nhập...
-                </span>
+                <div className="flex items-center justify-center">
+                  <LoaderInline size={16} />
+                  <span className="ml-2">Đang đăng nhập...</span>
+                </div>
               ) : (
                 "Đăng nhập"
               )}
@@ -209,13 +200,15 @@ export default function AdminLogin() {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">Bảo mật với xác thực 2 lớp</p>
+          <div className="mt-4 sm:mt-6 text-center">
+            <p className="text-gray-400 text-xs sm:text-sm">
+              Bảo mật với xác thực 2 lớp
+            </p>
           </div>
         </div>
 
-        {/* Bottom text */}
-        <p className="text-center text-gray-400 text-xs mt-6">
+        {/* Bottom text - smaller on mobile */}
+        <p className="text-center text-gray-400 text-xs mt-4 sm:mt-6">
           © 2025 Admin Portal. All rights reserved.
         </p>
       </div>

@@ -10,6 +10,8 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import { usePhotoStore } from "@/stores/photoStore";
 import PhotoFilter from "@/components/admin/features/photo/PhotoFilter";
 import PhotoGrid from "@/components/admin/features/photo/PhotoGrid";
+// import Loader from "@/components/common/Loader";
+import LoaderBlock from "@/components/common/LoaderBlock";
 
 export default function PhotosPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +30,7 @@ export default function PhotosPage() {
     totalItems,
     itemsPerPage,
     setPage,
+    isLoading,
   } = usePhotoStore();
 
   useEffect(() => {
@@ -37,8 +40,8 @@ export default function PhotosPage() {
   }, [fetchAlbums, fetchCategories, fetchPhotos, currentPage]);
 
   const handlePageChange = (page: number) => {
-    setPage(page);       // cập nhật trang hiện tại trong store
-    fetchPhotos(page);   // gọi backend fetch dữ liệu trang mới
+    setPage(page); // cập nhật trang hiện tại trong store
+    fetchPhotos(page); // gọi backend fetch dữ liệu trang mới
   };
 
   const handleDelete = () => {
@@ -69,7 +72,7 @@ export default function PhotosPage() {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={totalItems}   // tổng item từ backend
+        totalItems={totalItems} // tổng item từ backend
         itemsPerPage={itemsPerPage} // số item mỗi trang
         onPageChange={handlePageChange}
       />
@@ -90,7 +93,9 @@ export default function PhotosPage() {
           </div>
         </div>
       )}
-
+      {isLoading && (
+        <LoaderBlock height={300} label="Đang tải danh sách ảnh..." />
+      )}
       <DeleteModal
         isOpen={deleteId !== null}
         onClose={() => setDeleteId(null)}

@@ -18,6 +18,11 @@ export async function createAlbum(data: any) {
   if (data.cover_image instanceof File) {
     form.append("cover_image", data.cover_image);
   }
+  
+  // Add tag_ids as JSON array
+  if (data.tag_ids && Array.isArray(data.tag_ids)) {
+    form.append("tag_ids", JSON.stringify(data.tag_ids));
+  }
 
   const res = await fetch(`${API_BASE}/albums`, {
     method: "POST",
@@ -36,6 +41,11 @@ export async function updateAlbum(id: number, data: any) {
   if (data.status) form.append("status", data.status);
   if (data.cover_image instanceof File) {
     form.append("cover_image", data.cover_image);
+  }
+  
+  // Add tag_ids as JSON array
+  if (data.tag_ids && Array.isArray(data.tag_ids)) {
+    form.append("tag_ids", JSON.stringify(data.tag_ids));
   }
 
   const res = await fetch(`${API_BASE}/albums/${id}`, {

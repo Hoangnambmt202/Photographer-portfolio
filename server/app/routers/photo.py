@@ -10,7 +10,6 @@ from app.config.database import get_db
 from app.schemas.photo import PhotoResponse
 from app.schemas.response import BaseResponse
 from app.models.photo import Photo
-
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/photos", tags=["Photos"])
@@ -143,3 +142,5 @@ def delete_photo(id: int, db: Session = Depends(get_db)):
     db.delete(photo)
     db.commit()
     return {"message": "Đã xóa ảnh thành công"}
+
+

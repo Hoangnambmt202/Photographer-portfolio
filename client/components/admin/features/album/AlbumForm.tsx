@@ -1,21 +1,34 @@
 "use client";
 import InputImage from "@/components/common/InputImage";
 import { useAlbumStore } from "@/stores/albumStore";
+import { useTagStore } from "@/stores/tagStore";
+import { useEffect } from "react";
+import TagSelect from "@/components/admin/TagSelect";
 
-export default function AlbumForm() {
+interface AlbumFormProps {
+  onClose?: () => void;
+  onAlbumCreated?: (albumId: number) => void;
+}
+
+export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
   const { formData, setFormData, addOrUpdateAlbum, closeModal, editingAlbum } =
     useAlbumStore();
+  const { fetchTags } = useTagStore();
+  useEffect(() => {
+    fetchTags();
+  }, [fetchTags]);
 
   function toSlug(str: string) {
     return str
-      .normalize("NFD") // tách dấu khỏi ký tự
-      .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/đ/g, "d")
       .replace(/Đ/g, "d")
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-") // thay ký tự đặc biệt bằng dấu "-"
-      .replace(/^-+|-+$/g, ""); // xóa dấu "-" đầu và cuối
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
+
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value;
     const slug = toSlug(title);
@@ -24,11 +37,21 @@ export default function AlbumForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addOrUpdateAlbum();
+    const result = await addOrUpdateAlbum();
+    // Call callback if provided (for creating album from photo form)
+    if (onAlbumCreated && result?.data?.id) {
+      onAlbumCreated(result.data.id);
+    }
+    if (onClose) {
+      onClose();
+    }
   };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 ">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-6 "
+      encType="multipart/form-data"
+    >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Tên album
@@ -59,10 +82,18 @@ export default function AlbumForm() {
           className="w-full border rounded px-3 py-2"
         />
       </div>
+      <TagSelect
+        defaultValues={formData.tags ?? []}
+        onChange={(tagObjects) => {
+          setFormData({ tags: tagObjects });
+        }}
+      />
+
       <div>
         <label htmlFor="">Ảnh thumbnail album</label>
         <InputImage />
       </div>
+
       <div>
         <label className="block text-sm mb-2">Trạng thái</label>
         <select
@@ -79,7 +110,10 @@ export default function AlbumForm() {
       <div className="flex justify-end gap-3">
         <button
           type="button"
-          onClick={closeModal}
+          onClick={() => {
+            closeModal();
+            onClose?.();
+          }}
           className="px-4 py-2 border rounded"
         >
           Hủy

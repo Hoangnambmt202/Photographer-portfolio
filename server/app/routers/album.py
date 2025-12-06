@@ -5,9 +5,16 @@ from app.config.database import get_db
 from app.config.cloudinary_config import cloudinary  
 from app.config.security import get_current_admin
 from app.models.album import Album
+from app.models.photo import Photo
+from app.models.tag import Tag
 from app.schemas.album import AlbumResponse
+from app.schemas.photo import PhotoResponse
 from app.schemas.response import BaseResponse
 import cloudinary.uploader
+import json
+from typing import Optional
+from pydantic import BaseModel
+from typing import List
 
 router = APIRouter(prefix="/api/albums", tags=["Albums"])
 
@@ -20,6 +27,7 @@ async def create_album(
     description: str = Form(None),
     status: str = Form("draft"),
     cover_image: UploadFile = File(None),
+    tag_ids: Optional[str] = Form(None),  # JSON array as string
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
@@ -46,6 +54,16 @@ async def create_album(
         cover_image=cover_url,
         status=status,
     )
+
+    # Parse and add tags
+    if tag_ids:
+        try:
+            tag_id_list = json.loads(tag_ids)
+            if isinstance(tag_id_list, list):
+                tags = db.query(Tag).filter(Tag.id.in_(tag_id_list)).all()
+                album.tags = tags
+        except (json.JSONDecodeError, ValueError):
+            pass
 
     db.add(album)
     db.commit()
@@ -97,6 +115,7 @@ async def update_album(
     description: str = Form(None),
     status: str = Form(None),
     cover_image: UploadFile = File(None),
+    tag_ids: Optional[str] = Form(None),  # JSON array as string
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
@@ -119,6 +138,16 @@ async def update_album(
         album.description = description
     if status:
         album.status = status
+
+    # Update tags
+    if tag_ids:
+        try:
+            tag_id_list = json.loads(tag_ids)
+            if isinstance(tag_id_list, list):
+                tags = db.query(Tag).filter(Tag.id.in_(tag_id_list)).all()
+                album.tags = tags
+        except (json.JSONDecodeError, ValueError):
+            pass
 
     db.commit()
     db.refresh(album)
@@ -145,4 +174,92 @@ def delete_album(album_id: int, db: Session = Depends(get_db), current_admin = D
     return BaseResponse(
         status="success",
         message="Xóa album thành công"
+    )
+# 🟨 5. GET /albums/{album_id}/photos - Lấy tất cả ảnh trong album
+@router.get("/{album_id}/photos", response_model=BaseResponse)
+def get_album_photos(
+    album_id: int,
+    db: Session = Depends(get_db)
+):
+    album = db.query(Album).filter(Album.id == album_id).first()
+    if not album:
+        raise HTTPException(status_code=404, detail="Album không tồn tại")
+    
+    photos = db.query(Photo).filter(
+        Photo.album_id == album_id
+    ).order_by(Photo.order).all()
+    
+    return BaseResponse(
+        status="success",
+        message="Danh sách ảnh trong album",
+        data=[PhotoResponse.model_validate(p) for p in photos]
+    )
+
+
+# 🟨 6. PATCH /albums/{album_id}/reorder-photos - Reorder photos bằng drag-drop
+class ReorderPhotosRequest(BaseModel):
+    photos: List[dict]  # [{id: int, order: int}, ...]
+
+@router.patch("/{album_id}/reorder-photos", response_model=BaseResponse)
+async def reorder_album_photos(
+    album_id: int,
+    request: ReorderPhotosRequest,
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin)
+):
+    album = db.query(Album).filter(Album.id == album_id).first()
+    if not album:
+        raise HTTPException(status_code=404, detail="Album không tồn tại")
+    
+    # Cập nhật order cho mỗi photo
+    for item in request.photos:
+        photo = db.query(Photo).filter(Photo.id == item['id']).first()
+        if photo and photo.album_id == album_id:
+            photo.order = item['order']
+    
+    db.commit()
+    
+    # Trả về danh sách ảnh đã reorder
+    photos = db.query(Photo).filter(
+        Photo.album_id == album_id
+    ).order_by(Photo.order).all()
+    
+    return BaseResponse(
+        status="success",
+        message="Reorder ảnh thành công",
+        data=[PhotoResponse.model_validate(p) for p in photos]
+    )
+
+
+# 🟨 7. PATCH /photos/{photo_id}/set-featured - Set ảnh featured của album
+class SetFeaturedRequest(BaseModel):
+    album_id: int
+
+@router.patch("/{photo_id}/set-featured", response_model=BaseResponse)
+async def set_featured_photo(
+    photo_id: int,
+    request: SetFeaturedRequest,
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin)
+):
+    photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo không tồn tại")
+    
+    album = db.query(Album).filter(Album.id == request.album_id).first()
+    if not album:
+        raise HTTPException(status_code=404, detail="Album không tồn tại")
+    
+    # Photo phải thuộc album này
+    if photo.album_id != request.album_id:
+        raise HTTPException(status_code=400, detail="Photo không thuộc album này")
+    
+    # Set featured_photo_id cho album
+    album.featured_photo_id = photo_id
+    db.commit()
+    
+    return BaseResponse(
+        status="success",
+        message="Đặt ảnh featured thành công",
+        data=PhotoResponse.model_validate(photo)
     )

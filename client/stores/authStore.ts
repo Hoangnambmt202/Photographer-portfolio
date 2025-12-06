@@ -29,7 +29,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       loading: false,
       error: null,
-
       fetchProfile: async () => {
         set({ loading: true });
         try {
@@ -39,12 +38,10 @@ export const useAuthStore = create<AuthState>()(
           } else {
             set({ user: null, loading: false });
           }
-        } catch (err) {
-          console.error("❌ fetchProfile error:", err);
+        } catch {
           set({ user: null, loading: false });
         }
       },
-
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {

@@ -10,6 +10,7 @@ export interface Photo {
   location?: string;
   album_id?: number | null;
   user_id?: number | null;
+  order?: number;
   created_at?: Date | null;
   status: string;
 }

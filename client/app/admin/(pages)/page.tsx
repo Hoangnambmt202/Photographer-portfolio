@@ -134,9 +134,7 @@ export default function Dashboard() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-            Dashboard Tổng Quan
-          </h1>
+         
           <p className="text-gray-600 text-lg">
             Chào mừng trở lại! Hôm nay là {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>

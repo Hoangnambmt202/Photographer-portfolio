@@ -71,3 +71,57 @@ export async function deletePhoto(id: number) {
   if (!res.ok) throw new Error("Không thể xóa photo");
   return await res.json();
 }
+
+
+// ✅ Lấy tất cả ảnh trong album
+export async function getAlbumPhotos(albumId: number) {
+  const res = await fetch(`${API_BASE}/albums/${albumId}/photos`, {
+    credentials: "include",
+  });
+  
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Không thể tải danh sách ảnh trong album: ${err}`);
+  }
+  
+  return await res.json(); // trả về { status, message, data: Photo[] }
+}
+
+
+// ✅ Reorder ảnh trong album (drag-drop)
+export async function reorderAlbumPhotos(
+  albumId: number,
+  photos: Array<{ id: number; order: number }>
+) {
+  const res = await fetch(`${API_BASE}/albums/${albumId}/reorder-photos`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ photos }),
+  });
+  
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Không thể reorder ảnh: ${err}`);
+  }
+  
+  return await res.json(); // trả về { status, message, data: Photo[] }
+}
+
+
+// ✅ Set featured photo cho album
+export async function setFeaturedPhoto(photoId: number, albumId: number) {
+  const res = await fetch(`${API_BASE}/photos/${photoId}/set-featured`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ album_id: albumId }),
+  });
+  
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Không thể set featured photo: ${err}`);
+  }
+  
+  return await res.json(); // trả về { status, message, data: Photo }
+}

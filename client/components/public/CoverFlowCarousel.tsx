@@ -62,9 +62,8 @@ const CoverFlowCarousel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center overflow-hidden p-4 md:p-8">
-      {/* Heading */}
-      <div className="text-center mb-16">
+    <div className="min-h-screen bg-white  flex flex-col md:flex-row items-center justify-center overflow-hidden p-4 md:p-8">
+     <div className="text-center mb-16 block">
         <h1 className="text-5xl font-bold text-gray-900 mb-4">
           Những khoảnh khắc đáng nhớ
         </h1>
@@ -75,10 +74,12 @@ const CoverFlowCarousel = () => {
 
       {/* Carousel Container */}
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center perspective-1000">
+         {/* Heading */}
+      
         {/* Left Blur */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
+        <div className="absolute left-0 md:left-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-linear-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
         {/* Right Blur */}
-        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-64 bg-linear-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-linear-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
 
         <motion.div
           drag="x"

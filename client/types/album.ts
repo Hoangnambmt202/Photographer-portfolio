@@ -1,5 +1,5 @@
+import { TagInput } from "./tag.types";
 
-// 1. Định nghĩa Album (Model chính từ API/Database)
 export interface Album {
     id: number;
     title: string;
@@ -8,18 +8,21 @@ export interface Album {
     cover_image: string; 
     status?: string;
     category_id?: number;
+    featured_photo_id?: number | null;
+    tags?: TagInput[];
     created_at?: Date;
+    updated_at?: Date;
 }
 
-
-export interface AlbumFormData extends Omit<Partial<Album>, 'cover_image'> {
+export interface AlbumFormData extends Omit<Partial<Album>, 'cover_image' | 'tags'> {
     cover_image?: string | File | undefined;
+    tags?: TagInput[];
 }
 
 // 3. Định nghĩa AlbumBaseState (Trạng thái tĩnh)
 export interface AlbumBaseState {
     albums: Album[];
-    formData: AlbumFormData; // Sử dụng Form Data đã fix
+    formData: AlbumFormData; 
     modalMode: "add" | "edit";
     editingAlbum: Album | null;
     isModalOpen: boolean;

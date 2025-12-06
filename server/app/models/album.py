@@ -1,10 +1,17 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum, Table
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.config.database import Base
 from sqlalchemy import Enum
 import enum
 
+# Association table for album-tag many-to-many relationship
+album_tags = Table(
+    "album_tags",
+    Base.metadata,
+    Column("album_id", Integer, ForeignKey("albums.id", ondelete="CASCADE")),
+    Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE")),
+)
 
 class AlbumStatus(enum.Enum):
     active = "active"
@@ -20,9 +27,12 @@ class Album(Base):
     description = Column(Text, nullable=True)
     cover_image = Column(String(255), nullable=True)
     status = Column(Enum(AlbumStatus), default=AlbumStatus.active, nullable=False)
+    featured_photo_id = Column(Integer, ForeignKey("photos.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     category_id = Column(Integer, ForeignKey("categories.id"))
     category = relationship("Category", back_populates="albums")
-    photos = relationship("Photo", back_populates="album", cascade="all, delete")
+    photos = relationship("Photo", back_populates="album", cascade="all, delete", foreign_keys="Photo.album_id")
+    featured_photo = relationship("Photo", foreign_keys=[featured_photo_id], uselist=False)
+    tags = relationship("Tag", secondary=album_tags, back_populates="albums")

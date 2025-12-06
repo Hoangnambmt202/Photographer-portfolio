@@ -28,9 +28,10 @@ class Photo(Base):
     status = Column(Enum(PhotoStatus), default=PhotoStatus.draft, nullable=False)
     album_id = Column(Integer, ForeignKey("albums.id", ondelete="SET NULL"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    order = Column(Integer, nullable=True, server_default='0')  # For sorting photos in album
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Quan hệ
-    album = relationship("Album", back_populates="photos")
+    album = relationship("Album", back_populates="photos", foreign_keys=[album_id])
     user = relationship("User", back_populates="photos")
     tags = relationship("Tag", secondary="photo_tags", back_populates="photos")

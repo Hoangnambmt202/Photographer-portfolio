@@ -61,7 +61,7 @@ const ContactSection = () => {
               className="text-2xl font-light"
               whileHover={{ scale: 1.05 }}
             >
-              📍 Hà Nội, Việt Nam
+              📍 Buôn Ma Thuột, Dak Lak, Việt Nam
             </motion.p>
           </motion.div>
         </div>
