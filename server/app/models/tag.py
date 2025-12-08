@@ -2,9 +2,6 @@ from sqlalchemy import Column, Integer, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from app.config.database import Base
 
-# Import album_tags from album.py to avoid circular imports
-# This will be defined in album.py
-
 class Tag(Base):
     __tablename__ = "tags"
 

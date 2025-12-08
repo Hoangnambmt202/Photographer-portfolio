@@ -3,15 +3,17 @@ from typing import Optional
 from datetime import datetime
 
 class CategoryBase(BaseModel):
+    id: int
     name: str
-    description: Optional[str] = None
+    
 
 class CategoryCreate(CategoryBase):
     slug: Optional[str] = None
 
+
 class CategoryResponse(CategoryBase):
-    id: int
     slug: str
+    description: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import SearchInput from "@/components/common/SearchInput";
 import { useCategoryStore } from "@/stores/categoryStore";
 import Image from "next/image";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AlbumsPage() {
   const {
@@ -33,7 +33,7 @@ export default function AlbumsPage() {
     closeModal,
     modalMode,
   } = useAlbumStore();
-  const {categories, fetchCategories} = useCategoryStore() 
+  const { categories, fetchCategories } = useCategoryStore();
 
   // Filter states
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
@@ -54,7 +54,8 @@ export default function AlbumsPage() {
   }, [fetchAlbums, fetchCategories]);
   // Categories và statuses
   const statuses = ["all", "active", "archived", "draft"];
-const placeholderImage = "https://images.unsplash.com/photo-1654124803058-c814dc42f60c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  const placeholderImage =
+    "https://images.unsplash.com/photo-1654124803058-c814dc42f60c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   // Filter và sort logic
   const filteredAlbums = albums
     .filter((album) => {
@@ -350,7 +351,13 @@ const placeholderImage = "https://images.unsplash.com/photo-1654124803058-c814dc
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="h-48 bg-linear-to-br from-blue-100 to-purple-100 relative">
-                <Image src={(album.cover_image ?? placeholderImage ) as string}  width={100} height={100} className="w-full h-full" alt={album.title}/>
+                <Image
+                  src={(album.cover_image ?? placeholderImage) as string}
+                  width={100}
+                  height={100}
+                  className="w-full h-full"
+                  alt={album.title}
+                />
                 <div className="absolute top-2 right-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -368,30 +375,49 @@ const placeholderImage = "https://images.unsplash.com/photo-1654124803058-c814dc
                       : "Nháp"}
                   </span>
                 </div>
+                <div className="absolute top-2 left-2">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700`}
+                  >
+                    {album.photo_quantity ?? 0} ảnh
+                  </span>
+                </div>
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-lg font-bold">{album.title}</h3>
+                </div>
+                <div className="flex items-center text-gray-500 text-sm mb-4">
+                  Danh mục:
                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {/* {album.category} */}
+                    {album.category?.name || "Chưa phân loại"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-gray-500 text-sm mb-4">
-                  {/* <span>{album.photos} photos</span> */}
-                  <span>
-                    {/* {new Date(album.created_at).toLocaleDateString("vi-VN")} */}
-                  </span>
+                <div className="flex items-center text-gray-500 text-sm mb-4">
+                  Tags:
+                  {album.tags?.map((tag) => {
+                    return (
+                      <span
+                        key={tag.id}
+                        className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                      >
+                        {tag.name}
+                      </span>
+                    );
+                  }) }
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" onClick={() => {
-                    router.push(`/admin/albums/${album.id}`)
-                  }}>
+                  <button
+                    className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    onClick={() => {
+                      router.push(`/admin/albums/${album.id}`);
+                    }}
+                  >
                     <Eye className="w-4 h-4" />
                     <span className="text-sm">View</span>
                   </button>
-                  <button  className="flex items-center justify-center p-2 bg-gray-100 rounded-lg hover:bg-blue-400 transition-colors">
+                  <button className="flex items-center justify-center p-2 bg-gray-100 rounded-lg hover:bg-blue-400 transition-colors">
                     <Share2 className="w-4 h-4" />
-                   
                   </button>
                   <button
                     className="flex items-center justify-center p-2 bg-blue-300 rounded-lg hover:bg-blue-400 transition-colors"

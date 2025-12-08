@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from slugify import slugify
 from app.config.database import get_db
 from app.config.cloudinary_config import cloudinary  
@@ -27,17 +28,18 @@ async def create_album(
     description: str = Form(None),
     status: str = Form("draft"),
     cover_image: UploadFile = File(None),
-    tag_ids: Optional[str] = Form(None),  # JSON array as string
+    category_id: str = Form(None),  # JSON array as string
+    tags: Optional[str] = Form(None),   # JSON string
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
     slug = slugify(title)
 
-    # Check slug exists
+    # Kiểm tra slug tồn tại
     if db.query(Album).filter(Album.slug == slug).first():
         raise HTTPException(status_code=400, detail="Slug đã tồn tại")
 
-    # Upload ảnh lên Cloudinary
+    # Upload cover
     cover_url = None
     if cover_image:
         upload = cloudinary.uploader.upload(
@@ -47,28 +49,65 @@ async def create_album(
         )
         cover_url = upload.get("secure_url")
 
+    # Tạo album
     album = Album(
         title=title,
         description=description,
         slug=slug,
         cover_image=cover_url,
         status=status,
+        category_id=category_id
     )
-
-    # Parse and add tags
-    if tag_ids:
-        try:
-            tag_id_list = json.loads(tag_ids)
-            if isinstance(tag_id_list, list):
-                tags = db.query(Tag).filter(Tag.id.in_(tag_id_list)).all()
-                album.tags = tags
-        except (json.JSONDecodeError, ValueError):
-            pass
 
     db.add(album)
     db.commit()
     db.refresh(album)
 
+    # Xử lý Tags
+    if tags:
+        try:
+            tags_list = json.loads(tags)
+
+            final_tag_objs = []
+
+            for tag_item in tags_list:
+
+                # ---- Tag cũ: có id ----
+                if "id" in tag_item and tag_item["id"]:
+                    tag = db.query(Tag).filter(Tag.id == tag_item["id"]).first()
+                    if tag:
+                        final_tag_objs.append(tag)
+                        continue
+
+                # ---- Tag mới: chỉ có name ----
+                tag_name = tag_item.get("name", "").strip()
+                if not tag_name:
+                    continue
+
+                # Kiểm tra tag name tồn tại chưa
+                existing = db.query(Tag).filter(Tag.name == tag_name).first()
+
+                if existing:
+                    final_tag_objs.append(existing)
+                else:
+                    # Tạo tag mới
+                    new_tag = Tag(
+                        name=tag_name,
+                        slug=slugify(tag_name)
+                    )
+                    db.add(new_tag)
+                    db.commit()
+                    db.refresh(new_tag)
+                    final_tag_objs.append(new_tag)
+
+            # Gán vào bảng trung gian
+            album.tags = final_tag_objs
+            db.commit()
+
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Tag format error: {str(e)}")
+
+    db.refresh(album)
     return BaseResponse(
         status="success",
         message="Tạo album thành công",
@@ -81,11 +120,28 @@ async def create_album(
 # ------------------------------------------------------
 @router.get("/", response_model=BaseResponse)
 def get_albums(db: Session = Depends(get_db)):
-    albums = db.query(Album).order_by(Album.created_at.desc()).all()
+    albums = (
+        db.query(
+            Album,
+            func.count(Photo.id).label("photo_quantity")
+        )
+        .outerjoin(Photo, Photo.album_id == Album.id)
+        .group_by(Album.id)
+        .order_by(Album.created_at.desc())
+        .all()
+    )
+
+    # Chuẩn hóa output
+    data = []
+    for album, photo_quantity in albums:
+        album_data = AlbumResponse.model_validate(album).model_dump()
+        album_data["photo_quantity"] = photo_quantity
+        data.append(album_data)
+
     return BaseResponse(
         status="success",
         message="Danh sách album",
-        data=[AlbumResponse.model_validate(a) for a in albums]
+        data=data
     )
 
 

@@ -5,6 +5,7 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/common/Button";
+import { showToast } from "nextjs-toast-notify";
 
 export default function CategoriesPage() {
   const {
@@ -25,6 +26,8 @@ export default function CategoriesPage() {
       deleteCategory(deleteId);
       setDeleteId(null);
     }
+    showToast.success("Xóa danh mục thành công!", {duration: 1500});
+    
   };
   if (categories.length === 0) {
     return (

@@ -188,7 +188,89 @@ export default function Dashboard() {
           ))}
         </motion.div>
 
-        {/* Main Content Grid */}
+
+        {/* Lịch hẹn sắp tới và doanh thu */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Upcoming Bookings */}
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
+          >
+            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-blue-50 to-cyan-50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <Calendar className="w-6 h-6 mr-2" />
+                Lịch hẹn sắp tới
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {upcomingBookings.map((booking, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.7 }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className={`absolute top-0 left-0 w-1 h-full bg-linear-to-b ${booking.color}`} />
+                    <div className="flex items-start justify-between mb-3 ml-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{booking.client}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{booking.type}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium bg-linear-to-r ${booking.color} text-white`}>
+                        {booking.time}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500 ml-3">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {booking.date}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Revenue Chart */}
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <TrendingUp className="w-6 h-6 mr-2" />
+                Doanh thu 6 tháng
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="flex items-end justify-between h-48 space-x-2">
+                {revenueData.map((data, index) => (
+                  <div key={index} className="flex-1 flex flex-col items-center justify-end h-full">
+                    <motion.div
+                      className="w-full bg-linear-to-t from-green-500 to-emerald-400 rounded-t-lg relative group cursor-pointer"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${data.value}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 + 0.8 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        {data.value}M
+                      </div>
+                    </motion.div>
+                    <p className="text-xs text-gray-600 mt-2 font-medium">{data.month}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+        {/* Tình trạng ảnh và trạng thái album */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Photo Status */}
           <motion.div
@@ -298,87 +380,7 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
-        {/* Bottom Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Upcoming Bookings */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
-          >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-blue-50 to-cyan-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <Calendar className="w-6 h-6 mr-2" />
-                Lịch hẹn sắp tới
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {upcomingBookings.map((booking, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.7 }}
-                    whileHover={{ y: -4, scale: 1.02 }}
-                    className="p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div className={`absolute top-0 left-0 w-1 h-full bg-linear-to-b ${booking.color}`} />
-                    <div className="flex items-start justify-between mb-3 ml-3">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{booking.client}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{booking.type}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium bg-linear-to-r ${booking.color} text-white`}>
-                        {booking.time}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 ml-3">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {booking.date}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Revenue Chart */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
-          >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <TrendingUp className="w-6 h-6 mr-2" />
-                Doanh thu 6 tháng
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="flex items-end justify-between h-48 space-x-2">
-                {revenueData.map((data, index) => (
-                  <div key={index} className="flex-1 flex flex-col items-center justify-end h-full">
-                    <motion.div
-                      className="w-full bg-linear-to-t from-green-500 to-emerald-400 rounded-t-lg relative group cursor-pointer"
-                      initial={{ height: 0 }}
-                      animate={{ height: `${data.value}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 + 0.8 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {data.value}M
-                      </div>
-                    </motion.div>
-                    <p className="text-xs text-gray-600 mt-2 font-medium">{data.month}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        
       </div>
     </div>
   );

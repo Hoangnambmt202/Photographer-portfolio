@@ -4,6 +4,7 @@ import { useAlbumStore } from "@/stores/albumStore";
 import { useTagStore } from "@/stores/tagStore";
 import { useEffect } from "react";
 import TagSelect from "@/components/admin/TagSelect";
+import { useCategoryStore } from "@/stores/categoryStore";
 
 interface AlbumFormProps {
   onClose?: () => void;
@@ -11,8 +12,8 @@ interface AlbumFormProps {
 }
 
 export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
-  const { formData, setFormData, addOrUpdateAlbum, closeModal, editingAlbum } =
-    useAlbumStore();
+  const { formData, setFormData, addOrUpdateAlbum, closeModal, editingAlbum } = useAlbumStore();
+  const {categories} =  useCategoryStore()
   const { fetchTags } = useTagStore();
   useEffect(() => {
     fetchTags();
@@ -39,9 +40,10 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
     e.preventDefault();
     const result = await addOrUpdateAlbum();
     // Call callback if provided (for creating album from photo form)
-    if (onAlbumCreated && result?.data?.id) {
-      onAlbumCreated(result.data.id);
+    if (onAlbumCreated && result.id) {
+      onAlbumCreated(result.id);
     }
+
     if (onClose) {
       onClose();
     }
@@ -81,6 +83,23 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
           onChange={(e) => setFormData({ description: e.target.value })}
           className="w-full border rounded px-3 py-2"
         />
+      </div>
+      <div>
+        <label className="block font-medium mb-2">Thuộc Danh mục: </label>
+
+        <select
+          className="w-full border rounded px-3 py-2"
+          value={formData.category_id ?? ""}
+          onChange={(e) => setFormData({ category_id: Number(e.target.value) })}
+        >
+          <option value="">-- Chọn danh mục --</option>
+
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
       <TagSelect
         defaultValues={formData.tags ?? []}

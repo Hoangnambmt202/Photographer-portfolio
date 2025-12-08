@@ -27,3 +27,24 @@ export async function createTag(data: { name: string }) {
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
+// ✅ Cập nhật tag
+export async function updateTag(id: number, data: { name: string }) {
+  const res = await fetch(`${API_BASE}/tags/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}
+// ✅ Xóa tag
+export async function deleteTag(id: number) {
+  const res = await fetch(`${API_BASE}/tags/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return;
+}

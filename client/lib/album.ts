@@ -18,10 +18,11 @@ export async function createAlbum(data: any) {
   if (data.cover_image instanceof File) {
     form.append("cover_image", data.cover_image);
   }
-  
-  // Add tag_ids as JSON array
-  if (data.tag_ids && Array.isArray(data.tag_ids)) {
-    form.append("tag_ids", JSON.stringify(data.tag_ids));
+  if (data.category_id) {
+    form.append("category_id", data.category_id.toString());
+  }
+  if (data.tags && Array.isArray(data.tags)) {
+    form.append("tags", JSON.stringify(data.tags));
   }
 
   const res = await fetch(`${API_BASE}/albums`, {

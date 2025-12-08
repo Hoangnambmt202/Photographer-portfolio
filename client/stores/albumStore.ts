@@ -9,7 +9,7 @@ interface AlbumState extends AlbumBaseState {
   openAddModal: () => void;
   openEditModal: (album: Album) => void;
   closeModal: () => void;
-  addOrUpdateAlbum: () => Promise<void>;
+  addOrUpdateAlbum: () => Promise<Album>;
   removeAlbum: (id: number) => Promise<void>;
 }
 
@@ -22,6 +22,7 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
 
   fetchAlbums: async () => {
     const res = await getAlbums();
+    console.log(res);
     set({ albums: res.data });
   },
 
@@ -46,23 +47,26 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
     set({ isModalOpen: false, formData: {} as AlbumFormData, editingAlbum: null }),
 
   addOrUpdateAlbum: async () => {
-    const { editingAlbum, formData } = get();
+  const { editingAlbum, formData } = get();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { slug, ...payload } = formData;
 
-    // Tách riêng slug ra để không gửi trong request
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { slug, ...payload } = formData;
+  let res;
 
-    if (editingAlbum) {
-      const res = await updateAlbum(editingAlbum.id, payload);
-      showToast.success(res.message, { duration: 3000 });
-    } else {
-      const res = await createAlbum(payload);
-      showToast.success(res.message, { duration: 3000 });
-    }
+  if (editingAlbum) {
+    res = await updateAlbum(editingAlbum.id, payload);
+  } else {
+    console.log("payload nhận được trc gửi",payload);
+    res = await createAlbum(payload);
+  }
 
-    await get().fetchAlbums();
-    get().closeModal();
-  },
+  showToast.success(res.message, { duration: 3000 });
+  await get().fetchAlbums();
+  get().closeModal();
+
+  return res.data;  // 👈 đảm bảo luôn return
+},
+
 
   removeAlbum: async (id) => {
     try {

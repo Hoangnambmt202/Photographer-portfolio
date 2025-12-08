@@ -120,21 +120,22 @@ export default function AlbumDetailPage() {
         >
           <ArrowLeft className="w-6 h-6 text-gray-600" />
         </button>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Album {album.title}</h1>
+         {/* Album Info */}
+      {album && (
+        <div className="bg-blue-100 border border-blue-200 rounded-lg p-4 flex-1">
+          <h1 className="text-3xl font-bold text-gray-900">Album <span className='text-blue-900'>{album.title}</span> </h1>
+          <p className="text-gray-900">Mô tả: <span className='text-blue-900'> {album.description}</span></p>
+        </div>
+      )}
+        
+      </div>
+<div>
+          
           <p className="text-gray-500 mt-1">
-           
             {album.featured_photo_id && ` • Featured: Photo #${album.featured_photo_id}`}
           </p>
         </div>
-      </div>
-
-      {/* Album Info */}
-      {album.description && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-blue-900">{album.description}</p>
-        </div>
-      )}
+     
 
       {/* Photos Grid with Drag & Drop */}
       {isLoading ? (

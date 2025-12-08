@@ -12,6 +12,7 @@ import {
   Calendar,
   Inbox,
   ChevronDown,
+  Tag,
 } from "lucide-react";
 import { useUIStore } from "@/stores/uiStore";
 import { usePathname, useRouter } from "next/navigation";
@@ -61,6 +62,7 @@ export default function AdminSidebar() {
       path: "/admin/categories",
     },
     { id: "services", name: "Dịch vụ", icon: Package, path: "/admin/service" },
+    { id: "tags", name: "Quản lý tag", icon: Tag, path: "/admin/tags" },
     { id: "calendar", name: "Lịch", icon: Calendar, path: "/admin/calendar" },
     {
       id: "settings",
