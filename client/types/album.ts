@@ -20,9 +20,10 @@ export interface Album {
 }
 
 export interface AlbumFormData
-  extends Omit<Partial<Album>, "cover_image" | "tags"> {
+  extends Omit<Partial<Album>, "cover_image" | "tags" | "category"> {
   cover_image?: string | File | undefined;
   tags?: TagInput[];
+  category?: number | null;
 }
 
 // 3. Định nghĩa AlbumBaseState (Trạng thái tĩnh)

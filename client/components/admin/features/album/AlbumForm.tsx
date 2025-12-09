@@ -89,8 +89,8 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
 
         <select
           className="w-full border rounded px-3 py-2"
-          value={formData.category_id ?? ""}
-          onChange={(e) => setFormData({ category_id: Number(e.target.value) })}
+          value={formData.category ?? ""}
+          onChange={(e) => setFormData({ category: Number(e.target.value) })}
         >
           <option value="">-- Chọn danh mục --</option>
 
@@ -107,7 +107,6 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
           setFormData({ tags: tagObjects });
         }}
       />
-
       <div>
         <label htmlFor="">Ảnh thumbnail album</label>
         <InputImage />

@@ -393,7 +393,7 @@ export default function AlbumsPage() {
                     {album.category?.name || "Chưa phân loại"}
                   </span>
                 </div>
-                <div className="flex items-center text-gray-500 text-sm mb-4">
+                <div className="flex items-center text-gray-500 text-sm mb-4 gap-1">
                   Tags:
                   {album.tags?.map((tag) => {
                     return (

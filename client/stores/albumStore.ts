@@ -22,7 +22,6 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
 
   fetchAlbums: async () => {
     const res = await getAlbums();
-    console.log(res);
     set({ albums: res.data });
   },
 
@@ -34,39 +33,59 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
       editingAlbum: null,
       modalMode: "add",
       isModalOpen: true,
-     formData: {} as AlbumFormData,
+      formData: {} as AlbumFormData,
     }),
   openEditModal: (album) =>
     set({
       editingAlbum: album,
       modalMode: "edit",
       isModalOpen: true,
-      formData: album as AlbumFormData,
+      formData: {
+        title: album.title,
+        slug: album.slug,
+        description: album.description || "",
+        category: album.category?.id ?? null,
+        status: album.status,
+        tags:
+          album.tags?.map((t) => ({
+            id: t.id,
+            value: t.name,
+          })) ?? [],
+        cover_image: undefined, // Không gán URL vào FormFile
+      },
     }),
+
   closeModal: () =>
-    set({ isModalOpen: false, formData: {} as AlbumFormData, editingAlbum: null }),
+    set({
+      isModalOpen: false,
+      formData: {} as AlbumFormData,
+      editingAlbum: null,
+    }),
 
   addOrUpdateAlbum: async () => {
-  const { editingAlbum, formData } = get();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { slug, ...payload } = formData;
+    const { editingAlbum, formData } = get();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { slug, ...payload } = formData;
 
-  let res;
+    let res;
 
-  if (editingAlbum) {
-    res = await updateAlbum(editingAlbum.id, payload);
-  } else {
-    console.log("payload nhận được trc gửi",payload);
-    res = await createAlbum(payload);
-  }
+    if (editingAlbum) {
+        const payloadUpdate = {
+    ...payload,
+    tags: formData.tags?.map(t => t.id) ?? [],   // 👈 ONLY ID LIST
+  };
+      console.log("payload nhận được trc gửi", payloadUpdate);
+      res = await updateAlbum(editingAlbum.id, payloadUpdate);
+    } else {
+      res = await createAlbum(payload);
+    }
 
-  showToast.success(res.message, { duration: 3000 });
-  await get().fetchAlbums();
-  get().closeModal();
+    showToast.success(res.message, { duration: 3000 });
+    await get().fetchAlbums();
+    get().closeModal();
 
-  return res.data;  // 👈 đảm bảo luôn return
-},
-
+    return res.data; // 👈 đảm bảo luôn return
+  },
 
   removeAlbum: async (id) => {
     try {

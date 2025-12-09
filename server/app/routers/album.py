@@ -28,7 +28,7 @@ async def create_album(
     description: str = Form(None),
     status: str = Form("draft"),
     cover_image: UploadFile = File(None),
-    category_id: str = Form(None),  # JSON array as string
+    category: str = Form(None),  # JSON array as string
     tags: Optional[str] = Form(None),   # JSON string
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
@@ -56,7 +56,7 @@ async def create_album(
         slug=slug,
         cover_image=cover_url,
         status=status,
-        category_id=category_id
+        category_id=category
     )
 
     db.add(album)
@@ -171,7 +171,8 @@ async def update_album(
     description: str = Form(None),
     status: str = Form(None),
     cover_image: UploadFile = File(None),
-    tag_ids: Optional[str] = Form(None),  # JSON array as string
+    tags: Optional[str] = Form(None),
+    category: str = Form(None), 
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
@@ -194,11 +195,13 @@ async def update_album(
         album.description = description
     if status:
         album.status = status
+    if category is not None:
+        album.category_id = category
 
     # Update tags
-    if tag_ids:
+    if tags:
         try:
-            tag_id_list = json.loads(tag_ids)
+            tag_id_list = json.loads(tags)
             if isinstance(tag_id_list, list):
                 tags = db.query(Tag).filter(Tag.id.in_(tag_id_list)).all()
                 album.tags = tags
