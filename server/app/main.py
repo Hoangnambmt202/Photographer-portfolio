@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
     if not admin:
         new_admin = User(
-            name="Admin",
+            full_name="Admin",
             email="admin@gmail.com",
             password=hash_password("123456")
         )
