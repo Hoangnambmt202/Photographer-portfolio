@@ -10,7 +10,8 @@ export async function loginAdmin(email: string, password: string) {
   });
 
   if (!res.ok) {
-    throw new Error("Đăng nhập thất bại");
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Đăng nhập thất bại");
   }
 
   return await res.json();
@@ -32,11 +33,25 @@ export async function logoutAdmin() {
 export async function getProfile() {
   const res = await fetch(`${API_BASE}/auth/me`, {
     method: "GET",
+    credentials: "include", 
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Không thể lấy thông tin người dùng");
+  }
+
+  return await res.json();
+}
+
+export async function refreshAccessToken() {
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: "POST",
     credentials: "include",
   });
 
   if (!res.ok) {
-    throw new Error("Không thể lấy thông tin người dùng");
+    throw new Error("Không thể làm mới token");
   }
 
   return await res.json();

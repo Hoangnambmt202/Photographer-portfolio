@@ -67,7 +67,7 @@ def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_
         value=access_token,
         httponly=True,     
         secure=True,     
-        samesite="none",
+        samesite="lax",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )
@@ -122,7 +122,7 @@ def refresh_token(response: Response, request: Request):
         value=new_access_token,
         httponly=True,
         secure=False,
-        samesite="lax",
+        samesite="none",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )

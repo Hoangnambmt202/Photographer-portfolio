@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
   }
 
   // ❌ Đã đăng nhập → không cho vào trang login
-  if (token && isLoginPage) {
+  if (token) {
     url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
