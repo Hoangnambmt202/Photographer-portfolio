@@ -13,7 +13,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     if (!user) fetchProfile();
-  }, [user, fetchProfile]);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">

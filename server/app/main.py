@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
         new_admin = User(
             full_name="Admin",
             email="admin@gmail.com",
+            is_admin=True,
             password=hash_password("123456")
         )
         db.add(new_admin)

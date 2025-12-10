@@ -53,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
             set({ error: res.message, loading: false });
             return false;
           }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
           set({ error: "Đăng nhập thất bại", loading: false });
           return false;
