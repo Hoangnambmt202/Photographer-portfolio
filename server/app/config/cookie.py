@@ -12,9 +12,8 @@ def cookie_config():
         # Cookie cho môi trường thật
         return {
             "httponly": True,
-            "secure": True,              # BẮT BUỘC dùng secure khi SameSite=None
+            "secure": True,           
             "samesite": "none",
-            "domain": os.getenv("COOKIE_DOMAIN", None),
             "path": "/",
         }
     else:
