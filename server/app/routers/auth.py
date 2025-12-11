@@ -11,10 +11,11 @@ from app.schemas.auth import RefreshRequest
 from datetime import timedelta
 from app.config.jwt import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.schemas.response import BaseResponse
-
+from app.config.cookie import cookie_config
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+config = cookie_config()
 
 # ----------------------
 # Đăng ký người dùng
@@ -65,22 +66,14 @@ def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_
     response.set_cookie(
         key="access_token",
         value=access_token,
-        httponly=True,     
-        secure=True,     
-        samesite="none",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path="/",
-        domain="taithai.vercel.app" 
+        **config
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        max_age=7 * 24 * 60 * 60,  # 7 ngày
-        path="/",
-        domain="taithai.vercel.app" ,
+        max_age=7 * 24 * 60 * 60,
+        **config
     )
     return BaseResponse(
         status="success",
@@ -122,12 +115,8 @@ def refresh_token(response: Response, request: Request):
     response.set_cookie(
         key="access_token",
         value=new_access_token,
-        httponly=True,
-        secure=False,
-        samesite="none",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path="/",
-        domain="taithai.vercel.app" 
+        **config
     )
 
     return BaseResponse(
