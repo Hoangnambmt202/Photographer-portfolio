@@ -7,7 +7,7 @@ export function getAccessToken() {
 }
 
 export async function loginAdmin(email: string, password: string) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`/api/proxy/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
