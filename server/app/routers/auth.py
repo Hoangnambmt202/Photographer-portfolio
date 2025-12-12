@@ -62,13 +62,6 @@ def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_
     refresh_token = create_refresh_token(
         data={"sub": str(user.id)}, expires_delta=timedelta(days=7)
     )
-    # Gửi cookie xuống client
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        **config
-    )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
@@ -78,7 +71,10 @@ def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_
     return BaseResponse(
         status="success",
         message="Đăng nhập thành công",
-        data=UserResponse.model_validate(user),
+        data= {
+            "user": UserResponse.model_validate(user),
+            "access_token": access_token,
+        }
     )
 
 # ----------------------

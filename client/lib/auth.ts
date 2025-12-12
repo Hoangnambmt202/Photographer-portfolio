@@ -1,21 +1,33 @@
-// lib/api/auth.ts
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export function getAccessToken() {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|; )access_token=([^;]*)/);
+  return match ? match[1] : null;
+}
 
 export async function loginAdmin(email: string, password: string) {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // ✅ gửi + nhận cookie
+    credentials: "include",
     body: JSON.stringify({ email, password }),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Đăng nhập thất bại");
+    throw new Error(data.message || "Đăng nhập thất bại");
   }
 
-  return await res.json();
+  // 👉 FE tự lưu access_token vào cookie FE (khác domain)
+  if (data.data?.access_token) {
+    document.cookie = `access_token=${data.data.access_token}; path=/; secure; samesite=none`;
+  }
+
+  return data;
 }
+
 
 export async function logoutAdmin() {
   const res = await fetch(`${API_BASE}/auth/logout`, {
@@ -31,18 +43,25 @@ export async function logoutAdmin() {
 }
 
 export async function getProfile() {
+  const token = getAccessToken();
+
   const res = await fetch(`${API_BASE}/auth/me`, {
     method: "GET",
-    credentials: "include", 
+    credentials: "include",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Không thể lấy thông tin người dùng");
+    throw new Error(data.message || "Không thể lấy thông tin người dùng");
   }
 
-  return await res.json();
+  return data;
 }
+
 
 export async function refreshAccessToken() {
   const res = await fetch(`${API_BASE}/auth/refresh`, {

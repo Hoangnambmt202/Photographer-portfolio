@@ -44,22 +44,32 @@ export const useAuthStore = create<AuthState>()(
       },
       login: async (email, password) => {
         set({ loading: true, error: null });
+
         try {
           const res = await loginAdmin(email, password);
+
           if (res.status === "success") {
-            set({ user: res.data, loading: false });
+            set({
+              user: res.data.user,
+              loading: false,
+            });
+
             return true;
           } else {
-            set({ error: res.message, loading: false });
+            set({
+              error: res.message,
+              loading: false,
+            });
             return false;
           }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-          set({ error: "Đăng nhập thất bại", loading: false });
+        } catch {
+          set({
+            error: "Đăng nhập thất bại",
+            loading: false,
+          });
           return false;
         }
       },
-
       logout: async () => {
         try {
           await logoutAdmin();
