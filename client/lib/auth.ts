@@ -1,14 +1,11 @@
-
+import { cookies } from "next/headers";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-export function getAccessToken() {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|; )access_token=([^;]*)/);
-  return match ? match[1] : null;
-}
+
 //****************************
 // LOGIN ADMIN
 //************************ */ */
 export async function loginAdmin(email: string, password: string) {
+  const cookieStore = await cookies()
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -20,7 +17,7 @@ export async function loginAdmin(email: string, password: string) {
     throw new Error(data.message || "Đăng nhập thất bại");
   }
   if (data.data?.access_token) {
-    document.cookie = `access_token=${data.data.access_token}; path=/; secure; samesite=none`;
+    cookieStore.set({name:'access_token',value: data.data?.access_token, httpOnly:true, secure: true, sameSite: "none", path:"/"} )
   }
 
   return data;
@@ -44,12 +41,12 @@ export async function logoutAdmin() {
 // GET PROFILE
 //************************ */ */
 export async function getProfile() {
-  const token = getAccessToken();
+ 
   const res = await fetch(`${API_BASE}/auth/me`, {
     method: "GET",
     credentials: "include",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json"
     },
   });
   const data = await res.json();
@@ -65,6 +62,9 @@ export async function getProfile() {
 export async function refreshAccessToken() {
   const res = await fetch(`${API_BASE}/auth/refresh`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
     credentials: "include",
   });
 

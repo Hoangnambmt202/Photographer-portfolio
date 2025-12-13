@@ -1,14 +1,13 @@
-import { getAccessToken } from "./auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const token = getAccessToken();
+
 // ✅ Lấy danh sách tags
 export async function getTags() {
   const res = await fetch(`${API_BASE}/tags`, {
     credentials: "include",
+    method: "GET",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
 
@@ -24,10 +23,7 @@ export async function getTags() {
 export async function createTag(data: { name: string }) {
   const res = await fetch(`${API_BASE}/tags`, {
     method: "POST",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -39,10 +35,7 @@ export async function createTag(data: { name: string }) {
 export async function updateTag(id: number, data: { name: string }) {
   const res = await fetch(`${API_BASE}/tags/${id}`, {
     method: "PUT",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -56,8 +49,7 @@ export async function deleteTag(id: number) {
     method: "DELETE",
     credentials: "include",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
   if (!res.ok) throw new Error(await res.text());

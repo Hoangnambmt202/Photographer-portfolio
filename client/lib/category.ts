@@ -1,7 +1,5 @@
-import { getAccessToken } from "./auth";
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const token = getAccessToken();
+
 export async function getCategories() {
   const res = await fetch(`${API_BASE}/categories`, {
     method: "GET",
@@ -18,10 +16,6 @@ export async function createCategory(data: {
 }) {
   const res = await fetch(`${API_BASE}/categories/`, {
     method: "POST",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -40,7 +34,6 @@ export async function updateCategory(
   const res = await fetch(`${API_BASE}/categories/${id}`, {
     method: "PUT",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "application/json",
     },
     credentials: "include",
@@ -55,7 +48,6 @@ export async function deleteCategoryApi(id: number) {
     method: "DELETE",
     credentials: "include",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "application/json",
     },
   });

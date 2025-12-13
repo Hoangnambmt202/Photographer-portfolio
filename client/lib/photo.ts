@@ -1,8 +1,6 @@
-import { getAccessToken } from "./auth";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const token = getAccessToken();
+
 // ✅ Lấy danh sách ảnh
 export async function getPhotos(
   page: number = 1,
@@ -16,7 +14,11 @@ export async function getPhotos(
   if (search) params.append("search", search);
 
   const res = await fetch(`${API_BASE}/photos?${params.toString()}`, {
+    method: "GET",
     credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
   });
 
   if (!res.ok) {
@@ -24,7 +26,8 @@ export async function getPhotos(
     throw new Error(`Không thể tải danh sách ảnh: ${err}`);
   }
 
-  return await res.json(); // trả về { total, page, limit, total_pages, data }
+  // trả về { total, page, limit, total_pages, data }
+  return await res.json(); 
 }
 
 
@@ -48,8 +51,7 @@ export async function createPhoto(data: any) {
     body: form,
     credentials: "include",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
 
@@ -61,10 +63,7 @@ export async function createPhoto(data: any) {
 export async function updatePhoto(id: number, data: any) {
   const res = await fetch(`${API_BASE}/photos/${id}`, {
     method: "PUT",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -77,8 +76,7 @@ export async function deletePhoto(id: number) {
     method: "DELETE",
     credentials: "include",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
   if (!res.ok) throw new Error("Không thể xóa photo");
@@ -90,9 +88,9 @@ export async function deletePhoto(id: number) {
 export async function getAlbumPhotos(albumId: number) {
   const res = await fetch(`${API_BASE}/albums/${albumId}/photos`, {
     credentials: "include",
+    method: "GET",
     headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
   
@@ -101,7 +99,8 @@ export async function getAlbumPhotos(albumId: number) {
     throw new Error(`Không thể tải danh sách ảnh trong album: ${err}`);
   }
   
-  return await res.json(); // trả về { status, message, data: Photo[] }
+  // trả về { status, message, data: Photo[] }
+  return await res.json(); 
 }
 
 
@@ -112,10 +111,7 @@ export async function reorderAlbumPhotos(
 ) {
   const res = await fetch(`${API_BASE}/albums/${albumId}/reorder-photos`, {
     method: "PATCH",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ photos }),
   });
@@ -125,7 +121,8 @@ export async function reorderAlbumPhotos(
     throw new Error(`Không thể reorder ảnh: ${err}`);
   }
   
-  return await res.json(); // trả về { status, message, data: Photo[] }
+  // trả về { status, message, data: Photo[] }
+  return await res.json(); 
 }
 
 
@@ -133,10 +130,7 @@ export async function reorderAlbumPhotos(
 export async function setFeaturedPhoto(photoId: number, albumId: number) {
   const res = await fetch(`${API_BASE}/photos/${photoId}/set-featured`, {
     method: "PATCH",
-    headers: {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ album_id: albumId }),
   });
@@ -146,5 +140,6 @@ export async function setFeaturedPhoto(photoId: number, albumId: number) {
     throw new Error(`Không thể set featured photo: ${err}`);
   }
   
-  return await res.json(); // trả về { status, message, data: Photo }
+  // trả về { status, message, data: Photo }
+  return await res.json(); 
 }
