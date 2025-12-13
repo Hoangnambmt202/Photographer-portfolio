@@ -1,5 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { getAccessToken } from "./auth";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const token = getAccessToken();
 export async function getCategories() {
   const res = await fetch(`${API_BASE}/categories`, {
     method: "GET",
@@ -16,7 +18,10 @@ export async function createCategory(data: {
 }) {
   const res = await fetch(`${API_BASE}/categories/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -24,14 +29,20 @@ export async function createCategory(data: {
   return await res.json();
 }
 
-export async function updateCategory(id: number, data: {
-  name: string;
-  slug: string;
-  description: string;
-}) {
+export async function updateCategory(
+  id: number,
+  data: {
+    name: string;
+    slug: string;
+    description: string;
+  }
+) {
   const res = await fetch(`${API_BASE}/categories/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -43,6 +54,10 @@ export async function deleteCategoryApi(id: number) {
   const res = await fetch(`${API_BASE}/categories/${id}`, {
     method: "DELETE",
     credentials: "include",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
   });
   if (!res.ok) throw new Error("Xóa danh mục thất bại");
   return await res.json();

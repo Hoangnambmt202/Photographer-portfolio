@@ -1,6 +1,8 @@
+import { getAccessToken } from "./auth";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
+const token = getAccessToken();
 // ✅ Lấy danh sách ảnh
 export async function getPhotos(
   page: number = 1,
@@ -45,6 +47,10 @@ export async function createPhoto(data: any) {
     method: "POST",
     body: form,
     credentials: "include",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
   });
 
   if (!res.ok) throw new Error(await res.text());
@@ -55,7 +61,10 @@ export async function createPhoto(data: any) {
 export async function updatePhoto(id: number, data: any) {
   const res = await fetch(`${API_BASE}/photos/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -67,6 +76,10 @@ export async function deletePhoto(id: number) {
   const res = await fetch(`${API_BASE}/photos/${id}`, {
     method: "DELETE",
     credentials: "include",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
   });
   if (!res.ok) throw new Error("Không thể xóa photo");
   return await res.json();
@@ -77,6 +90,10 @@ export async function deletePhoto(id: number) {
 export async function getAlbumPhotos(albumId: number) {
   const res = await fetch(`${API_BASE}/albums/${albumId}/photos`, {
     credentials: "include",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
   });
   
   if (!res.ok) {
@@ -95,7 +112,10 @@ export async function reorderAlbumPhotos(
 ) {
   const res = await fetch(`${API_BASE}/albums/${albumId}/reorder-photos`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
     credentials: "include",
     body: JSON.stringify({ photos }),
   });
@@ -113,7 +133,10 @@ export async function reorderAlbumPhotos(
 export async function setFeaturedPhoto(photoId: number, albumId: number) {
   const res = await fetch(`${API_BASE}/photos/${photoId}/set-featured`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
     credentials: "include",
     body: JSON.stringify({ album_id: albumId }),
   });
