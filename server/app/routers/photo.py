@@ -5,6 +5,7 @@ from slugify import slugify
 import cloudinary.uploader
 from datetime import datetime
 from typing import Optional, List
+from pathlib import Path
 from app.config.security import get_current_admin
 from app.config.database import get_db
 from app.schemas.photo import PhotoResponse
@@ -13,6 +14,19 @@ from app.models.photo import Photo
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/photos", tags=["Photos"])
+
+
+def _unique_slug(db: Session, base_slug: str) -> str:
+    """
+    Tạo slug unique để tránh lỗi unique constraint khi upload nhiều ảnh
+    hoặc upload ảnh trùng tên.
+    """
+    slug = base_slug or "photo"
+    i = 1
+    while db.query(Photo).filter(Photo.slug == slug).first():
+        slug = f"{base_slug}-{i}"
+        i += 1
+    return slug
 
 # 🟩 1. POST /photos (Tạo mới)
 @router.post("/", response_model=BaseResponse)
@@ -27,10 +41,7 @@ async def create_photo(
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
-    slug = slugify(title)
-    # Nếu có file upload
-    if db.query(Photo).filter(Photo.slug == slug).first():
-        raise HTTPException(status_code=400, detail="Slug đã tồn tại")
+    slug = _unique_slug(db, slugify(title))
     # Upload ảnh lên Cloudinary
     uploaded_url = None
     if image_url:
@@ -61,6 +72,63 @@ async def create_photo(
         message="Tạo ảnh thành công",
         data=PhotoResponse.model_validate(photo)
         )
+
+
+# 🟩 1b. POST /photos/bulk (Tạo nhiều ảnh cùng lúc)
+@router.post("/bulk", response_model=BaseResponse)
+async def create_photos_bulk(
+    images: List[UploadFile] = File(...),
+    description: str = Form(None),
+    taken_at: str = Form(None),
+    location: Optional[str] = Form(None),
+    album_id: Optional[int] = Form(None),
+    status: str = Form("draft"),
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin)
+):
+    if not images:
+        raise HTTPException(status_code=400, detail="Không có ảnh để upload")
+    if len(images) > 20:
+        raise HTTPException(status_code=400, detail="Chỉ cho phép upload tối đa 20 ảnh/lần")
+
+    taken_at_dt = datetime.fromisoformat(taken_at) if taken_at else None
+
+    created: list[PhotoResponse] = []
+    for image in images:
+        # lấy title từ filename (bỏ extension)
+        filename = image.filename or "photo"
+        title = Path(filename).stem.strip() or "photo"
+
+        slug = _unique_slug(db, slugify(title))
+
+        upload = cloudinary.uploader.upload(
+            image.file,
+            folder="photographer_photos",
+            resource_type="image"
+        )
+        uploaded_url = upload.get("secure_url")
+
+        photo = Photo(
+            title=title,
+            slug=slug,
+            description=description,
+            image_url=uploaded_url,
+            status=status,
+            taken_at=taken_at_dt,
+            location=location,
+            album_id=album_id,
+        )
+        db.add(photo)
+        db.flush()  # lấy id trước commit nếu cần
+        created.append(PhotoResponse.model_validate(photo))
+
+    db.commit()
+
+    return BaseResponse(
+        status="success",
+        message=f"Tải lên thành công {len(created)} ảnh",
+        data=created
+    )
 
 
 # 🟩 2. GET /photos

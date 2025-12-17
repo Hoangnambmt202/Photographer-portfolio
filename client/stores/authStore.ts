@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>()(
       fetchProfile: async () => {
         set({ loading: true });
         try {
-          const token = get().accessToken;
+          const token = get().accessToken ?? undefined;
           const res = await getProfile(token);
           if (res.status === "success") {
             set({ user: res.data, loading: false });
