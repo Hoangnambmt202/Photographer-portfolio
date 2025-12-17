@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createPhoto, deletePhoto, getPhotos, updatePhoto, getAlbumPhotos, reorderAlbumPhotos, setFeaturedPhoto } from "@/lib/photo";
+import { createPhoto, createPhotosBulk, deletePhoto, getPhotos, updatePhoto, getAlbumPhotos, reorderAlbumPhotos, setFeaturedPhoto } from "@/lib/photo";
 import { showToast } from "nextjs-toast-notify";
 
 import { Photo, PhotoBaseState, PhotoFormData } from "@/types";
@@ -85,10 +85,22 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
           duration: 3000,
         });
       } else {
-        res = await createPhoto(payload);
-        showToast.success(res.message || "Thêm ảnh thành công", {
-          duration: 3000,
-        });
+        // Multi upload: image_url = File[]
+        if (Array.isArray(payload.image_url)) {
+          const files = payload.image_url;
+          // Bỏ title/slug/image_url vì server bulk lấy title từ filename, image_url là files đã tách riêng
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { title: _title, image_url: _imageUrl, ...rest } = payload;
+          res = await createPhotosBulk(files, rest);
+          showToast.success(res.message || `Tải lên thành công ${files.length} ảnh`, {
+            duration: 3000,
+          });
+        } else {
+          res = await createPhoto(payload);
+          showToast.success(res.message || "Thêm ảnh thành công", {
+            duration: 3000,
+          });
+        }
       }
       await get().fetchPhotos(currentPage); // refresh trang hiện tại
       get().closeModal();
@@ -142,7 +154,7 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   // ✅ Set featured photo
   setFeatured: async (photoId: number, albumId: number) => {
     try {
-      const res = await setFeaturedPhoto(photoId, albumId);
+      await setFeaturedPhoto(photoId, albumId);
       // Update albumPhotos if it's loaded
       const { albumPhotos } = get();
       if (albumPhotos.length > 0) {

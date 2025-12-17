@@ -8,10 +8,10 @@ import { Plus, X } from "lucide-react";
 import AlbumForm from "../album/AlbumForm";
 
 export default function PhotoForm() {
-  const { formData, setFormData, addOrUpdatePhoto, closeModal } =
+  const { formData, setFormData, addOrUpdatePhoto, closeModal, editingPhoto } =
     usePhotoStore();
-  const { albums, openAddModal: openAlbumModal } = useAlbumStore();
-  
+  const { albums } = useAlbumStore();
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export default function PhotoForm() {
       setPreview(formData.image_url);
     }
   }, [formData.image_url]);
-  
+
   // Tạo slug
   function toSlug(str: string) {
     return str
@@ -42,19 +42,41 @@ export default function PhotoForm() {
     const slug = toSlug(title);
     setFormData({ title, slug });
   };
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setFormData({ image_url: file });
+  const fileNameToTitle = (name: string) => name.replace(/\.[^.]+$/, "");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    // Multi upload: lưu File[] vào image_url
+    if (files.length > 1) {
+      setFormData({ image_url: files, title: "", slug: "" });
+      setPreview(URL.createObjectURL(files[0]));
+      return;
+    }
+
+    const file = files[0];
+    const titleFromFile = fileNameToTitle(file.name);
+    const slug = toSlug(titleFromFile);
+
+    // Single upload: set title mặc định theo filename nếu user chưa nhập
+    setFormData({
+      image_url: file,
+      title: formData.title || titleFromFile,
+      slug: formData.slug || slug,
+    });
     setPreview(URL.createObjectURL(file));
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await addOrUpdatePhoto();
   };
+
+  const multiFiles =
+    !editingPhoto && Array.isArray(formData.image_url) ? formData.image_url : null;
+  const isMultiUpload = !!multiFiles && multiFiles.length > 1;
 
   return (
     <>
@@ -63,32 +85,36 @@ export default function PhotoForm() {
         className="p-6 space-y-4 overflow-y-auto scrollbar-hide"
       >
         {/* Tên ảnh */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tên ảnh
-          </label>
-          <input
-            type="text"
-            value={formData.title ?? ""}
-            onChange={handleTitleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            placeholder="Nhập tên ảnh"
-            required
-          />
-        </div>
+        {!isMultiUpload && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tên ảnh
+            </label>
+            <input
+              type="text"
+              value={formData.title ?? ""}
+              onChange={handleTitleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              placeholder="Nhập tên ảnh"
+              required
+            />
+          </div>
+        )}
 
         {/* Slug */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Slug
-          </label>
-          <input
-            type="text"
-            value={formData.slug ?? ""}
-            onChange={(e) => setFormData({ slug: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-          />
-        </div>
+        {!isMultiUpload && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Slug
+            </label>
+            <input
+              type="text"
+              value={formData.slug ?? ""}
+              onChange={(e) => setFormData({ slug: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
+          </div>
+        )}
 
         {/* Chi tiết */}
         <div>
@@ -102,7 +128,7 @@ export default function PhotoForm() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
           />
         </div>
-        
+
         {/* Trạng thái */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -128,7 +154,11 @@ export default function PhotoForm() {
           <div className="flex gap-2">
             <select
               value={formData.album_id ?? ""}
-              onChange={(e) => setFormData({ album_id: e.target.value ? Number(e.target.value) : undefined })}
+              onChange={(e) =>
+                setFormData({
+                  album_id: e.target.value ? Number(e.target.value) : undefined,
+                })
+              }
               className="flex-1 border rounded px-3 py-2"
             >
               <option value="">-- Chọn album --</option>
@@ -152,8 +182,17 @@ export default function PhotoForm() {
 
         {/* Upload file */}
         <div className="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Chọn ảnh upload (Tối đa 10MB, có thể upload nhiều ảnh)
+          </label>
+          {isMultiUpload && (
+            <p className="text-xs text-gray-500 mb-2">
+              Bạn đang upload {multiFiles?.length ?? 0} ảnh. Hệ thống sẽ tự dùng{" "}
+              <b>tên file</b> làm tên ảnh cho từng ảnh.
+            </p>
+          )}
           <div className="md:flex">
-            <div className="w-full p-3">
+            <div className="w-full">
               <div className="relative h-48 rounded-lg border-2 border-blue-500 bg-gray-50 flex justify-center items-center shadow-lg hover:shadow-xl transition">
                 {/* Preview nếu có ảnh */}
                 {preview ? (
@@ -172,12 +211,15 @@ export default function PhotoForm() {
                       height={80}
                       className="text-center"
                     />
-                    <p className="text-gray-500">Kéo thả hoặc click để upload</p>
+                    <p className="text-gray-500">
+                      Kéo thả hoặc click để upload
+                    </p>
                   </div>
                 )}
                 <input
                   type="file"
                   accept="image/*"
+                  multiple={!editingPhoto}
                   className="h-full w-full opacity-0 cursor-pointer"
                   onChange={handleChange}
                 />
@@ -212,7 +254,7 @@ export default function PhotoForm() {
                 <X className="w-6 h-6 cursor-pointer" />
               </button>
             </div>
-            <AlbumForm 
+            <AlbumForm
               onClose={() => setShowNewAlbumForm(false)}
               onAlbumCreated={(albumId) => {
                 // Auto-select the created album
