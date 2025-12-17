@@ -3,18 +3,21 @@ from typing import Optional
 from datetime import datetime
 
 class CategoryBase(BaseModel):
-    id: int
     name: str
+    slug: Optional[str] = None
+    description: Optional[str] = None
+
     
 
 class CategoryCreate(CategoryBase):
-    slug: Optional[str] = None
+    pass
+
 
 
 class CategoryResponse(CategoryBase):
-    slug: str
-    description: Optional[str] = None
+    id: int
     created_at: datetime
 
     class Config:
         from_attributes = True
+

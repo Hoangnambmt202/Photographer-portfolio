@@ -1,5 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_PREFIX = `${API_BASE}/photos`;
+
+const getStoredAccessToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (
+      parsed?.state?.accessToken ||
+      parsed?.state?.state?.accessToken ||
+      null
+    );
+  } catch {
+    return null;
+  }
+};
+
+const authHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  const token = getStoredAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
 
 // ✅ Lấy danh sách ảnh
 export async function getPhotos(
@@ -13,11 +37,11 @@ export async function getPhotos(
   });
   if (search) params.append("search", search);
 
-  const res = await fetch(`${API_BASE}/photos?${params.toString()}`, {
+  const res = await fetch(`${API_PREFIX}/?${params.toString()}`, {
     method: "GET",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
 
@@ -46,12 +70,12 @@ export async function createPhoto(data: any) {
     form.append("image_url", data.image_url); // ✔ backend yêu cầu image_url
   }
 
-  const res = await fetch(`${API_BASE}/photos`, {
+  const res = await fetch(`${API_PREFIX}`, {
     method: "POST",
     body: form,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
 
@@ -61,9 +85,9 @@ export async function createPhoto(data: any) {
 
 
 export async function updatePhoto(id: number, data: any) {
-  const res = await fetch(`${API_BASE}/photos/${id}`, {
+  const res = await fetch(`${API_PREFIX}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -72,11 +96,11 @@ export async function updatePhoto(id: number, data: any) {
 }
 
 export async function deletePhoto(id: number) {
-  const res = await fetch(`${API_BASE}/photos/${id}`, {
+  const res = await fetch(`${API_PREFIX}/${id}`, {
     method: "DELETE",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
   if (!res.ok) throw new Error("Không thể xóa photo");
@@ -86,11 +110,11 @@ export async function deletePhoto(id: number) {
 
 // ✅ Lấy tất cả ảnh trong album
 export async function getAlbumPhotos(albumId: number) {
-  const res = await fetch(`${API_BASE}/albums/${albumId}/photos`, {
+  const res = await fetch(`${API_PREFIX}/albums/${albumId}/photos`, {
     credentials: "include",
     method: "GET",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
   
@@ -109,9 +133,9 @@ export async function reorderAlbumPhotos(
   albumId: number,
   photos: Array<{ id: number; order: number }>
 ) {
-  const res = await fetch(`${API_BASE}/albums/${albumId}/reorder-photos`, {
+  const res = await fetch(`${API_PREFIX}/albums/${albumId}/reorder-photos`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify({ photos }),
   });
@@ -128,18 +152,17 @@ export async function reorderAlbumPhotos(
 
 // ✅ Set featured photo cho album
 export async function setFeaturedPhoto(photoId: number, albumId: number) {
-  const res = await fetch(`${API_BASE}/photos/${photoId}/set-featured`, {
+  const res = await fetch(`${API_PREFIX}/${photoId}/set-featured`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify({ album_id: albumId }),
   });
   
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Không thể set featured photo: ${err}`);
+    throw new Error(`Không thể set ảnh nổi bật: ${err}`);
   }
-  
   // trả về { status, message, data: Photo }
   return await res.json(); 
 }

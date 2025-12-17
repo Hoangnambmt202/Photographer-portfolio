@@ -7,6 +7,12 @@ export interface Tag {
   slug: string;
 }
 
+type BaseResponse<T> = {
+  status: string;
+  message: string;
+  data: T;
+};
+
 interface TagState {
   tags: Tag[];
   isLoading: boolean;
@@ -25,7 +31,7 @@ interface TagState {
   closeModal: () => void;
 }
 
-export const useTagStore = create<TagState>((set) => ({
+export const useTagStore = create<TagState>((set, get) => ({
   tags: [],
   isLoading: false,
 
@@ -36,17 +42,21 @@ export const useTagStore = create<TagState>((set) => ({
   fetchTags: async () => {
     set({ isLoading: true });
     const res = await getTags();
-    set({ tags: res.data || res, isLoading: false });
+    const data = (res as BaseResponse<Tag[]>).data ?? res;
+    set({ tags: data, isLoading: false });
   },
 
   createTag: async (name) => {
-    const newTag = await createTag({ name });
-    set((st) => ({ tags: [...st.tags, newTag] }));
+    const res = await createTag({ name });
+    const newTag = (res as BaseResponse<Tag>).data ?? res;
+    // đảm bảo danh sách tag luôn mới nhất theo server (và đúng thứ tự)
+    await get().fetchTags();
     return newTag;
   },
 
   updateTag: async (id, name) => {
-    const updated = await updateTag(id, { name });
+    const res = await updateTag(id, { name });
+    const updated = (res as BaseResponse<Tag>).data ?? res;
     set((st) => ({
       tags: st.tags.map((t) => (t.id === id ? updated : t)),
     }));

@@ -2,20 +2,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { loginAdmin, logoutAdmin, getProfile } from "@/lib/auth";
-
-interface User {
-  id: number;
-  email: string;
-  full_name: string;
-  avatar_url: string | null;
-  is_admin: boolean;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+import { User } from "@/types";
 
 interface AuthState {
   user: User | null;
+  accessToken : string | null;
   loading: boolean;
   error: string | null;
   fetchProfile: () => Promise<void>;
@@ -25,14 +16,16 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
+      accessToken: null,
       loading: false,
       error: null,
       fetchProfile: async () => {
         set({ loading: true });
         try {
-          const res = await getProfile();
+          const token = get().accessToken;
+          const res = await getProfile(token);
           if (res.status === "success") {
             set({ user: res.data, loading: false });
           } else {
@@ -44,16 +37,15 @@ export const useAuthStore = create<AuthState>()(
       },
       login: async (email, password) => {
         set({ loading: true, error: null });
-
         try {
           const res = await loginAdmin(email, password);
-
           if (res.status === "success") {
             set({
               user: res.data.user,
+              accessToken: res.data.access_token,
               loading: false,
             });
-
+            
             return true;
           } else {
             set({
@@ -82,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ user: state.user }), // chỉ lưu user
+      partialize: (state) => ({ user: state.user, accessToken: state.accessToken }), // lưu thêm token để gửi Bearer
     }
   )
 );

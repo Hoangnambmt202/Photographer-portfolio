@@ -1,32 +1,56 @@
-import { cookies } from "next/headers";
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
+  /\/$/,
+  ""
+);
+const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+const API_PREFIX = `${API_ROOT}/auth`;
+
+const getStoredAccessToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (
+      parsed?.state?.accessToken ||
+      parsed?.state?.state?.accessToken || // fallback for persisted shape
+      null
+    );
+  } catch {
+    return null;
+  }
+};
+
+const authHeaders = (token?: string): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  const accessToken = token || getStoredAccessToken();
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  return headers;
+};
 
 //****************************
 // LOGIN ADMIN
 //************************ */ */
 export async function loginAdmin(email: string, password: string) {
-  const cookieStore = await cookies()
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const body = new URLSearchParams({ email, password });
+  const res = await fetch(`${API_PREFIX}/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     credentials: "include",
-    body: JSON.stringify({ email, password }),
+    body,
   });
-  const data = await res.json();
+
   if (!res.ok) {
+    const data = await res.json();
     throw new Error(data.message || "Đăng nhập thất bại");
   }
-  if (data.data?.access_token) {
-    cookieStore.set({name:'access_token',value: data.data?.access_token, httpOnly:true, secure: true, sameSite: "none", path:"/"} )
-  }
-
-  return data;
+  return res.json();
 }
 //****************************
 // LOGOUT ADMIN
 //************************ */ */
 export async function logoutAdmin() {
-  const res = await fetch(`${API_BASE}/auth/logout`, {
+  const res = await fetch(`${API_PREFIX}/logout`, {
     method: "POST",
     credentials: "include",
   });
@@ -40,19 +64,16 @@ export async function logoutAdmin() {
 //****************************
 // GET PROFILE
 //************************ */ */
-export async function getProfile() {
- 
-  const res = await fetch(`${API_BASE}/auth/me`, {
+export async function getProfile(token?: string) {
+  const res = await fetch(`${API_PREFIX}/me`, {
     method: "GET",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(token),
     },
   });
   const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.message || "Không thể lấy thông tin người dùng");
-  }
+  if (!res.ok) return null;
   return data;
 }
 
@@ -60,11 +81,8 @@ export async function getProfile() {
 // REFRESH ACCESS TOKEN
 //************************ */ */
 export async function refreshAccessToken() {
-  const res = await fetch(`${API_BASE}/auth/refresh`, {
+  const res = await fetch(`${API_PREFIX}/refresh`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     credentials: "include",
   });
 

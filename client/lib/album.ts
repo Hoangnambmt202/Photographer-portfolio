@@ -1,12 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
+  /\/$/,
+  ""
+);
+const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+const ALBUMS_API = `${API_ROOT}/albums`;
+
+const getStoredAccessToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (
+      parsed?.state?.accessToken ||
+      parsed?.state?.state?.accessToken ||
+      null
+    );
+  } catch {
+    return null;
+  }
+};
+
+const authHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  const token = getStoredAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
 
 export async function getAlbums() {
-  const res = await fetch(`${API_BASE}/albums/`, {
+  const res = await fetch(`${ALBUMS_API}/`, {
     method: "GET",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
   if (!res.ok) throw new Error("Không thể tải danh sách album");
@@ -29,12 +57,12 @@ export async function createAlbum(data: any) {
     form.append("tags", JSON.stringify(data.tags));
   }
 
-  const res = await fetch(`${API_BASE}/albums`, {
+  const res = await fetch(`${ALBUMS_API}`, {
     method: "POST",
     body: form,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
 
@@ -57,12 +85,12 @@ export async function updateAlbum(id: number, data: any) {
     form.append("category", data.category.toString());
   }
 
-  const res = await fetch(`${API_BASE}/albums/${id}`, {
+  const res = await fetch(`${ALBUMS_API}/${id}`, {
     method: "PUT",
     body: form,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
 
@@ -71,11 +99,11 @@ export async function updateAlbum(id: number, data: any) {
 
 
 export async function deleteAlbum(id: number) {
-  const res = await fetch(`${API_BASE}/albums/${id}`, {
+  const res = await fetch(`${ALBUMS_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
   if (!res.ok) throw new Error("Không thể xóa album");

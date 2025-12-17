@@ -1,13 +1,41 @@
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
+  /\/$/,
+  ""
+);
+const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+const TAGS_API = `${API_ROOT}/tags`;
+
+const getStoredAccessToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return (
+      parsed?.state?.accessToken ||
+      parsed?.state?.state?.accessToken ||
+      null
+    );
+  } catch {
+    return null;
+  }
+};
+
+const authHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  const token = getStoredAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
 
 // ✅ Lấy danh sách tags
 export async function getTags() {
-  const res = await fetch(`${API_BASE}/tags`, {
+  const res = await fetch(`${TAGS_API}/`, {
     credentials: "include",
     method: "GET",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
 
@@ -21,9 +49,9 @@ export async function getTags() {
 
 // ✅ Tạo tag mới
 export async function createTag(data: { name: string }) {
-  const res = await fetch(`${API_BASE}/tags`, {
+  const res = await fetch(`${TAGS_API}/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -33,9 +61,9 @@ export async function createTag(data: { name: string }) {
 }
 // ✅ Cập nhật tag
 export async function updateTag(id: number, data: { name: string }) {
-  const res = await fetch(`${API_BASE}/tags/${id}`, {
+  const res = await fetch(`${TAGS_API}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -45,11 +73,11 @@ export async function updateTag(id: number, data: { name: string }) {
 }
 // ✅ Xóa tag
 export async function deleteTag(id: number) {
-  const res = await fetch(`${API_BASE}/tags/${id}`, {
+  const res = await fetch(`${TAGS_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders(),
     },
   });
   if (!res.ok) throw new Error(await res.text());

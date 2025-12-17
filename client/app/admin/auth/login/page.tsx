@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import { showToast } from "nextjs-toast-notify";
 import LoaderInline from "@/components/common/LoaderInline";
 
 export default function AdminLogin() {
-  const { login, error, loading } = useAuthStore();
+  const { login, error, loading, fetchProfile } = useAuthStore();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,17 +15,8 @@ export default function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password);
-    const user = useAuthStore.getState().user;
-    if (user) {
-      showToast.success("Đăng nhập thành công!", {
-        duration: 2000
-      });
-      setTimeout(() => {
-        router.push("/admin");
-      }, 2000);
-    } else {
-      showToast.error("Email hoặc mật khẩu không đúng!");
-    }
+    await fetchProfile()
+    router.push('/admin');
   };
 
   return (

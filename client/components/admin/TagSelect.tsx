@@ -20,7 +20,7 @@ export default function TagSelect({
   defaultValues = [],
   onChange,
 }: TagSelectProps) {
-  const { tags: globalTags, createTag } = useTagStore();
+  const { tags: globalTags, createTag, fetchTags } = useTagStore();
 
   // --- LOGIC XỬ LÝ DATA AN TOÀN ---
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,6 +38,10 @@ export default function TagSelect({
   const [options, setOptions] = useState<Option[]>([]);
   const [value, setValue] = useState<Option[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Thêm trạng thái loading khi tạo
+
+  useEffect(() => {
+    if (!globalTags || globalTags.length === 0) fetchTags();
+  }, [fetchTags, globalTags]);
 
   // 1. Load danh sách Tag có sẵn từ Store
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function TagSelect({
     const selectedOptions = newValue as Option[];
     
     setValue(selectedOptions);
-    
+    console.log("selectedOptions", selectedOptions);
     // Bắn dữ liệu ra ngoài cho form cha
     onChange(selectedOptions.map((o) => ({ id: o.id, value: o.value })));
   };
@@ -81,20 +85,19 @@ export default function TagSelect({
     try {
       // 1. Gọi API tạo tag (Store)
       const newTagData = await createTag(inputValue);
-      
       // 2. Convert data trả về thành Option
       const newOption = toOption(newTagData);
-
+      console.log("newOption", newOption);
       if (newOption) {
-        // 3. Cập nhật state nội bộ ngay lập tức để UI hiển thị
-        setOptions((prev) => [...prev, newOption]); // Thêm vào danh sách gợi ý
-        
-        const newValue = [...value, newOption]; // Thêm vào danh sách đang chọn
+        // 3. Thêm vào danh sách đang chọn (isMulti) để hiển thị ngay lập tức
+        const newValue = [...value, newOption];
         setValue(newValue);
 
         // 4. Bắn dữ liệu ra ngoài
         onChange(newValue.map((o) => ({ id: o.id, value: o.value })));
       }
+      // 5. Gọi lại API để refresh danh sách tags trong dropdown
+      await fetchTags();
     } catch (error) {
       console.error("Lỗi tạo tag:", error);
     } finally {

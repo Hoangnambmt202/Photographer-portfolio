@@ -4,6 +4,7 @@ export interface User {
   full_name: string;
   avatar_url: string | null;
   is_admin: boolean;
+  access_token: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from app.config.database import get_db
 from app import models
 from app.config.security import verify_password, hash_password, get_current_user
@@ -14,7 +14,6 @@ from app.schemas.response import BaseResponse
 from app.config.cookie import cookie_config
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 config = cookie_config()
 
 # ----------------------
@@ -44,12 +43,19 @@ def register_user(user: user.UserCreate, db: Session = Depends(get_db)):
 # Đăng nhập và tạo token
 # ----------------------
 @router.post("/login", response_model=BaseResponse)
-def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == data.email).first()
+def login(
+    response: Response,
+    form_data: auth.LoginForm = Depends(auth.LoginForm.as_form),
+    db: Session = Depends(get_db)
+):
+    """
+    Nhận form-data email/password, trả về Bearer token + refresh token cookie.
+    """
+    user = db.query(models.User).filter(models.User.email == form_data.email).first()
     if not user:
         return BaseResponse(status="error", message="Email không tồn tại")
 
-    if not verify_password(data.password, user.password):
+    if not verify_password(form_data.password, user.password):
         return BaseResponse(status="error", message="Sai mật khẩu")
 
     # Tạo access_token (hết hạn sau X phút)
@@ -74,8 +80,9 @@ def login(data: auth.LoginRequest,response: Response, db: Session = Depends(get_
         data= {
             "user": UserResponse.model_validate(user),
             "access_token": access_token,
+            "token_type": "bearer",
         }
-    )
+        )
 
 # ----------------------
 # Lấy thông tin user hiện tại (me)

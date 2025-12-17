@@ -15,6 +15,7 @@ export interface Category {
 }
 
 interface CategoryState {
+  isLoading: boolean; 
   categories: Category[];
   formData: { name: string; slug: string; description: string };
   editingCategory: Category | null;
@@ -33,6 +34,7 @@ interface CategoryState {
 }
 
 export const useCategoryStore = create<CategoryState>((set, get) => ({
+  isLoading: false,
   categories: [],
   formData: { name: "", slug: "", description: "" },
   editingCategory: null,
@@ -41,7 +43,7 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   isDeleteModalOpen: false,
 
   setFormData: (data) => set((state) => ({ formData: { ...state.formData, ...data } })),
-
+  
   openAddModal: () =>
     set({
       editingCategory: null,
@@ -76,10 +78,14 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
   // 🔹 Fetch categories từ API
   fetchCategories: async () => {
     try {
+      set({ isLoading: true });
       const res = await getCategories();
       set({ categories: res.data });
+      set({ isLoading: false });
     } catch (error) {
       console.error("Lỗi khi tải danh mục:", error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
@@ -96,7 +102,8 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
       if (editingCategory) {
         await updateCategory(editingCategory.id, data);
       } else {
-        await createCategory(data);
+        const res = await createCategory(data);
+        showToast.success(res.message, {duration: 1500});
       }
       await get().fetchCategories();
       get().closeModal();
@@ -107,10 +114,9 @@ export const useCategoryStore = create<CategoryState>((set, get) => ({
 
   // 🔹 Xóa category qua API
   deleteCategory: async (id) => {
-    
     try {
       const res = await deleteCategoryApi(id);
-      showToast.success(res.message, {duration: 3000});
+      showToast.success(res.message, {duration: 1500});
       await get().fetchCategories();
       get().closeDeleteModal();
     } catch (error) {

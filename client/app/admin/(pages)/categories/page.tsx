@@ -5,7 +5,7 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/common/Button";
-import { showToast } from "nextjs-toast-notify";
+import LoaderBlock from "@/components/common/LoaderBlock";
 
 export default function CategoriesPage() {
   const {
@@ -14,6 +14,7 @@ export default function CategoriesPage() {
     openAddModal,
     openEditModal,
     isModalOpen,
+    isLoading,
     closeModal,
     deleteCategory,
   } = useCategoryStore();
@@ -26,9 +27,10 @@ export default function CategoriesPage() {
       deleteCategory(deleteId);
       setDeleteId(null);
     }
-    showToast.success("Xóa danh mục thành công!", {duration: 1500});
-    
   };
+  if (isLoading) {
+    return <LoaderBlock label="Đang tải danh mục..." />;
+  }
   if (categories.length === 0) {
     return (
       <div className="space-y-6">
@@ -71,26 +73,26 @@ export default function CategoriesPage() {
           </table>
         </div>
         {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Danh mục</h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition"
-              >
-                <X className="w-6 h-6" />
-              </button>
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Danh mục</h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <CategoryForm />
             </div>
-            <CategoryForm />
           </div>
-        </div>
-      )}
-
+        )}
       </div>
     );
   }
   return (
+    <>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Danh mục</h1>
@@ -189,5 +191,6 @@ export default function CategoriesPage() {
         itemName={categories.find((cat) => cat.id === deleteId)?.name}
       />
     </div>
+    </>
   );
 }
