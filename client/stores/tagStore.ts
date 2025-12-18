@@ -49,7 +49,6 @@ export const useTagStore = create<TagState>((set, get) => ({
   createTag: async (name) => {
     const res = await createTag({ name });
     const newTag = (res as BaseResponse<Tag>).data ?? res;
-    // đảm bảo danh sách tag luôn mới nhất theo server (và đúng thứ tự)
     await get().fetchTags();
     return newTag;
   },

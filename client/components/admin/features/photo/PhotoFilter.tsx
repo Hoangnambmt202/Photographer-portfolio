@@ -5,12 +5,21 @@ import { Filter, X, Calendar, Upload } from "lucide-react";
 import SearchInput from "@/components/common/SearchInput";
 import { usePhotoStore } from "@/stores/photoStore";
 
+interface PhotoFiltersProps {
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+  onSearchSubmit: (v: string) => void;
+  albums: any[];
+  categories: any[];
+}
+
 export default function PhotoFilters({
   searchTerm,
   onSearchChange,
+  onSearchSubmit,
   albums,
   categories,
-}: any) {
+}: PhotoFiltersProps) {
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -18,7 +27,7 @@ export default function PhotoFilters({
   const [dateTo, setDateTo] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
 
-  const { openAddModal } = usePhotoStore();
+  const { openAddModal, isLoading } = usePhotoStore();
   const statuses = [
     { value: "draft", label: "Nháp" },
     { value: "public", label: "Công khai" },
@@ -45,7 +54,9 @@ export default function PhotoFilters({
           <SearchInput
             placeholder="Tìm kiếm ảnh..."
             value={searchTerm}
-            onSearch={onSearchChange}
+            onChange={onSearchChange}
+            onSearch={onSearchSubmit}
+            loading={isLoading}
           />
         </div>
         <select

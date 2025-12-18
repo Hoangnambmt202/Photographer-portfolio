@@ -17,7 +17,7 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
   const { fetchTags } = useTagStore();
   useEffect(() => {
     fetchTags();
-  }, [fetchTags]);
+  }, []);
 
   function toSlug(str: string) {
     return str

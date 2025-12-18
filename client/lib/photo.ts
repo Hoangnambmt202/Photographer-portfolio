@@ -1,3 +1,5 @@
+import { PaginatedPhotos, PhotoFilters, PhotoStatus } from "@/types";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
   /\/$/,
@@ -30,32 +32,36 @@ const authHeaders = (): Record<string, string> => {
 };
 
 // ✅ Lấy danh sách ảnh
-export async function getPhotos(
-  page: number = 1,
-  limit: number = 10,
-  search?: string
-) {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    limit: limit.toString(),
-  });
-  if (search) params.append("search", search);
+export async function getPhotos(params: {
+  page?: number;
+  limit?: number;
+  filters?: PhotoFilters;
+}): Promise<PaginatedPhotos> {
+  const query = new URLSearchParams();
 
-  const res = await fetch(`${PHOTOS_API}/?${params.toString()}`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
-  });
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Không thể tải danh sách ảnh: ${err}`);
+  if (params.filters) {
+    Object.entries(params.filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+
+      if (Array.isArray(value)) {
+        query.append(key, value.join(","));
+      } else {
+        query.append(key, String(value));
+      }
+    });
   }
 
-  // trả về { total, page, limit, total_pages, data }
-  return await res.json(); 
+  const res = await fetch(`${PHOTOS_API}?${query.toString()}`, {
+    method: "GET",
+    credentials: "include",
+    headers: authHeaders(),
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 
@@ -90,11 +96,11 @@ export async function createPhoto(data: any) {
 
 // ✅ Upload nhiều ảnh cùng lúc (server: POST /api/photos/bulk)
 export type CreatePhotosBulkMeta = {
-  description?: string;
-  status?: string;
+  description?: string | null;
+  status?: PhotoStatus;
   album_id?: number | null;
   taken_at?: string | Date | null;
-  location?: string;
+  location?: string | null;
 };
 
 export async function createPhotosBulk(files: File[], data: CreatePhotosBulkMeta) {

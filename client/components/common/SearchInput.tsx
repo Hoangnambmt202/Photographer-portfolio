@@ -1,15 +1,17 @@
 "use client";
-
 import { useDebounce } from "use-debounce";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Search } from "lucide-react";
+import LoaderInline from "./LoaderInline";
 
 interface SearchInputProps {
   placeholder?: string;
-  onSearch: (value: string) => void;
   delay?: number;
   className?: string;
-  value?:string;
+  value: string;
+  loading?: boolean;
+  onChange: (value: string) => void;
+  onSearch: (value: string) => void;
 }
 
 export default function SearchInput({
@@ -17,12 +19,14 @@ export default function SearchInput({
   onSearch,
   delay = 400,
   className = "",
+  value,
+  onChange,
+  loading = false,
 }: SearchInputProps) {
-  const [value, setValue] = useState("");
   const [debouncedValue] = useDebounce(value, delay);
 
   useEffect(() => {
-    onSearch(debouncedValue.trim());
+    onSearch((debouncedValue ?? "").trim());
   }, [debouncedValue, onSearch]);
 
   return (
@@ -32,17 +36,21 @@ export default function SearchInput({
         type="text"
         placeholder={placeholder}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-sm"
       />
-      {value && (
-        <button
-          onClick={() => setValue("")}
-          className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-      )}
+      <div className="absolute right-3 top-2.5">
+        {loading ? (
+          <LoaderInline size={18} />
+        ) : value ? (
+          <button
+            onClick={() => onChange("")}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }
