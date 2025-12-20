@@ -5,6 +5,7 @@ import { useTagStore } from "@/stores/tagStore";
 import { useEffect } from "react";
 import TagSelect from "@/components/admin/TagSelect";
 import { useCategoryStore } from "@/stores/categoryStore";
+import { AlbumStatus } from "@/types";
 
 interface AlbumFormProps {
   onClose?: () => void;
@@ -116,7 +117,7 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
         <label className="block text-sm mb-2">Trạng thái</label>
         <select
           value={formData.status || "draft"}
-          onChange={(e) => setFormData({ status: e.target.value })}
+          onChange={(e) => setFormData({ status: e.target.value as AlbumStatus })}
           className="w-full border rounded px-3 py-2"
         >
           <option value="active">Hoạt động</option>

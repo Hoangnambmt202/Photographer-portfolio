@@ -63,6 +63,18 @@ export async function getPhotos(params: {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+export async function getPhotoById(id: number) {
+  const res = await fetch(`${PHOTOS_API}/${id}`, {
+    credentials: "include",
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch photo");
+
+  return res.json();
+}
+
 
 // ✅ Tạo ảnh (FormData hoặc JSON)
 export async function createPhoto(data: any) {

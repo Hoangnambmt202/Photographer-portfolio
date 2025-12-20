@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, and_
 from slugify import slugify
 import cloudinary.uploader
@@ -178,6 +178,26 @@ def list_photos(
     total_pages = (total + limit - 1) // limit
     return PaginatedPhotos(
         total=total, page=page, limit=limit, total_pages=total_pages, data=photos
+    )
+
+
+# 🟩 2b. GET /photos/{id} - Lấy chi tiết ảnh
+@router.get("/{id}", response_model=BaseResponse)
+def get_photo_detail(
+    id: int,
+    db: Session = Depends(get_db),
+):
+    photo = (
+        db.query(Photo).options(joinedload(Photo.album)).filter(Photo.id == id).first()
+    )
+
+    if not photo:
+        raise HTTPException(status_code=404, detail="Ảnh không tồn tại")
+
+    return BaseResponse(
+        status="success",
+        message="Lấy chi tiết ảnh thành công",
+        data=PhotoResponse.model_validate(photo),
     )
 
 

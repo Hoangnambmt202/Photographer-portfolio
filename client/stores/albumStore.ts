@@ -54,7 +54,6 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
         limit: get().itemsPerPage,
         filters: appliedFilters,
       });
-      console.log(res)
 
       set({
         albums: res.data.data,

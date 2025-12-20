@@ -1,6 +1,11 @@
 
 export type PhotoStatus = "public" | "private" | "draft" | "archived";
 
+export interface AlbumSimple {
+  id: number;
+  title: string;
+}
+
 export interface Photo {
   id: number;
   title: string;
@@ -9,7 +14,7 @@ export interface Photo {
   image_url?: string;
   taken_at?: Date | null;
   location?: string;
-  album_id?: number | null;
+  album?: AlbumSimple | null;
   user_id?: number | null;
   order?: number;
   created_at?: Date | null;

@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Eye, Download, Trash2 } from "lucide-react";
 import  { Photo } from "@/types";
-
+import Link from "next/link";
 interface PhotoCardProps {
   photo: Photo;
   onDelete: (id: number) => void;
