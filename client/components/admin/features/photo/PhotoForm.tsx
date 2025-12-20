@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import AlbumForm from "../album/AlbumForm";
+import { PhotoStatus } from "@/types";
 
 export default function PhotoForm() {
   const { formData, setFormData, addOrUpdatePhoto, closeModal, editingPhoto } =
@@ -136,7 +137,7 @@ export default function PhotoForm() {
           </label>
           <select
             value={formData.status || "draft"}
-            onChange={(e) => setFormData({ status: e.target.value })}
+            onChange={(e) => setFormData({ status: e.target.value as PhotoStatus })}
             className="w-full border rounded px-3 py-2"
           >
             <option value="public">Công khai</option>

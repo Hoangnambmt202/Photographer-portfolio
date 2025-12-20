@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { X, Calendar, FolderOpen, FileText, CheckCircle2 } from "lucide-react";
+import { X, Calendar, FolderOpen, FileText, CheckCircle2, Download, ChevronRight, ChevronLeft } from "lucide-react";
 import { Photo } from "@/types";
 import { formatDateTime } from "@/utils/date";
 
@@ -9,12 +9,20 @@ interface PhotoDetailModalProps {
   photo: Photo | null;
   open: boolean;
   onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  hasPrev: boolean;
+  hasNext: boolean;
 }
 
 export default function PhotoDetailModal({
   photo,
   open,
   onClose,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
 }: PhotoDetailModalProps) {
   if (!open || !photo) return null;
 
@@ -30,6 +38,21 @@ export default function PhotoDetailModal({
         return "bg-blue-100 text-blue-700 border-blue-200";
     }
   };
+  const handleDownload = async () => {
+    if (!photo.image_url) return;
+
+    const res = await fetch(photo.image_url);
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = photo.title || "photo";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
 
   return (
     <div
@@ -44,10 +67,19 @@ export default function PhotoDetailModal({
         <button
           onClick={onClose}
           className="absolute top-3 right-3 z-10 p-2 bg-white rounded-full shadow hover:scale-110 transition"
+          title="Close"
         >
           <X className="w-4 h-4" />
         </button>
 
+        {/* Download */}
+        <button
+          onClick={handleDownload}
+          className="absolute top-3 left-3 z-20 p-2 bg-white rounded-full shadow hover:scale-110 transition"
+          title="Download"
+        >
+          <Download className="w-4 h-4" />
+        </button>
         {/* Image */}
         <div className="bg-gray-100 flex items-center justify-center">
           <Image
@@ -58,7 +90,30 @@ export default function PhotoDetailModal({
             className="object-contain max-h-[50vh] w-full "
             priority
           />
+          {/* Prev */}
+        {hasPrev && (
+            <button
+              onClick={onPrev}
+              className="absolute left-3 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow hover:scale-110 transition"
+              title="Previous"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Next */}
+          {hasNext && (
+            <button
+              onClick={onNext}
+              className="absolute right-3 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow hover:scale-110 transition"
+               title="Next"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
         </div>
+        
+        
 
         {/* Content */}
         <div className="p-4 space-y-4 overflow-y-auto">
@@ -67,7 +122,7 @@ export default function PhotoDetailModal({
             <h2 className="text-lg font-semibold text-gray-900">
               {photo.title}
             </h2>
-            <div className="h-0.5 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-1" />
+            <div className="h-0.5 w-10 bg-linear-to-r from-blue-500 to-purple-500 rounded-full mt-1" />
           </div>
 
           {/* Description */}
@@ -91,9 +146,7 @@ export default function PhotoDetailModal({
               <div>
                 <div className="text-gray-500 text-xs">Ngày tạo</div>
                 <div className="font-semibold text-gray-900">
-                  {photo.created_at
-                    ? formatDateTime(photo.created_at)
-                    : "N/A"}
+                  {photo.created_at ? formatDateTime(photo.created_at) : "N/A"}
                 </div>
               </div>
             </div>
@@ -105,9 +158,7 @@ export default function PhotoDetailModal({
                 <div className="text-gray-500 text-xs">Album</div>
                 <div className="font-semibold text-gray-900">
                   {photo.album?.title || (
-                    <span className="italic text-gray-400">
-                      Chưa có album
-                    </span>
+                    <span className="italic text-gray-400">Chưa có album</span>
                   )}
                 </div>
               </div>
