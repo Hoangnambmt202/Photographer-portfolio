@@ -1,5 +1,5 @@
 // components/services/ServiceCard.tsx
-import { Service } from "@/types/service";
+import { Service } from "@/types/service.types";
 import { Eye, Edit2, Trash2, Users, DollarSign, Clock, Calendar, Star } from "lucide-react";
 
 interface ServiceCardProps {

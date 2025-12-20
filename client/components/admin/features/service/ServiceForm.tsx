@@ -2,7 +2,7 @@
 
 import { FC, useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { Service, ServiceFormData, ServiceModalMode } from "@/types/service";
+import { Service, ServiceFormData, ServiceModalMode } from "@/types/service.types";
 import { Button } from "@/components/common/Button";
 import { useCategoryStore } from "@/stores/categoryStore";
 

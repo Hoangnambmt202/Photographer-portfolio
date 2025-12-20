@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAuthStore } from "@/stores/authStore";
 import "@/styles/globals.css";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayoutClient({
   children,
@@ -17,6 +18,7 @@ export default function AdminLayoutClient({
     fetchProfile();
     
   }, [fetchProfile]);
+ 
 
   return (
     <div className="flex h-screen bg-gray-100">

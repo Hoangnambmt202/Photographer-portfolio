@@ -4,28 +4,33 @@ import { useState } from "react";
 import { Filter, X, Calendar, Upload } from "lucide-react";
 import SearchInput from "@/components/common/SearchInput";
 import { usePhotoStore } from "@/stores/photoStore";
+import type { PhotoFilters } from "@/types";
 
 interface PhotoFiltersProps {
   searchTerm: string;
-  onSearchChange: (value: string) => void;
-  onSearchSubmit: (v: string) => void;
+  filters: PhotoFilters;
   albums: any[];
   categories: any[];
+  onSearchChange: (value: string) => void;
+  onSearchSubmit: (v: string) => void;
+  onChangeFilters: (filters: PhotoFilters) => void;
 }
 
 export default function PhotoFilters({
   searchTerm,
-  onSearchChange,
-  onSearchSubmit,
+  filters,
   albums,
   categories,
+  onSearchChange,
+  onSearchSubmit,
+  onChangeFilters,
 }: PhotoFiltersProps) {
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+
 
   const { openAddModal, isLoading } = usePhotoStore();
   const statuses = [
@@ -34,18 +39,18 @@ export default function PhotoFilters({
     { value: "private", label: "Riêng tư" },
     { value: "archived", label: "Lưu trữ" },
   ];
-  const hasActiveFilters =
-    searchTerm ||
-    selectedAlbum !== "all" ||
-    selectedCategory !== "all" ||
-    selectedStatus !== "all";
+  const update = (patch: Partial<PhotoFilters>) => {
+    onChangeFilters({
+      ...filters,
+      ...patch,
+    });
+  };
 
   const resetFilters = () => {
-    setSelectedAlbum("all");
-    setSelectedCategory("all");
-    setDateFrom("");
-    setDateTo("");
+    onChangeFilters({});
   };
+
+  const hasActiveFilters = Object.values(filters).some(Boolean);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 space-y-4">
@@ -54,14 +59,19 @@ export default function PhotoFilters({
           <SearchInput
             placeholder="Tìm kiếm ảnh..."
             value={searchTerm}
-            onChange={onSearchChange}
+            onChange={onSearchChange} 
             onSearch={onSearchSubmit}
             loading={isLoading}
           />
         </div>
         <select
-          value={selectedAlbum}
-          onChange={(e) => setSelectedAlbum(e.target.value)}
+          value={filters.album_id ?? "all"}
+          onChange={(e) =>
+            update({
+              album_id:
+                e.target.value === "all" ? undefined : Number(e.target.value),
+            })
+          }
           className="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
         >
           <option value="all">Tất cả album</option>
@@ -84,8 +94,13 @@ export default function PhotoFilters({
           ))}
         </select>
         <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
+          value={filters.status ?? "all"}
+          onChange={(e) =>
+            update({
+              status:
+                e.target.value === "all" ? undefined : (e.target.value as any),
+            })
+          }
           className="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
         >
           <option value="all">Trạng thái</option>
@@ -95,7 +110,6 @@ export default function PhotoFilters({
             </option>
           ))}
         </select>
-
         <button
           onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${

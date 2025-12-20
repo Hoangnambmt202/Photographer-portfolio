@@ -1,4 +1,6 @@
 
-export * from './photo';
-export * from './album';
-export * from './auth';
+export * from './photo.types';
+export * from './album.types';
+export * from './auth.types';
+export * from './service.types';
+export * from './tag.types'

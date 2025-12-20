@@ -1,30 +1,97 @@
 import { create } from "zustand";
 import { getAlbums, createAlbum, updateAlbum, deleteAlbum } from "@/lib/album";
 import { showToast } from "nextjs-toast-notify";
-import { Album, AlbumBaseState, AlbumFormData } from "@/types";
+import { Album, AlbumBaseState, AlbumFilters, AlbumFormData } from "@/types";
 
 interface AlbumState extends AlbumBaseState {
-  fetchAlbums: () => Promise<void>;
+  filters: AlbumFilters;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  isLoading: boolean;
+  isSearching: boolean;
+
+  fetchAlbums: (page?: number, filters?: AlbumFilters) => Promise<void>;
+  setFilters: (filters?: AlbumFilters) => void;
+  clearFilters: () => void;
+  setPage: (page: number) => void;
+
   setFormData: (data: AlbumFormData) => void;
   openAddModal: () => void;
   openEditModal: (album: Album) => void;
   closeModal: () => void;
+
   addOrUpdateAlbum: () => Promise<Album>;
   removeAlbum: (id: number) => Promise<void>;
 }
 
 export const useAlbumStore = create<AlbumState>((set, get) => ({
+  /* ================= BASE ================= */
   albums: [],
+  filters: {},
+
+  currentPage: 1,
+  totalPages: 1,
+  itemsPerPage: 10,
+  totalItems: 0,
+  isLoading: false,
+  isSearching: false,
+
   formData: {} as AlbumFormData,
   editingAlbum: null,
   isModalOpen: false,
   modalMode: "add",
 
-  fetchAlbums: async () => {
-    const res = await getAlbums();
-    set({ albums: res.data });
+  /* ================= FETCH ================= */
+  fetchAlbums: async (page = 1, filters?: AlbumFilters) => {
+    const appliedFilters = filters ?? get().filters;
+    
+    set({ isLoading: true, isSearching: Boolean(appliedFilters?.search) });
+    
+    try {
+      const res = await getAlbums({
+        page,
+        limit: get().itemsPerPage,
+        filters: appliedFilters,
+      });
+      console.log(res)
+
+      set({
+        albums: res.data.data,
+        currentPage: res.data.page,
+        totalPages: res.data.total_pages,
+        totalItems: res.data.total,
+        filters: appliedFilters,
+      });
+    } finally {
+      set({ isLoading: false, isSearching:false });
+    }
   },
 
+  /* ================= FILTER ================= */
+  setFilters: (next) =>
+    set((state) => {
+      const merged = { ...state.filters, ...(next ?? {}) };
+
+      if (JSON.stringify(merged) === JSON.stringify(state.filters)) {
+        return state; // ⛔ không update nếu giống nhau
+      }
+
+      return {
+        filters: merged,
+        currentPage: 1,
+      };
+    }),
+
+  clearFilters: () =>
+    set({
+      filters: {},
+      currentPage: 1,
+    }),
+
+  setPage: (page) => set({ currentPage: page }),
+
+  /* ================= FORM ================= */
   setFormData: (data) =>
     set((state) => ({ formData: { ...state.formData, ...data } })),
 
@@ -35,6 +102,7 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
       isModalOpen: true,
       formData: {} as AlbumFormData,
     }),
+
   openEditModal: (album) =>
     set({
       editingAlbum: album,
@@ -51,7 +119,7 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
             id: t.id,
             value: t.name,
           })) ?? [],
-        cover_image: undefined, // Không gán URL vào FormFile
+        cover_image: undefined,
       },
     }),
 
@@ -62,38 +130,35 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
       editingAlbum: null,
     }),
 
+  /* ================= CRUD ================= */
   addOrUpdateAlbum: async () => {
-    const { editingAlbum, formData } = get();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { editingAlbum, formData, currentPage } = get();
     const { slug, ...payload } = formData;
 
     let res;
 
     if (editingAlbum) {
-        const payloadUpdate = {
-    ...payload,
-    tags: formData.tags?.map(t => t.id) ?? [],   // 👈 ONLY ID LIST
-  };
-      console.log("payload nhận được trc gửi", payloadUpdate);
-      res = await updateAlbum(editingAlbum.id, payloadUpdate);
+      res = await updateAlbum(editingAlbum.id, {
+        ...payload,
+        tags: formData.tags?.map((t) => t.id) ?? [],
+      });
     } else {
       res = await createAlbum(payload);
     }
 
     showToast.success(res.message, { duration: 3000 });
-    await get().fetchAlbums();
+    await get().fetchAlbums(currentPage);
     get().closeModal();
 
-    return res.data; // 👈 đảm bảo luôn return
+    return res.data;
   },
 
   removeAlbum: async (id) => {
     try {
       const res = await deleteAlbum(id);
-      await get().fetchAlbums();
+      await get().fetchAlbums(get().currentPage);
       showToast.success(res.message, { duration: 3000 });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       showToast.error("Xóa album thất bại", { duration: 3000 });
     }

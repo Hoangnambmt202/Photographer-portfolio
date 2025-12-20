@@ -64,7 +64,6 @@ export async function getPhotos(params: {
   return res.json();
 }
 
-
 // ✅ Tạo ảnh (FormData hoặc JSON)
 export async function createPhoto(data: any) {
   const form = new FormData();

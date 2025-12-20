@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
+from fastapi import APIRouter, Depends, HTTPException, status  # type: ignore
 from sqlalchemy.orm import Session
 from slugify import slugify
 from typing import List
@@ -10,11 +10,16 @@ from app.schemas.response import BaseResponse
 
 router = APIRouter(prefix="/api/categories", tags=["Categories"])
 
+
 # -----------------------------
 # Tạo mới Category
 # -----------------------------
-@router.post("/", response_model=BaseResponse)
-def create_category(data: CategoryCreate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
+@router.post("", response_model=BaseResponse)
+def create_category(
+    data: CategoryCreate,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
     slug = data.slug or slugify(data.name)
     existing = db.query(Category).filter(Category.slug == slug).first()
     if existing:
@@ -28,26 +33,31 @@ def create_category(data: CategoryCreate, db: Session = Depends(get_db), current
     return BaseResponse(
         status="success",
         message="Tạo danh mục thành công",
-        data=CategoryResponse.model_validate(category)
+        data=CategoryResponse.model_validate(category),
     )
+
 
 # -----------------------------
 # Lấy tất cả category
 # -----------------------------
-@router.get("/", response_model=BaseResponse)
-def get_all_categories(db: Session = Depends(get_db)) :
+@router.get("", response_model=BaseResponse)
+def get_all_categories(db: Session = Depends(get_db)):
     categories = db.query(Category).order_by(Category.created_at.desc()).all()
     return BaseResponse(
         status="success",
         message="Lấy danh sách danh mục thành công",
-        data=[CategoryResponse.model_validate(c) for c in categories]
+        data=[CategoryResponse.model_validate(c) for c in categories],
     )
+
 
 # -----------------------------
 # Lấy 1 category
 # -----------------------------
 @router.get("/{category_id}", response_model=BaseResponse)
-def get_category(category_id: int, db: Session = Depends(get_db), ):
+def get_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Danh mục không tồn tại")
@@ -55,14 +65,20 @@ def get_category(category_id: int, db: Session = Depends(get_db), ):
     return BaseResponse(
         status="success",
         message="Lấy danh mục thành công",
-        data=CategoryResponse.model_validate(category)
+        data=CategoryResponse.model_validate(category),
     )
+
 
 # -----------------------------
 # Cập nhật category
 # -----------------------------
 @router.put("/{category_id}", response_model=BaseResponse)
-def update_category(category_id: int, data: CategoryCreate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
+def update_category(
+    category_id: int,
+    data: CategoryCreate,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Danh mục không tồn tại")
@@ -76,14 +92,19 @@ def update_category(category_id: int, data: CategoryCreate, db: Session = Depend
     return BaseResponse(
         status="success",
         message="Cập nhật danh mục thành công",
-        data=CategoryResponse.model_validate(category)
+        data=CategoryResponse.model_validate(category),
     )
+
 
 # -----------------------------
 # Xóa category
 # -----------------------------
 @router.delete("/{category_id}", response_model=BaseResponse)
-def delete_category(category_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Danh mục không tồn tại")

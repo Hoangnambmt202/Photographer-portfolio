@@ -7,7 +7,7 @@ import ServiceCard from "@/components/admin/features/service/ServiceCard";
 import DeleteModal from "@/components/admin/DeleteModal";
 import { Button } from "@/components/common/Button";
 import { Plus } from "lucide-react";
-import { Service } from "@/types/service";
+import { Service } from "@/types/service.types";
 import ServiceFormModal from "@/components/admin/features/service/ServiceForm";
 import { log } from "console";
 

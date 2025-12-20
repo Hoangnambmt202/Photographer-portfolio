@@ -1,5 +1,6 @@
-// client/types/photo.ts
+
 export type PhotoStatus = "public" | "private" | "draft" | "archived";
+
 export interface Photo {
   id: number;
   title: string;

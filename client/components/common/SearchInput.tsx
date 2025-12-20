@@ -27,7 +27,7 @@ export default function SearchInput({
 
   useEffect(() => {
     onSearch((debouncedValue ?? "").trim());
-  }, [debouncedValue, onSearch]);
+  }, [debouncedValue]);
 
   return (
     <div className={`relative ${className}`}>

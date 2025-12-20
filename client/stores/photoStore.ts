@@ -1,10 +1,22 @@
 import { create } from "zustand";
-import { createPhoto, createPhotosBulk, deletePhoto, getPhotos, updatePhoto, getAlbumPhotos, reorderAlbumPhotos, setFeaturedPhoto } from "@/lib/photo";
+import {
+  createPhoto,
+  createPhotosBulk,
+  deletePhoto,
+  getPhotos,
+  updatePhoto,
+  getAlbumPhotos,
+  reorderAlbumPhotos,
+  setFeaturedPhoto,
+} from "@/lib/photo";
 import { showToast } from "nextjs-toast-notify";
 
 import { Photo, PhotoBaseState, PhotoFilters, PhotoFormData } from "@/types";
 
 interface PhotoState extends PhotoBaseState {
+  isLoading: boolean;
+  isSearching: boolean;
+  albumPhotos: Photo[];
   fetchPhotos: (page?: number, filters?: PhotoFilters) => Promise<void>;
   setFormData: (data: PhotoFormData) => void;
   openAddModal: () => void;
@@ -13,12 +25,14 @@ interface PhotoState extends PhotoBaseState {
   addOrUpdatePhoto: () => Promise<void>;
   removePhoto: (id: number) => Promise<void>;
   setPage: (page: number) => void;
-  isLoading: boolean;
-  isSearching: boolean;
-  albumPhotos: Photo[];
   fetchAlbumPhotos: (albumId: number) => Promise<void>;
-  reorderPhotos: (albumId: number, photos: Array<{ id: number; order: number }>) => Promise<void>;
+  reorderPhotos: (
+    albumId: number,
+    photos: Array<{ id: number; order: number }>
+  ) => Promise<void>;
   setFeatured: (photoId: number, albumId: number) => Promise<void>;
+  setFilters: (filters?: PhotoFilters) => void;
+  clearFilters: () => void;
 }
 
 export const usePhotoStore = create<PhotoState>((set, get) => ({
@@ -36,35 +50,51 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   totalItems: 0,
   isLoading: false,
   isSearching: false,
-  // Album photos
+
   albumPhotos: [],
-  
+
   // Lấy danh sách ảnh theo trang
   fetchPhotos: async (page = 1, filters?: PhotoFilters) => {
-    set({ isLoading: true });
+    const appliedFilters = filters ?? get().filters;
+
+    set({
+      isLoading: true,
+      isSearching: Boolean(appliedFilters?.search),
+    });
+
     try {
       const res = await getPhotos({
         page,
         limit: get().itemsPerPage,
-        filters,
+        filters: appliedFilters,
       });
+
       set({
         photos: res.data,
         currentPage: res.page,
         totalPages: res.total_pages,
         totalItems: res.total,
+        filters: appliedFilters, 
       });
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false, isSearching: false });
     }
   },
-  
+
   /* ================= FILTER ================= */
-  setFilters: (filters: PhotoFilters | undefined) =>
-    set((state) => ({
-      filters: { ...state.filters, ...filters },
-      currentPage: 1, // reset page khi search
-    })),
+  setFilters: (next) =>
+    set((state) => {
+      const merged = { ...state.filters, ...(next ?? {}) };
+
+      if (JSON.stringify(merged) === JSON.stringify(state.filters)) {
+        return state; // ⛔ không update nếu giống nhau
+      }
+
+      return {
+        filters: merged,
+        currentPage: 1,
+      };
+    }),
 
   clearFilters: () =>
     set({
@@ -74,17 +104,29 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
 
   setPage: (page) => set({ currentPage: page }),
 
-/* ================= CRUD ================= */
+  /* ================= CRUD ================= */
   setFormData: (data) =>
     set((state) => ({ formData: { ...state.formData, ...data } })),
 
   openAddModal: () =>
-    set({ editingPhoto: null, isModalOpen: true, formData: {} as PhotoFormData }),
+    set({
+      editingPhoto: null,
+      isModalOpen: true,
+      formData: {} as PhotoFormData,
+    }),
 
   openEditModal: (photo) =>
-    set({ editingPhoto: photo, isModalOpen: true, formData: photo as PhotoFormData }),
+    set({
+      editingPhoto: photo,
+      isModalOpen: true,
+      formData: photo as PhotoFormData,
+    }),
   closeModal: () =>
-    set({ isModalOpen: false, formData: {} as PhotoFormData, editingPhoto: null }),
+    set({
+      isModalOpen: false,
+      formData: {} as PhotoFormData,
+      editingPhoto: null,
+    }),
 
   addOrUpdatePhoto: async () => {
     const { editingPhoto, currentPage, formData } = get();
@@ -105,9 +147,12 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { title: _title, image_url: _imageUrl, ...rest } = payload;
           res = await createPhotosBulk(files, rest);
-          showToast.success(res.message || `Tải lên thành công ${files.length} ảnh`, {
-            duration: 3000,
-          });
+          showToast.success(
+            res.message || `Tải lên thành công ${files.length} ảnh`,
+            {
+              duration: 3000,
+            }
+          );
         } else {
           res = await createPhoto(payload);
           showToast.success(res.message || "Thêm ảnh thành công", {
@@ -127,7 +172,7 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
     const { currentPage } = get();
     try {
       const res = await deletePhoto(id);
-      await get().fetchPhotos(currentPage); 
+      await get().fetchPhotos(currentPage);
       showToast.success(res.message || "Đã xóa ảnh", { duration: 3000 });
     } catch (error) {
       console.error(error);
@@ -149,7 +194,10 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   },
 
   // ✅ Reorder photos in album
-  reorderPhotos: async (albumId: number, photos: Array<{ id: number; order: number }>) => {
+  reorderPhotos: async (
+    albumId: number,
+    photos: Array<{ id: number; order: number }>
+  ) => {
     try {
       const res = await reorderAlbumPhotos(albumId, photos);
       set({ albumPhotos: res.data });

@@ -1,3 +1,5 @@
+import { AlbumFilters } from "@/types";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
   /\/$/,
@@ -29,17 +31,37 @@ const authHeaders = (): Record<string, string> => {
   return headers;
 };
 
-export async function getAlbums() {
-  const res = await fetch(`${ALBUMS_API}/`, {
+export async function getAlbums(params: {
+  page?: number;
+  limit?: number;
+  filters?:AlbumFilters
+}) {
+  const query = new URLSearchParams();
+
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.filters) {
+    Object.entries(params.filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+
+      if (Array.isArray(value)) {
+        query.append(key, value.join(","));
+      } else {
+        query.append(key, String(value));
+      }
+    });
+  }
+  
+  const res = await fetch(`${ALBUMS_API}?${query.toString()}`, {
     method: "GET",
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
-  if (!res.ok) throw new Error("Không thể tải danh sách album");
-  return await res.json();
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
+
 
 export async function createAlbum(data: any) {
   const form = new FormData();

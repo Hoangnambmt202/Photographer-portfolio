@@ -162,9 +162,9 @@ def list_photos(
     if tag_ids:
         query = query.filter(Photo.tags.any(Tag.id.in_(tag_ids.split(","))))
     if taken_from:
-        query = query.filter(Photo.taken_at >= date_from)
+        query = query.filter(Photo.created_at >= taken_from)
     if taken_to:
-        query = query.filter(Photo.taken_at <= date_to)
+        query = query.filter(Photo.created_at <= taken_to)
     if status:
         query = query.filter(Photo.status == status)
     total = query.count()

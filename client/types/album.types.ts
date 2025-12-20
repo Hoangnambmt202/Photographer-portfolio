@@ -1,12 +1,21 @@
 import { Tag, TagInput } from "./tag.types";
 
+export type AlbumStatus = "active" | "archived" | "draft";
+
+export interface AlbumFilters {
+  search?: string;
+  status?: AlbumStatus;
+  category_id?: number;
+  taken_from?:string;
+  taken_to?:string;
+}
 export interface Album {
   id: number;
   title: string;
   slug: string;
   description?: string;
   cover_image: string;
-  status?: string;
+  status: AlbumStatus;
   category?: {
     id: number;
     name: string;
@@ -26,11 +35,20 @@ export interface AlbumFormData
   category?: number | null;
 }
 
-// 3. Định nghĩa AlbumBaseState (Trạng thái tĩnh)
 export interface AlbumBaseState {
   albums: Album[];
+
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  totalItems: number;
+
+  filters: AlbumFilters;
+
   formData: AlbumFormData;
   modalMode: "add" | "edit";
   editingAlbum: Album | null;
   isModalOpen: boolean;
+
+  
 }

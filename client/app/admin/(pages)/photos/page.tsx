@@ -21,32 +21,37 @@ export default function PhotosPage() {
   const { categories, fetchCategories } = useCategoryStore();
   const {
     photos,
-    fetchPhotos,
-    removePhoto,
+    filters,
     isModalOpen,
-    closeModal,
     currentPage,
     totalPages,
     totalItems,
     itemsPerPage,
-    setPage,
     isLoading,
+    closeModal,
+    setPage,
+    setFilters,
+    fetchPhotos,
+    removePhoto,
   } = usePhotoStore();
 
   useEffect(() => {
     fetchAlbums();
     fetchCategories();
   }, [fetchAlbums, fetchCategories]);
-
   useEffect(() => {
-    fetchPhotos(1, {
-      search: searchQuery,
+    setFilters({
+      ...filters,
+      search: searchQuery || undefined,
     });
   }, [searchQuery]);
 
+  useEffect(() => {
+    fetchPhotos(currentPage, filters);
+  }, [currentPage,filters]);
+
   const handlePageChange = (page: number) => {
     setPage(page);
-    fetchPhotos(page);
   };
 
   const handleDelete = () => {
@@ -61,6 +66,10 @@ export default function PhotosPage() {
       {/* Filters */}
       <PhotoFilter
         searchTerm={searchInput}
+        filters={filters}
+        onChangeFilters={(f) => {
+          setFilters(f);
+        }}
         onSearchChange={setSearchInput}
         onSearchSubmit={setSearchQuery}
         albums={albums}
