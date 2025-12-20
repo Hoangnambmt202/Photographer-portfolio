@@ -1,6 +1,7 @@
 
 export type PhotoStatus = "public" | "private" | "draft" | "archived";
 
+
 export interface AlbumSimple {
   id: number;
   title: string;
@@ -25,6 +26,7 @@ export interface Photo {
 export interface PhotoFormData extends Omit<Partial<Photo>, 'image_url'> {
     // cover_image có thể là File khi upload, hoặc string URL khi ở chế độ edit
     image_url?: string | File | File[];
+    album_id?: number;
 }
 /* ===== Search / Filter ===== */
 export interface PhotoFilters {
