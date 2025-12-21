@@ -1,8 +1,8 @@
-"""merge heads
+"""base
 
-Revision ID: 057d5627247a
-Revises: 0c03fb26f0e8, add_order_featured_001
-Create Date: 2025-12-03 22:10:09.866890
+Revision ID: fd30492aae39
+Revises: 
+Create Date: 2025-12-21 21:33:37.326126
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '057d5627247a'
-down_revision: Union[str, Sequence[str], None] = ('0c03fb26f0e8', 'add_order_featured_001')
+revision: str = 'fd30492aae39'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

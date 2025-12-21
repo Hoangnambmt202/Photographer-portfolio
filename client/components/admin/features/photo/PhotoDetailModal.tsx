@@ -40,10 +40,8 @@ export default function PhotoDetailModal({
   };
   const handleDownload = async () => {
     if (!photo.image_url) return;
-
     const res = await fetch(photo.image_url);
     const blob = await res.blob();
-
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -53,7 +51,6 @@ export default function PhotoDetailModal({
     a.remove();
     window.URL.revokeObjectURL(url);
   };
-
   return (
     <div
       className="fixed inset-0 z-50 bg-black/15 flex items-center justify-center"

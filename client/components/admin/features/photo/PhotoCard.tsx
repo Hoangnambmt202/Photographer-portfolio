@@ -6,7 +6,6 @@ import Link from "next/link";
 interface PhotoCardProps {
   photo: Photo;
   onDelete: (id: number) => void;
-  // Thêm prop cho tính năng View/Download nếu cần
   onView?: (photo: Photo) => void;
   onDownload?: (photo: Photo) => void;
 }

@@ -87,12 +87,11 @@ export async function createPhoto(data: any) {
   if (data.taken_at) form.append("taken_at", data.taken_at);
   if (data.location) form.append("location", data.location);
 
-  // File
   if (data.image_url instanceof File) {
-    form.append("image_url", data.image_url); // ✔ backend yêu cầu image_url
+    form.append("image_url", data.image_url); 
   }
 
-  const res = await fetch(`${PHOTOS_API}/`, {
+  const res = await fetch(`${PHOTOS_API}`, {
     method: "POST",
     body: form,
     credentials: "include",
@@ -123,7 +122,6 @@ export async function createPhotosBulk(files: File[], data: CreatePhotosBulkMeta
   if (data.album_id != null) form.append("album_id", String(data.album_id));
   if (data.taken_at) {
     if (data.taken_at instanceof Date) {
-      // python datetime.fromisoformat không parse 'Z' -> bỏ timezone suffix
       form.append("taken_at", data.taken_at.toISOString().slice(0, 19));
     } else {
       form.append("taken_at", data.taken_at);

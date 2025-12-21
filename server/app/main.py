@@ -1,5 +1,5 @@
-import uvicorn  
-from fastapi import FastAPI 
+import uvicorn
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
             full_name="Admin",
             email="admin@gmail.com",
             is_admin=True,
-            password=hash_password("123456")
+            password=hash_password("123456"),
         )
         db.add(new_admin)
         db.commit()
@@ -36,21 +36,15 @@ async def lifespan(app: FastAPI):
     db.close()
 
     yield  # cho FastAPI chạy
-    
+
     # ----- Shutdown -----
     # (option) đóng kết nối, cleanup nếu cần
     print("🔻 App shutting down...")
 
 
-app = FastAPI(
-    title="Photographer Portfolio API",
-    lifespan=lifespan
-)
+app = FastAPI(title="Photographer Portfolio API", lifespan=lifespan)
 
 
-# --------------------------
-# CORS
-# --------------------------
 # --------------------------
 # CORS
 # --------------------------
@@ -64,7 +58,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,  
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

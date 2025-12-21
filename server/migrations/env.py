@@ -7,14 +7,14 @@ from sqlalchemy import pool
 from app.config.database import Base
 from alembic import context
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 # --- TỰ ĐỘNG IMPORT TOÀN BỘ MODELS ---
-models_path = os.path.join(os.path.dirname(__file__), '..', 'app', 'models')
+models_path = os.path.join(os.path.dirname(__file__), "..", "app", "models")
 for filename in os.listdir(models_path):
     if filename.endswith(".py") and filename != "__init__.py":
         module_name = f"app.models.{filename[:-3]}"
@@ -77,9 +77,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
