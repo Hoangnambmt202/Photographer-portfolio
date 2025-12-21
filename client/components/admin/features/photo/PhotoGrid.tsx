@@ -14,15 +14,10 @@ export default function PhotoGrid({ photos, onDelete }: PhotoGridProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   if (!photos.length) {
-    return (
-      <div className="text-center py-12 text-gray-500">
-        Không có ảnh
-      </div>
-    );
+    return <div className="text-center py-12 text-gray-500">Không có ảnh</div>;
   }
 
-  const selectedPhoto =
-    selectedIndex !== null ? photos[selectedIndex] : null;
+  const selectedPhoto = selectedIndex !== null ? photos[selectedIndex] : null;
 
   return (
     <>
@@ -43,19 +38,12 @@ export default function PhotoGrid({ photos, onDelete }: PhotoGridProps) {
         photo={selectedPhoto}
         open={selectedIndex !== null}
         onClose={() => setSelectedIndex(null)}
-        onPrev={() =>
-          setSelectedIndex((i) => (i! > 0 ? i! - 1 : i))
-        }
+        onPrev={() => setSelectedIndex((i) => (i! > 0 ? i! - 1 : i))}
         onNext={() =>
-          setSelectedIndex((i) =>
-            i! < photos.length - 1 ? i! + 1 : i
-          )
+          setSelectedIndex((i) => (i! < photos.length - 1 ? i! + 1 : i))
         }
         hasPrev={selectedIndex !== null && selectedIndex > 0}
-        hasNext={
-          selectedIndex !== null &&
-          selectedIndex < photos.length - 1
-        }
+        hasNext={selectedIndex !== null && selectedIndex < photos.length - 1}
       />
     </>
   );

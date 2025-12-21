@@ -33,6 +33,8 @@ interface PhotoState extends PhotoBaseState {
   setFeatured: (photoId: number, albumId: number) => Promise<void>;
   setFilters: (filters?: PhotoFilters) => void;
   clearFilters: () => void;
+  updatePhotoInline: (id: number, data: Partial<PhotoFormData>) => Promise<void>;
+  
 }
 
 export const usePhotoStore = create<PhotoState>((set, get) => ({
@@ -167,7 +169,29 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
       showToast.error("Lưu ảnh thất bại", { duration: 3000 });
     }
   },
-
+  // UPDATE 
+  updatePhotoInline: async (id, data) => {
+    try {
+      const res = await updatePhoto(id, data);
+  
+      // ✅ update photo trong list hiện tại
+      set((state) => ({
+        photos: state.photos.map((p) =>
+          p.id === id ? { ...p, ...res.data } : p
+        ),
+        albumPhotos: state.albumPhotos.map((p) =>
+          p.id === id ? { ...p, ...res.data } : p
+        ),
+      }));
+  
+      showToast.success("Cập nhật ảnh thành công", { duration: 1500 });
+    } catch (err) {
+      console.error(err);
+      showToast.error("Cập nhật ảnh thất bại", { duration: 3000 });
+      throw err;
+    }
+  },
+  
   removePhoto: async (id) => {
     const { currentPage } = get();
     try {

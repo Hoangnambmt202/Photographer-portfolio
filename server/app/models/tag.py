@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.config.database import Base
 
@@ -10,5 +10,5 @@ class Tag(Base):
     slug = Column(String(120), unique=True, index=True)
 
     photos = relationship("Photo", secondary="photo_tags", back_populates="tags")
-    # albums relationship will be added via back_populates in Album model
     albums = relationship("Album", secondary="album_tags", back_populates="tags")
+    services = relationship("Service", secondary="service_tags", back_populates="tags")
