@@ -32,12 +32,10 @@ export async function getCategories() {
   const res = await fetch(`${CATEGORIES_API}`, {
     method: "GET",
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Không thể tải danh mục");
-  return await res.json();
+  return res.json();
 }
 
 export async function createCategory(data: {
@@ -48,14 +46,11 @@ export async function createCategory(data: {
   const res = await fetch(`${CATEGORIES_API}/`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Tạo danh mục thất bại");
-  return await res.json();
+  return res.json();
 }
 
 export async function updateCategory(
@@ -68,26 +63,20 @@ export async function updateCategory(
 ) {
   const res = await fetch(`${CATEGORIES_API}/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Cập nhật danh mục thất bại");
-  return await res.json();
+  return res.json();
 }
 
 export async function deleteCategoryApi(id: number) {
   const res = await fetch(`${CATEGORIES_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Xóa danh mục thất bại");
-  return await res.json();
+  return res.json();
 }

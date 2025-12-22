@@ -90,5 +90,5 @@ export async function refreshAccessToken() {
     throw new Error("Không thể làm mới token");
   }
 
-  return await res.json();
+  return res.json();
 }
