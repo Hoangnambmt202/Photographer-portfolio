@@ -7,10 +7,17 @@ import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import AlbumForm from "../album/AlbumForm";
 import { PhotoStatus } from "@/types";
+import LoaderInline from "@/components/common/LoaderInline";
 
 export default function PhotoForm() {
-  const { formData, setFormData, addOrUpdatePhoto, closeModal, editingPhoto } =
-    usePhotoStore();
+  const {
+    formData,
+    setFormData,
+    addOrUpdatePhoto,
+    closeModal,
+    editingPhoto,
+    isUploading,
+  } = usePhotoStore();
   const { albums } = useAlbumStore();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -76,7 +83,9 @@ export default function PhotoForm() {
   };
 
   const multiFiles =
-    !editingPhoto && Array.isArray(formData.image_url) ? formData.image_url : null;
+    !editingPhoto && Array.isArray(formData.image_url)
+      ? formData.image_url
+      : null;
   const isMultiUpload = !!multiFiles && multiFiles.length > 1;
 
   return (
@@ -137,7 +146,9 @@ export default function PhotoForm() {
           </label>
           <select
             value={formData.status || "draft"}
-            onChange={(e) => setFormData({ status: e.target.value as PhotoStatus })}
+            onChange={(e) =>
+              setFormData({ status: e.target.value as PhotoStatus })
+            }
             className="w-full border rounded px-3 py-2"
           >
             <option value="public">Công khai</option>
@@ -241,6 +252,14 @@ export default function PhotoForm() {
           <UploadButton />
         </div>
       </form>
+      {isUploading && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white px-6 py-4 rounded-lg flex items-center gap-3">
+            <LoaderInline size={20} />
+            <span className="font-medium">Đang upload ảnh...</span>
+          </div>
+        </div>
+      )}
 
       {/* Modal: Create New Album */}
       {showNewAlbumForm && (

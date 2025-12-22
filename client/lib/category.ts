@@ -22,7 +22,9 @@ const getStoredAccessToken = () => {
 };
 
 const authHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
@@ -43,7 +45,7 @@ export async function createCategory(data: {
   slug: string;
   description: string;
 }) {
-  const res = await fetch(`${CATEGORIES_API}/`, {
+  const res = await fetch(`${CATEGORIES_API}`, {
     method: "POST",
     credentials: "include",
     headers: authHeaders(),

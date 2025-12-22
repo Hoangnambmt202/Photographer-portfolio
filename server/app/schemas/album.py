@@ -2,24 +2,30 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+
+
 class AlbumStatus(str, Enum):
     active = "active"
     archived = "archived"
     draft = "draft"
 
+
 class TagResponse(BaseModel):
     id: int
     name: str
     slug: str
-    
+
     class Config:
         from_attributes = True
+
 
 class CategoryResponse(BaseModel):
     id: int
     name: str
+
     class Config:
         from_attributes = True
+
 
 class AlbumBase(BaseModel):
     title: str
@@ -33,13 +39,23 @@ class AlbumBase(BaseModel):
 class AlbumCreate(AlbumBase):
     pass
 
+
+class AlbumUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    category: Optional[int] = None
+    cover_image: Optional[str] = None
+    tags: Optional[List[int]] = None
+
+
 class AlbumResponse(AlbumBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
     tags: List[TagResponse] = []
     photo_quantity: int = 0
-    category: Optional[CategoryResponse] = None 
+    category: Optional[CategoryResponse] = None
 
     class Config:
         from_attributes = True

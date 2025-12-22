@@ -1,10 +1,8 @@
 import { AlbumFilters } from "@/types";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
-  /\/$/,
-  ""
-);
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
 const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
 const ALBUMS_API = `${API_ROOT}/albums`;
 
@@ -15,9 +13,7 @@ const getStoredAccessToken = () => {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return (
-      parsed?.state?.accessToken ||
-      parsed?.state?.state?.accessToken ||
-      null
+      parsed?.state?.accessToken || parsed?.state?.state?.accessToken || null
     );
   } catch {
     return null;
@@ -25,7 +21,9 @@ const getStoredAccessToken = () => {
 };
 
 const authHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
@@ -34,7 +32,7 @@ const authHeaders = (): Record<string, string> => {
 export async function getAlbums(params: {
   page?: number;
   limit?: number;
-  filters?:AlbumFilters
+  filters?: AlbumFilters;
 }) {
   const query = new URLSearchParams();
 
@@ -51,7 +49,7 @@ export async function getAlbums(params: {
       }
     });
   }
-  
+
   const res = await fetch(`${ALBUMS_API}?${query.toString()}`, {
     method: "GET",
     credentials: "include",
@@ -62,26 +60,19 @@ export async function getAlbums(params: {
   return res.json();
 }
 
-
 export async function createAlbum(data: any) {
-  const form = new FormData();
-
-  if (data.title) form.append("title", data.title);
-  if (data.description) form.append("description", data.description);
-  if (data.status) form.append("status", data.status);
-  if (data.cover_image instanceof File) {
-    form.append("cover_image", data.cover_image);
-  }
-  if (data.category) {
-    form.append("category", data.category.toString());
-  }
-  if (data.tags && Array.isArray(data.tags)) {
-    form.append("tags", JSON.stringify(data.tags));
-  }
+  const payload = {
+    title: data.title,
+    slug: data.slug,
+    description: data.description || "",
+    category: data.category,
+    status: data.status || "draft",
+    tags: data.tags,
+  };
 
   const res = await fetch(`${ALBUMS_API}`, {
     method: "POST",
-    body: form,
+    body: JSON.stringify(payload),
     credentials: "include",
     headers: authHeaders(),
   });
@@ -90,31 +81,24 @@ export async function createAlbum(data: any) {
 }
 
 export async function updateAlbum(id: number, data: any) {
-  const form = new FormData();
-
-  if (data.title) form.append("title", data.title);
-  if (data.description) form.append("description", data.description);
-  if (data.status) form.append("status", data.status);
-  if (data.cover_image instanceof File) {
-    form.append("cover_image", data.cover_image);
-  }
-  if (data.tags && Array.isArray(data.tags)) {
-    form.append("tags", JSON.stringify(data.tags));
-  }
-  if (data.category) {
-    form.append("category", data.category.toString());
-  }
-
+  
+  const payload = {
+    title: data.title,
+    slug: data.slug,
+    description: data.description || "",
+    category: data.category,
+    status: data.status || "draft",
+    tags: data.tags,
+  };
   const res = await fetch(`${ALBUMS_API}/${id}`, {
     method: "PUT",
-    body: form,
+    body: JSON.stringify(payload),
     credentials: "include",
     headers: authHeaders(),
   });
 
   return res.json();
 }
-
 
 export async function deleteAlbum(id: number) {
   const res = await fetch(`${ALBUMS_API}/${id}`, {

@@ -23,7 +23,9 @@ const getStoredAccessToken = () => {
 };
 
 const authHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
