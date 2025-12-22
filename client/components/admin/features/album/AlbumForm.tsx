@@ -1,5 +1,6 @@
 "use client";
-import InputImage from "@/components/common/InputImage";
+// Xóa import InputImage tạm thời
+// import InputImage from "@/components/common/InputImage";
 import { useAlbumStore } from "@/stores/albumStore";
 import { useTagStore } from "@/stores/tagStore";
 import { useEffect } from "react";
@@ -16,9 +17,10 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
   const { formData, setFormData, addOrUpdateAlbum, closeModal, editingAlbum } = useAlbumStore();
   const {categories} =  useCategoryStore()
   const { fetchTags } = useTagStore();
+  
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [fetchTags]);
 
   function toSlug(str: string) {
     return str
@@ -40,7 +42,6 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await addOrUpdateAlbum();
-    // Call callback if provided (for creating album from photo form)
     if (onAlbumCreated && result.id) {
       onAlbumCreated(result.id);
     }
@@ -49,11 +50,12 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
       onClose();
     }
   };
+  
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 p-6 "
-      encType="multipart/form-data"
+      className="space-y-4 p-6"
+      // XÓA HOÀN TOÀN encType="multipart/form-data"
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -85,16 +87,15 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
           className="w-full border rounded px-3 py-2"
         />
       </div>
+      
       <div>
         <label className="block font-medium mb-2">Thuộc Danh mục: </label>
-
         <select
           className="w-full border rounded px-3 py-2"
           value={formData.category ?? ""}
           onChange={(e) => setFormData({ category: Number(e.target.value) })}
         >
           <option value="">-- Chọn danh mục --</option>
-
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -102,16 +103,22 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
           ))}
         </select>
       </div>
+      
       <TagSelect
         defaultValues={formData.tags ?? []}
         onChange={(tagObjects) => {
+          console.log(tagObjects);
           setFormData({ tags: tagObjects });
         }}
       />
+      
+      {/* TẠM THỜI COMMENT PHẦN INPUT IMAGE */}
+      {/*
       <div>
         <label htmlFor="">Ảnh thumbnail album</label>
         <InputImage />
       </div>
+      */}
 
       <div>
         <label className="block text-sm mb-2">Trạng thái</label>

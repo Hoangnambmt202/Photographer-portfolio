@@ -15,6 +15,7 @@ import { Photo, PhotoBaseState, PhotoFilters, PhotoFormData } from "@/types";
 
 interface PhotoState extends PhotoBaseState {
   isLoading: boolean;
+  isUploading:boolean;
   isSearching: boolean;
   albumPhotos: Photo[];
   fetchPhotos: (page?: number, filters?: PhotoFilters) => Promise<void>;
@@ -133,6 +134,7 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
   addOrUpdatePhoto: async () => {
     const { editingPhoto, currentPage, formData } = get();
     try {
+      set({ isUploading: true });
       let res;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { slug, ...payload } = formData;
@@ -167,6 +169,8 @@ export const usePhotoStore = create<PhotoState>((set, get) => ({
     } catch (error) {
       console.error(error);
       showToast.error("Lưu ảnh thất bại", { duration: 3000 });
+    } finally {
+      set({ isUploading: false });
     }
   },
   // UPDATE 

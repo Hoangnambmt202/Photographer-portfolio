@@ -49,6 +49,9 @@ export const useTagStore = create<TagState>((set, get) => ({
   createTag: async (name) => {
     const res = await createTag({ name });
     const newTag = (res as BaseResponse<Tag>).data ?? res;
+    set((st) => ({
+      tags: [...st.tags, newTag]
+    }));
     await get().fetchTags();
     return newTag;
   },
