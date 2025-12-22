@@ -83,9 +83,7 @@ export async function createAlbum(data: any) {
     method: "POST",
     body: form,
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
 
   return res.json();
@@ -111,9 +109,7 @@ export async function updateAlbum(id: number, data: any) {
     method: "PUT",
     body: form,
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
 
   return res.json();
@@ -124,10 +120,8 @@ export async function deleteAlbum(id: number) {
   const res = await fetch(`${ALBUMS_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Không thể xóa album");
-  return await res.json();
+  return res.json();
 }

@@ -34,9 +34,7 @@ export async function getTags() {
   const res = await fetch(`${TAGS_API}/`, {
     credentials: "include",
     method: "GET",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
 
   if (!res.ok) {
@@ -44,42 +42,40 @@ export async function getTags() {
     throw new Error(`Không thể tải danh sách tags: ${err}`);
   }
 
-  return await res.json();
+  return  res.json();
 }
 
 // ✅ Tạo tag mới
 export async function createTag(data: { name: string }) {
   const res = await fetch(`${TAGS_API}/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   });
 
   if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  return res.json();
 }
 // ✅ Cập nhật tag
 export async function updateTag(id: number, data: { name: string }) {
   const res = await fetch(`${TAGS_API}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   });
 
   if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  return res.json();
 }
 // ✅ Xóa tag
 export async function deleteTag(id: number) {
   const res = await fetch(`${TAGS_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error(await res.text());
-  return;
+  return res.json;
 }

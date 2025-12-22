@@ -95,13 +95,11 @@ export async function createPhoto(data: any) {
     method: "POST",
     body: form,
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
 
   if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  return res.json();
 }
 
 // ✅ Upload nhiều ảnh cùng lúc (server: POST /api/photos/bulk)
@@ -133,36 +131,32 @@ export async function createPhotosBulk(files: File[], data: CreatePhotosBulkMeta
     method: "POST",
     body: form,
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  return res.json();
 }
 
 
 export async function updatePhoto(id: number, data: any) {
   const res = await fetch(`${PHOTOS_API}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Không thể cập nhật photo");
-  return await res.json();
+  return res.json();
 }
 
 export async function deletePhoto(id: number) {
   const res = await fetch(`${PHOTOS_API}/${id}`, {
     method: "DELETE",
     credentials: "include",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Không thể xóa photo");
-  return await res.json();
+  return res.json();
 }
 
 
@@ -171,9 +165,7 @@ export async function getAlbumPhotos(albumId: number) {
   const res = await fetch(`${API_ROOT}/albums/${albumId}/photos`, {
     credentials: "include",
     method: "GET",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: authHeaders(),
   });
   
   if (!res.ok) {
@@ -182,7 +174,7 @@ export async function getAlbumPhotos(albumId: number) {
   }
   
   // trả về { status, message, data: Photo[] }
-  return await res.json(); 
+  return res.json(); 
 }
 
 
@@ -193,7 +185,7 @@ export async function reorderAlbumPhotos(
 ) {
   const res = await fetch(`${API_ROOT}/albums/${albumId}/reorder-photos`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify({ photos }),
   });
@@ -204,16 +196,15 @@ export async function reorderAlbumPhotos(
   }
   
   // trả về { status, message, data: Photo[] }
-  return await res.json(); 
+  return res.json(); 
 }
 
 
 // ✅ Set featured photo cho album
 export async function setFeaturedPhoto(photoId: number, albumId: number) {
-  // server đang khai báo endpoint này trong router albums: PATCH /api/albums/{photo_id}/set-featured
   const res = await fetch(`${API_ROOT}/albums/${photoId}/set-featured`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
+    headers: authHeaders(),
     credentials: "include",
     body: JSON.stringify({ album_id: albumId }),
   });
@@ -223,5 +214,5 @@ export async function setFeaturedPhoto(photoId: number, albumId: number) {
     throw new Error(`Không thể set ảnh nổi bật: ${err}`);
   }
   // trả về { status, message, data: Photo }
-  return await res.json(); 
+  return res.json(); 
 }
