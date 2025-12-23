@@ -4,7 +4,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config.database import Base, engine, SessionLocal
-from app.routers import user, album, photo, contact, auth, category, setting, tag
+from app.routers import (
+    user,
+    album,
+    photo,
+    contact,
+    auth,
+    category,
+    setting,
+    tag,
+    service,
+)
 from app.models.user import User
 from app.config.security import hash_password
 
@@ -18,24 +28,28 @@ Base.metadata.create_all(bind=engine)
 # --------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # ----- Startup -----
     db = SessionLocal()
+
     admin = db.query(User).filter(User.email == "admin@gmail.com").first()
 
     if not admin:
-        new_admin = User(
+        admin = User(
             full_name="Admin",
             email="admin@gmail.com",
             is_admin=True,
             password=hash_password("123456"),
         )
-        db.add(new_admin)
-        db.commit()
+        db.add(admin)
         print("✔ Admin account created!")
+    else:
+        if not admin.is_admin:
+            admin.is_admin = True
+            print("🔧 Admin privilege fixed!")
 
+    db.commit()
     db.close()
 
-    yield  # cho FastAPI chạy
+    yield
 
     # ----- Shutdown -----
     # (option) đóng kết nối, cleanup nếu cần
@@ -75,6 +89,7 @@ app.include_router(auth.router)
 app.include_router(category.router)
 app.include_router(setting.router)
 app.include_router(tag.router)
+app.include_router(service.router)
 
 
 @app.get("/")

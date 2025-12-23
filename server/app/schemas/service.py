@@ -1,30 +1,84 @@
-from typing import List
 from pydantic import BaseModel
+from typing import Optional, List
+from datetime import datetime
+from enum import Enum
 
-class ServiceBase(BaseModel):
-    name: str
-    price: int
-    description: str | None = None
-    delivered_photos: int | None = None
-    sessions: int | None = None
-    is_active: bool = True
-    category_ids: List[int]
 
-class ServiceCreate(ServiceBase):
-    pass
+class ServiceStatus(str, Enum):
+    active = "active"
+    inactive = "inactive"
+    draft = "draft"
 
-class ServiceUpdate(ServiceBase):
-    pass
 
-class ServiceResponse(BaseModel):
+class ServiceTagResponse(BaseModel):
     id: int
     name: str
-    price: int
-    description: str | None
-    delivered_photos: int | None
-    sessions: int | None
-    is_active: bool
-    categories: List[str]
+    slug: str
 
     class Config:
         from_attributes = True
+
+
+class ServiceCategoryResponse(BaseModel):
+    id: int
+    name: str
+    slug: str
+
+    class Config:
+        from_attributes = True
+
+
+class ServiceBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: int
+    duration: Optional[str] = None
+    max_people: Optional[int] = None
+    included_items: Optional[str] = None
+    status: ServiceStatus = ServiceStatus.active
+    category_id: Optional[int] = None
+    cover_image: Optional[str] = None
+    discount_percent: int = 0
+    is_featured: bool = False
+    display_order: int = 0
+
+
+class ServiceCreate(ServiceBase):
+    tag_ids: Optional[List[int]] = []
+
+
+class ServiceUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[int] = None
+    duration: Optional[str] = None
+    max_people: Optional[int] = None
+    included_items: Optional[str] = None
+    status: Optional[ServiceStatus] = None
+    category_id: Optional[int] = None
+    cover_image: Optional[str] = None
+    tag_ids: Optional[List[int]] = None
+    discount_percent: Optional[int] = None
+    is_featured: Optional[bool] = None
+    display_order: Optional[int] = None
+
+
+class ServiceResponse(ServiceBase):
+    id: int
+    slug: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    tags: List[ServiceTagResponse] = []
+    category: Optional[ServiceCategoryResponse] = None
+    # Tính giá sau giảm giá
+    final_price: int = 0
+
+    class Config:
+        from_attributes = True
+
+    @classmethod
+    def model_validate(cls, obj):
+        data = super().model_validate(obj)
+        # Tính final price
+        data.final_price = data.price * (100 - data.discount_percent) // 100
+        return data

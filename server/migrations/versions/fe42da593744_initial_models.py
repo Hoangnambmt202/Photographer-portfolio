@@ -34,6 +34,12 @@ class PhotoStatus(enum.Enum):
     draft = "draft"
 
 
+class ServiceStatus(enum.Enum):
+    active = "active"
+    inactive = "inactive"
+    draft = "draft"
+
+
 def upgrade() -> None:
     conn = op.get_bind()
 
@@ -80,12 +86,33 @@ def upgrade() -> None:
     else:
         print("⏩ Enum type 'photostatus' already exists, skipping...")
 
+    # Kiểm tra nếu servicestatus enum đã tồn tại
+    servicestatus_exists = conn.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM pg_type WHERE typname = 'servicestatus'
+        )
+    """
+    ).scalar()
+
+    if not servicestatus_exists:
+        service_status_enum = postgresql.ENUM(
+            "active", "inactive", "draft", name="servicestatus", create_type=True
+        )
+        service_status_enum.create(op.get_bind())
+        print("✅ Created enum type: servicestatus")
+    else:
+        print("⏩ Enum type 'servicestatus' already exists, skipping...")
+
     # Sử dụng enum types đã check
     album_status_type = postgresql.ENUM(
         "active", "archived", "draft", name="albumstatus"
     )
     photo_status_type = postgresql.ENUM(
         "public", "private", "archived", "draft", name="photostatus"
+    )
+    service_status_type = postgresql.ENUM(
+        "active", "inactive", "draft", name="servicestatus"
     )
 
     # === CREATE TABLES WITH EXISTENCE CHECKS ===
@@ -259,7 +286,7 @@ def upgrade() -> None:
     else:
         print("⏩ Table 'photos' already exists, skipping...")
 
-    # SERVICES TABLE
+    # SERVICES TABLE (tạo sau các bảng categories, users, tags)
     services_exists = conn.execute(
         """
         SELECT EXISTS (
@@ -273,32 +300,40 @@ def upgrade() -> None:
         op.create_table(
             "services",
             sa.Column("id", sa.Integer(), nullable=False),
-            sa.Column("name", sa.String(length=255), nullable=False),
-            sa.Column("price", sa.BigInteger(), nullable=False),
+            sa.Column("name", sa.String(length=150), nullable=False),
+            sa.Column("slug", sa.String(length=255), nullable=True),
             sa.Column("description", sa.Text(), nullable=True),
+            sa.Column("price", sa.Integer(), nullable=False),
+            sa.Column("duration", sa.String(length=50), nullable=True),
+            sa.Column("max_people", sa.Integer(), nullable=True),
+            sa.Column("included_items", sa.Text(), nullable=True),
             sa.Column(
-                "delivered_photos",
-                sa.Integer(),
-                server_default=sa.text("0"),
-                nullable=True,
+                "status", service_status_type, nullable=False, server_default="active"
             ),
-            sa.Column(
-                "is_visible",
-                sa.Boolean(),
-                server_default=sa.text("true"),
-                nullable=True,
-            ),
-            sa.Column(
-                "is_active", sa.Boolean(), server_default=sa.text("true"), nullable=True
-            ),
+            sa.Column("category_id", sa.Integer(), nullable=True),
+            sa.Column("user_id", sa.Integer(), nullable=True),
             sa.Column(
                 "created_at",
-                sa.TIMESTAMP(timezone=True),
+                sa.DateTime(timezone=True),
                 server_default=sa.text("now()"),
+                nullable=True,
+            ),
+            sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+            sa.Column("cover_image", sa.String(length=255), nullable=True),
+            sa.Column("display_order", sa.Integer(), server_default="0", nullable=True),
+            sa.Column(
+                "discount_percent", sa.Integer(), server_default="0", nullable=True
+            ),
+            sa.Column(
+                "is_featured",
+                sa.Boolean(),
+                server_default=sa.text("false"),
                 nullable=True,
             ),
             sa.PrimaryKeyConstraint("id"),
         )
+        op.create_index(op.f("ix_services_id"), "services", ["id"], unique=False)
+        op.create_index(op.f("ix_services_slug"), "services", ["slug"], unique=True)
         print("✅ Created table: services")
     else:
         print("⏩ Table 'services' already exists, skipping...")
@@ -347,7 +382,9 @@ def upgrade() -> None:
             sa.Column("email", sa.String(length=120), nullable=False),
             sa.Column("phone", sa.String(length=100), nullable=False),
             sa.Column("message", sa.Text(), nullable=False),
-            sa.Column("is_read", sa.Boolean(), nullable=True),
+            sa.Column(
+                "is_read", sa.Boolean(), server_default=sa.text("false"), nullable=True
+            ),
             sa.Column(
                 "created_at",
                 sa.DateTime(timezone=True),
@@ -533,20 +570,78 @@ def upgrade() -> None:
         )
         print("✅ Created foreign key: fk_photos_user_id")
 
-    # === CREATE INDEXES (with checks) ===
-    # ... (giữ nguyên phần indexes như cũ, nhưng thêm check nếu muốn)
+    # Services foreign keys
+    fk_services_category_exists = conn.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints 
+            WHERE table_name = 'services' 
+            AND constraint_name = 'fk_services_category_id'
+        )
+    """
+    ).scalar()
+
+    if not fk_services_category_exists:
+        op.create_foreign_key(
+            "fk_services_category_id",
+            "services",
+            "categories",
+            ["category_id"],
+            ["id"],
+        )
+        print("✅ Created foreign key: fk_services_category_id")
+
+    fk_services_user_exists = conn.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints 
+            WHERE table_name = 'services' 
+            AND constraint_name = 'fk_services_user_id'
+        )
+    """
+    ).scalar()
+
+    if not fk_services_user_exists:
+        op.create_foreign_key(
+            "fk_services_user_id", "services", "users", ["user_id"], ["id"]
+        )
+        print("✅ Created foreign key: fk_services_user_id")
+
+    # === CREATE ADDITIONAL INDEXES ===
+    # Index cho display_order trong services
+    op.create_index(
+        op.f("ix_services_display_order"), "services", ["display_order"], unique=False
+    )
+
+    # Index cho is_featured trong services
+    op.create_index(
+        op.f("ix_services_is_featured"), "services", ["is_featured"], unique=False
+    )
+
+    # Index cho status trong các bảng
+    op.create_index(op.f("ix_services_status"), "services", ["status"], unique=False)
+
+    op.create_index(op.f("ix_albums_status"), "albums", ["status"], unique=False)
+
+    op.create_index(op.f("ix_photos_status"), "photos", ["status"], unique=False)
 
 
 def downgrade() -> None:
+    # === DROP ADDITIONAL INDEXES ===
+    op.drop_index(op.f("ix_photos_status"), table_name="photos")
+    op.drop_index(op.f("ix_albums_status"), table_name="albums")
+    op.drop_index(op.f("ix_services_status"), table_name="services")
+    op.drop_index(op.f("ix_services_is_featured"), table_name="services")
+    op.drop_index(op.f("ix_services_display_order"), table_name="services")
+
     # === DROP FOREIGN KEYS ===
+    op.drop_constraint("fk_services_user_id", "services", type_="foreignkey")
+    op.drop_constraint("fk_services_category_id", "services", type_="foreignkey")
     op.drop_constraint("fk_photos_user_id", "photos", type_="foreignkey")
     op.drop_constraint("fk_photos_album_id", "photos", type_="foreignkey")
     op.drop_constraint("fk_albums_featured_photo", "albums", type_="foreignkey")
     op.drop_constraint("fk_albums_user_id", "albums", type_="foreignkey")
     op.drop_constraint("fk_albums_category_id", "albums", type_="foreignkey")
-
-    # === DROP INDEXES ===
-    # ... (giữ nguyên phần drop indexes)
 
     # === DROP MANY-TO-MANY TABLES ===
     op.drop_table("service_tags")
@@ -567,6 +662,18 @@ def downgrade() -> None:
     conn = op.get_bind()
 
     # Check if enum exists before dropping
+    servicestatus_exists = conn.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM pg_type WHERE typname = 'servicestatus'
+        )
+    """
+    ).scalar()
+
+    if servicestatus_exists:
+        service_status_enum = postgresql.ENUM(name="servicestatus")
+        service_status_enum.drop(op.get_bind(), checkfirst=True)
+
     photostatus_exists = conn.execute(
         """
         SELECT EXISTS (
