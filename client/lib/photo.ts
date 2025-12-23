@@ -64,6 +64,7 @@ export async function getPhotos(params: {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+// GET PHOTO BY ID
 export async function getPhotoById(id: number) {
   const res = await fetch(`${PHOTOS_API}/${id}`, {
     credentials: "include",

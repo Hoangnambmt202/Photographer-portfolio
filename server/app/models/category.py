@@ -15,3 +15,4 @@ class Category(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
     # Quan hệ 1-n: Một Category có nhiều Album
     albums = relationship("Album", back_populates="category")
+    services = relationship("Service", back_populates="category", cascade="all, delete")

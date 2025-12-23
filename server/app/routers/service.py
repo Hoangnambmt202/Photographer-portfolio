@@ -1,84 +1,281 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+from slugify import slugify
+from typing import Optional, List
+import math
+
 from app.config.database import get_db
-from app.models.service import Service
+from app.config.security import get_current_admin
+from app.models.service import Service, ServiceStatus
+from app.models.tag import Tag
 from app.models.category import Category
 from app.schemas.service import (
-    ServiceCreate, ServiceUpdate, ServiceResponse
+    ServiceResponse,
+    ServiceCreate,
+    ServiceUpdateRequest,
+    ServiceStatus as ServiceStatusEnum,
 )
+from app.schemas.response import BaseResponse
 
-router = APIRouter(prefix="/services", tags=["Services"])
+router = APIRouter(prefix="/api/services", tags=["Services"])
 
 
-# Create a new service
-@router.post("", response_model=ServiceResponse)
-def create_service(data: ServiceCreate, db: Session = Depends(get_db)):
-    categories = db.query(Category).filter(
-        Category.id.in_(data.category_ids)
-    ).all()
+@router.post("", response_model=BaseResponse)
+async def create_service(
+    service_data: ServiceCreate,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
+    # Tạo slug từ name
+    base_slug = slugify(service_data.name)
+    slug = base_slug
+    counter = 1
 
+    # Đảm bảo slug là unique
+    while db.query(Service).filter(Service.slug == slug).first():
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
+    # Tạo service
     service = Service(
-        name=data.name,
-        price=data.price,
-        description=data.description,
-        delivered_photos=data.delivered_photos,
-        sessions=data.sessions,
-        is_active=data.is_active,
-        categories=categories
+        name=service_data.name,
+        slug=slug,
+        description=service_data.description,
+        price=service_data.price,
+        duration=service_data.duration,
+        max_people=service_data.max_people,
+        included_items=service_data.included_items,
+        status=service_data.status,
+        category_id=service_data.category_id,
+        cover_image=service_data.cover_image,
+        discount_percent=service_data.discount_percent,
+        is_featured=service_data.is_featured,
+        display_order=service_data.display_order,
+        user_id=current_admin.id,  # Gán photographer hiện tại
     )
 
     db.add(service)
     db.commit()
     db.refresh(service)
 
-    return {
-        **service.__dict__,
-        "categories": [c.name for c in service.categories]
-    }
+    # Xử lý tags nếu có
+    if service_data.tag_ids:
+        tags = db.query(Tag).filter(Tag.id.in_(service_data.tag_ids)).all()
+        service.tags = tags
+        db.commit()
+        db.refresh(service)
 
-# get service
-@router.get("", response_model=list[ServiceResponse])
-def list_services(
-    is_active: bool | None = None,
-    db: Session = Depends(get_db)
+    return BaseResponse(
+        status="success",
+        message="Tạo dịch vụ thành công",
+        data=ServiceResponse.model_validate(service),
+    )
+
+
+@router.get("", response_model=BaseResponse)
+def get_services(
+    search: Optional[str] = None,
+    status: Optional[str] = None,
+    category_id: Optional[int] = None,
+    tag_id: Optional[int] = None,
+    min_price: Optional[int] = None,
+    max_price: Optional[int] = None,
+    featured: Optional[bool] = None,
+    page: int = 1,
+    limit: int = 12,
+    db: Session = Depends(get_db),
 ):
     query = db.query(Service)
 
-    if is_active is not None:
-        query = query.filter(Service.is_active == is_active)
+    # Áp dụng các bộ lọc
+    if search:
+        query = query.filter(Service.name.ilike(f"%{search}%"))
 
-    services = query.all()
+    if status:
+        query = query.filter(Service.status == status)
 
-    return [
-        {
-            **s.__dict__,
-            "categories": [c.name for c in s.categories]
-        }
-        for s in services
+    if category_id:
+        query = query.filter(Service.category_id == category_id)
+
+    if tag_id:
+        query = query.filter(Service.tags.any(Tag.id == tag_id))
+
+    if min_price is not None:
+        query = query.filter(Service.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Service.price <= max_price)
+
+    if featured is not None:
+        query = query.filter(Service.is_featured == featured)
+
+    # Chỉ lấy dịch vụ active cho client (nếu không phải admin)
+    # if not current_admin:
+    #     query = query.filter(Service.status == ServiceStatus.active)
+
+    total = query.count()
+
+    # Sắp xếp theo display_order, sau đó theo created_at
+    services = (
+        query.order_by(Service.display_order, Service.created_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
+
+    data = [ServiceResponse.model_validate(service) for service in services]
+
+    return BaseResponse(
+        status="success",
+        message="Danh sách dịch vụ",
+        data={
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "total_pages": math.ceil(total / limit),
+            "data": data,
+        },
+    )
+
+
+@router.get("/{service_id}", response_model=BaseResponse)
+def get_service(
+    service_id: int,
+    db: Session = Depends(get_db),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+
+    if not service:
+        raise HTTPException(status_code=404, detail="Dịch vụ không tồn tại")
+
+    return BaseResponse(
+        status="success",
+        message="Chi tiết dịch vụ",
+        data=ServiceResponse.model_validate(service),
+    )
+
+
+@router.put("/{service_id}", response_model=BaseResponse)
+async def update_service(
+    service_id: int,
+    request: ServiceUpdateRequest,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+
+    if not service:
+        raise HTTPException(status_code=404, detail="Dịch vụ không tồn tại")
+
+    # Cập nhật các trường cơ bản
+    update_fields = [
+        "name",
+        "description",
+        "price",
+        "duration",
+        "max_people",
+        "included_items",
+        "status",
+        "category_id",
+        "cover_image",
+        "discount_percent",
+        "is_featured",
+        "display_order",
     ]
 
-# Update service
-@router.put("/{service_id}", response_model=ServiceResponse)
-def update_service(
-    service_id: int,
-    data: ServiceUpdate,
-    db: Session = Depends(get_db)
-):
-    service = db.query(Service).get(service_id)
-    if not service:
-        raise HTTPException(404, "Service not found")
+    for field in update_fields:
+        value = getattr(request, field)
+        if value is not None:
+            setattr(service, field, value)
 
-    for field, value in data.model_dump(exclude={"category_ids"}).items():
-        setattr(service, field, value)
+    # Nếu cập nhật name, cập nhật slug
+    if request.name:
+        service.slug = slugify(request.name)
 
-    service.categories = db.query(Category).filter(
-        Category.id.in_(data.category_ids)
-    ).all()
+    # Cập nhật tags nếu có
+    if request.tag_ids is not None:
+        tags = db.query(Tag).filter(Tag.id.in_(request.tag_ids)).all()
+        service.tags = tags
 
     db.commit()
     db.refresh(service)
 
-    return {
-        **service.__dict__,
-        "categories": [c.name for c in service.categories]
-    }
+    return BaseResponse(
+        status="success",
+        message="Cập nhật dịch vụ thành công",
+        data=ServiceResponse.model_validate(service),
+    )
+
+
+@router.patch("/{service_id}/status", response_model=BaseResponse)
+def update_service_status(
+    service_id: int,
+    status: ServiceStatusEnum,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+
+    if not service:
+        raise HTTPException(status_code=404, detail="Dịch vụ không tồn tại")
+
+    service.status = status
+    db.commit()
+
+    return BaseResponse(
+        status="success",
+        message=f"Cập nhật trạng thái dịch vụ thành {status.value}",
+        data=ServiceResponse.model_validate(service),
+    )
+
+
+@router.delete("/{service_id}", response_model=BaseResponse)
+def delete_service(
+    service_id: int,
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+
+    if not service:
+        raise HTTPException(status_code=404, detail="Dịch vụ không tồn tại")
+
+    db.delete(service)
+    db.commit()
+
+    return BaseResponse(
+        status="success",
+        message="Xóa dịch vụ thành công",
+    )
+
+
+@router.post("/{service_id}/upload-cover", response_model=BaseResponse)
+async def upload_service_cover(
+    service_id: int,
+    cover_image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_admin=Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+
+    if not service:
+        raise HTTPException(status_code=404, detail="Dịch vụ không tồn tại")
+
+    # Upload ảnh lên Cloudinary (giống như album/photo)
+    try:
+        import cloudinary.uploader
+
+        upload_result = cloudinary.uploader.upload(
+            cover_image.file, folder="photographer_services", resource_type="image"
+        )
+        service.cover_image = upload_result.get("secure_url")
+        db.commit()
+
+        return BaseResponse(
+            status="success",
+            message="Upload ảnh cover thành công",
+            data=ServiceResponse.model_validate(service),
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi upload ảnh: {str(e)}")

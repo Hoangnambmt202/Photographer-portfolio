@@ -17,6 +17,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Quan hệ với photos và albums
+    # Quan hệ
     photos = relationship("Photo", back_populates="user", cascade="all, delete")
     albums = relationship("Album", back_populates="user", cascade="all, delete")
+    services = relationship("Service", back_populates="user", cascade="all, delete")
