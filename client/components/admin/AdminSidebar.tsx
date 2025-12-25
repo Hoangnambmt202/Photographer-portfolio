@@ -17,6 +17,12 @@ import {
 import { useUIStore } from "@/stores/uiStore";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function AdminSidebar() {
   const { sidebarOpen, setSidebar } = useUIStore();
@@ -122,7 +128,7 @@ export default function AdminSidebar() {
         <div className="flex items-center justify-center p-4 border-b border-gray-800">
           <Camera className="w-8 h-8 text-blue-500" />
           {sidebarOpen && (
-            <span className="ml-2 text-xl font-bold whitespace-nowrap">
+            <span className="ml-2 text-xl font-bold whitespace-nowrap ">
               PhotoAdmin
             </span>
           )}
@@ -130,13 +136,14 @@ export default function AdminSidebar() {
 
         {/* Menu */}
         <nav className="p-4 space-y-2 flex-1 overflow-y-auto scrollbar-hide">
-          {menuItems.map((item) => {
-            const isActive = currentPage === item.id;
-            const hasSubmenu = item.submenu && item.submenu.length > 0;
-            const isSubmenuOpen = openSubmenu === item.id;
+          <TooltipProvider delayDuration={200}>
+            {menuItems.map((item) => {
+              const isActive = currentPage === item.id;
+              const hasSubmenu = item.submenu && item.submenu.length > 0;
+              const isSubmenuOpen = openSubmenu === item.id;
 
-            return (
-              <div key={item.id} className="relative group">
+              // Component chính cho mỗi menu item
+              const MenuButton = () => (
                 <button
                   onClick={() => {
                     if (hasSubmenu && sidebarOpen) {
@@ -150,9 +157,9 @@ export default function AdminSidebar() {
                     isActive
                       ? "bg-blue-600 text-white"
                       : "text-gray-300 hover:bg-gray-800"
-                  }`}
+                  } ${!sidebarOpen ? "justify-center px-0" : ""}`}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className={`flex items-center ${sidebarOpen ? "space-x-3" : ""}`}>
                     <item.icon className="w-5 h-5" />
                     {sidebarOpen && <span>{item.name}</span>}
                   </div>
@@ -164,61 +171,85 @@ export default function AdminSidebar() {
                     />
                   )}
                 </button>
+              );
 
-                {/* Submenu */}
-                {hasSubmenu && sidebarOpen && isSubmenuOpen && (
-                  <div className="mt-1 ml-4 space-y-1">
-                    {item.submenu.map((subItem) => (
+              // Component cho submenu khi sidebar đóng
+              const SubmenuTooltip = () => (
+                <div className="p-2">
+                  <div className="font-medium mb-2">{item.name}</div>
+                  <div className="space-y-1 border-t border-gray-700 pt-2">
+                    {item.submenu?.map((subItem) => (
                       <button
                         key={subItem.id}
                         onClick={() => {
                           router.push(subItem.path);
                           if (window.innerWidth < 1024) setSidebar(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-sm ${
-                          isSubmenuActive(subItem.path)
-                            ? "bg-blue-500 text-white"
-                            : "text-gray-400 hover:bg-gray-800 hover:text-white"
-                        }`}
+                        className="w-full text-left px-2 py-1 hover:bg-gray-700 rounded text-sm text-gray-300 hover:text-white transition-colors"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        <span>{subItem.name}</span>
+                        {subItem.name}
                       </button>
                     ))}
                   </div>
-                )}
+                </div>
+              );
 
-                {/* Tooltip khi sidebar đóng */}
-                {!sidebarOpen && (
-                  <div
-                    className="absolute left-full ml-2 top-1/2 -translate-y-1/2 
-  opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-9999"
-                  >
-                    <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg whitespace-nowrap">
-                      <div className="font-medium">{item.name}</div>
-
-                      {hasSubmenu && (
-                        <div className="mt-2 space-y-1 border-t border-gray-700 pt-2">
-                          {item.submenu.map((subItem) => (
+              return (
+                <div key={item.id} className="relative">
+                  {sidebarOpen ? (
+                    <div className="group">
+                      <MenuButton />
+                      {/* Submenu khi sidebar mở */}
+                      {hasSubmenu && sidebarOpen && isSubmenuOpen && (
+                        <div className="mt-1 ml-4 space-y-1">
+                          {item.submenu?.map((subItem) => (
                             <button
                               key={subItem.id}
                               onClick={() => {
                                 router.push(subItem.path);
                                 if (window.innerWidth < 1024) setSidebar(false);
                               }}
-                              className="block w-full text-left px-2 py-1 hover:bg-gray-700 rounded text-xs text-gray-300 hover:text-white"
+                              className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors text-sm ${
+                                isSubmenuActive(subItem.path)
+                                  ? "bg-blue-500 text-white"
+                                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                              }`}
                             >
-                              {subItem.name}
+                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                              <span>{subItem.name}</span>
                             </button>
                           ))}
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  ) : (
+                    // Tooltip khi sidebar đóng
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <MenuButton />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        sideOffset={10}
+                        align="start"
+                        className="bg-gray-800 text-white border-gray-700 p-0"
+                      >
+                        {hasSubmenu ? (
+                          <SubmenuTooltip />
+                        ) : (
+                          <div className="px-3 py-2">
+                            <span className="font-medium">{item.name}</span>
+                          </div>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              );
+            })}
+          </TooltipProvider>
         </nav>
       </div>
 

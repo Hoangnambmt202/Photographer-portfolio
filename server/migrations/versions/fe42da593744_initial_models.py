@@ -47,11 +47,13 @@ def upgrade() -> None:
 
     # Kiểm tra nếu albumstatus enum đã tồn tại
     albumstatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'albumstatus'
         )
     """
+        )
     ).scalar()
 
     if not albumstatus_exists:
@@ -65,11 +67,13 @@ def upgrade() -> None:
 
     # Kiểm tra nếu photostatus enum đã tồn tại
     photostatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'photostatus'
         )
     """
+        )
     ).scalar()
 
     if not photostatus_exists:
@@ -88,11 +92,13 @@ def upgrade() -> None:
 
     # Kiểm tra nếu servicestatus enum đã tồn tại
     servicestatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'servicestatus'
         )
     """
+        )
     ).scalar()
 
     if not servicestatus_exists:
@@ -119,12 +125,14 @@ def upgrade() -> None:
 
     # USERS TABLE
     users_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'users'
         )
     """
+        )
     ).scalar()
 
     if not users_exists:
@@ -157,12 +165,14 @@ def upgrade() -> None:
 
     # CATEGORIES TABLE
     categories_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'categories'
         )
     """
+        )
     ).scalar()
 
     if not categories_exists:
@@ -184,12 +194,14 @@ def upgrade() -> None:
 
     # TAGS TABLE
     tags_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'tags'
         )
     """
+        )
     ).scalar()
 
     if not tags_exists:
@@ -208,12 +220,14 @@ def upgrade() -> None:
 
     # ALBUMS TABLE
     albums_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'albums'
         )
     """
+        )
     ).scalar()
 
     if not albums_exists:
@@ -247,12 +261,14 @@ def upgrade() -> None:
 
     # PHOTOS TABLE
     photos_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'photos'
         )
     """
+        )
     ).scalar()
 
     if not photos_exists:
@@ -288,12 +304,14 @@ def upgrade() -> None:
 
     # SERVICES TABLE (tạo sau các bảng categories, users, tags)
     services_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'services'
         )
     """
+        )
     ).scalar()
 
     if not services_exists:
@@ -338,40 +356,85 @@ def upgrade() -> None:
     else:
         print("⏩ Table 'services' already exists, skipping...")
 
-    # SETTINGS TABLE
-    settings_exists = conn.execute(
-        """
-        SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_name = 'settings'
-        )
-    """
-    ).scalar()
 
-    if not settings_exists:
-        op.create_table(
+    # SETTINGS TABLE (HYBRID: CORE + JSONB)
+settings_exists = conn.execute(
+    text(
+        """
+    SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_name = 'settings'
+    )
+"""
+    )
+).scalar()
+
+if not settings_exists:
+    op.create_table(
+        "settings",
+        sa.Column("id", sa.Integer(), nullable=False),
+
+        # === CORE SETTINGS ===
+        sa.Column("site_name", sa.String(150), nullable=False),
+        sa.Column("site_description", sa.Text(), nullable=True),
+        sa.Column("logo_url", sa.String(255), nullable=True),
+
+        sa.Column("theme", sa.String(20), server_default="light"),
+        sa.Column("language", sa.String(10), server_default="vi"),
+        sa.Column("currency", sa.String(10), server_default="VND"),
+        sa.Column("timezone", sa.String(50), server_default="Asia/Ho_Chi_Minh"),
+
+        sa.Column("contact_email", sa.String(150), nullable=True),
+        sa.Column("contact_phone", sa.String(50), nullable=True),
+        sa.Column("address", sa.String(255), nullable=True),
+
+        sa.Column(
+            "is_maintenance",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=True,
+        ),
+
+        # === DYNAMIC SETTINGS ===
+        sa.Column(
             "settings",
-            sa.Column("id", sa.Integer(), nullable=False),
-            sa.Column("key", sa.String(length=100), nullable=False),
-            sa.Column("value", sa.Text(), nullable=False),
-            sa.Column("description", sa.String(length=255), nullable=True),
-            sa.Column("created_at", sa.DateTime(), nullable=True),
-            sa.Column("updated_at", sa.DateTime(), nullable=True),
-            sa.PrimaryKeyConstraint("id"),
-            sa.UniqueConstraint("key"),
-        )
-        print("✅ Created table: settings")
+            postgresql.JSONB(astext_type=sa.Text()),
+            server_default=sa.text("'{}'::jsonb"),
+            nullable=False,
+        ),
+
+        sa.Column("updated_by", sa.Integer(), nullable=True),
+
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+
+        sa.PrimaryKeyConstraint("id"),
+    )
+
+    # Indexes cho core fields
+    op.create_index("ix_settings_theme", "settings", ["theme"])
+    op.create_index("ix_settings_language", "settings", ["language"])
+    op.create_index("ix_settings_is_maintenance", "settings", ["is_maintenance"])
+
+        print("✅ Created table: settings (hybrid)")
     else:
         print("⏩ Table 'settings' already exists, skipping...")
 
     # CONTACTS TABLE
     contacts_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'contacts'
         )
     """
+        )
     ).scalar()
 
     if not contacts_exists:
@@ -401,12 +464,14 @@ def upgrade() -> None:
 
     # Album Tags
     album_tags_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'album_tags'
         )
     """
+        )
     ).scalar()
 
     if not album_tags_exists:
@@ -424,12 +489,14 @@ def upgrade() -> None:
 
     # Photo Tags
     photo_tags_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'photo_tags'
         )
     """
+        )
     ).scalar()
 
     if not photo_tags_exists:
@@ -447,12 +514,14 @@ def upgrade() -> None:
 
     # Service Tags
     service_tags_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT FROM information_schema.tables 
             WHERE table_name = 'service_tags'
         )
     """
+        )
     ).scalar()
 
     if not service_tags_exists:
@@ -475,13 +544,15 @@ def upgrade() -> None:
     # Albums foreign keys
     # Check if foreign key already exists
     fk_albums_category_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'albums' 
             AND constraint_name = 'fk_albums_category_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_albums_category_exists:
@@ -491,13 +562,15 @@ def upgrade() -> None:
         print("✅ Created foreign key: fk_albums_category_id")
 
     fk_albums_user_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'albums' 
             AND constraint_name = 'fk_albums_user_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_albums_user_exists:
@@ -507,13 +580,15 @@ def upgrade() -> None:
         print("✅ Created foreign key: fk_albums_user_id")
 
     fk_albums_featured_photo_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'albums' 
             AND constraint_name = 'fk_albums_featured_photo'
         )
     """
+        )
     ).scalar()
 
     if not fk_albums_featured_photo_exists:
@@ -529,13 +604,15 @@ def upgrade() -> None:
 
     # Photos foreign keys
     fk_photos_album_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'photos' 
             AND constraint_name = 'fk_photos_album_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_photos_album_exists:
@@ -550,13 +627,15 @@ def upgrade() -> None:
         print("✅ Created foreign key: fk_photos_album_id")
 
     fk_photos_user_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'photos' 
             AND constraint_name = 'fk_photos_user_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_photos_user_exists:
@@ -572,13 +651,15 @@ def upgrade() -> None:
 
     # Services foreign keys
     fk_services_category_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'services' 
             AND constraint_name = 'fk_services_category_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_services_category_exists:
@@ -592,13 +673,15 @@ def upgrade() -> None:
         print("✅ Created foreign key: fk_services_category_id")
 
     fk_services_user_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM information_schema.table_constraints 
             WHERE table_name = 'services' 
             AND constraint_name = 'fk_services_user_id'
         )
     """
+        )
     ).scalar()
 
     if not fk_services_user_exists:
@@ -663,11 +746,13 @@ def downgrade() -> None:
 
     # Check if enum exists before dropping
     servicestatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'servicestatus'
         )
     """
+        )
     ).scalar()
 
     if servicestatus_exists:
@@ -675,11 +760,13 @@ def downgrade() -> None:
         service_status_enum.drop(op.get_bind(), checkfirst=True)
 
     photostatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'photostatus'
         )
     """
+        )
     ).scalar()
 
     if photostatus_exists:
@@ -687,11 +774,13 @@ def downgrade() -> None:
         photo_status_enum.drop(op.get_bind(), checkfirst=True)
 
     albumstatus_exists = conn.execute(
-        """
+        text(
+            """
         SELECT EXISTS (
             SELECT 1 FROM pg_type WHERE typname = 'albumstatus'
         )
     """
+        )
     ).scalar()
 
     if albumstatus_exists:

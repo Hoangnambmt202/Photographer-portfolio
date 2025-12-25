@@ -72,7 +72,6 @@ export default function ServicesPage() {
   ]);
   useEffect(() => {
     fetchCategories();
-    loadServices();
   }, []);
 
   // Effect để load services khi các dependency thay đổi
