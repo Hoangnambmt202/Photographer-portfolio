@@ -191,7 +191,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-4 md:p-8">
       <div className="max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
         <motion.div
@@ -241,7 +241,7 @@ export default function Dashboard() {
                     </motion.p>
                   </div>
                   <motion.div
-                    className={`p-3 bg-linear-to-br ${stat.color} rounded-xl shadow-lg`}
+                    className={`p-3 bg-gradient-to-br ${stat.color} rounded-xl shadow-lg`}
                     whileHover={{ rotate: 10, scale: 1.1 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -262,7 +262,7 @@ export default function Dashboard() {
                   <span className="text-gray-500 ml-1">so với tháng trước</span>
                 </div>
               </div>
-              <div className="h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
           ))}
         </motion.div>
@@ -276,7 +276,7 @@ export default function Dashboard() {
             animate="visible"
             className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
           >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-blue-50 to-cyan-50">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center">
                 <Calendar className="w-6 h-6 mr-2" />
                 Lịch hẹn sắp tới
@@ -294,7 +294,7 @@ export default function Dashboard() {
                     className="p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
                   >
                     <div
-                      className={`absolute top-0 left-0 w-1 h-full bg-linear-to-b ${booking.color}`}
+                      className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${booking.color}`}
                     />
                     <div className="flex items-start justify-between mb-3 ml-3">
                       <div>
@@ -306,7 +306,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium bg-linear-to-r ${booking.color} text-white`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${booking.color} text-white`}
                       >
                         {booking.time}
                       </span>
@@ -328,7 +328,7 @@ export default function Dashboard() {
             animate="visible"
             className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-green-50 to-emerald-50">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center">
                 <TrendingUp className="w-6 h-6 mr-2" />
                 Doanh thu 6 tháng
@@ -342,7 +342,7 @@ export default function Dashboard() {
                     className="flex-1 flex flex-col items-center justify-end h-full"
                   >
                     <motion.div
-                      className="w-full bg-linear-to-t from-green-500 to-emerald-400 rounded-t-lg relative group cursor-pointer"
+                      className="w-full bg-gradient-to-t from-green-500 to-emerald-400 rounded-t-lg relative group cursor-pointer"
                       initial={{ height: 0 }}
                       animate={{ height: `${data.value}%` }}
                       transition={{ duration: 1, delay: index * 0.1 + 0.8 }}
@@ -370,7 +370,7 @@ export default function Dashboard() {
             animate="visible"
             className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-yellow-50 to-orange-50">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-orange-50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center">
                 <ImageIcon className="w-6 h-6 mr-2" width={24} height={24} />
                 Tình trạng ảnh
@@ -417,7 +417,7 @@ export default function Dashboard() {
             animate="visible"
             className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
           >
-            <div className="p-6 border-b border-gray-100 bg-linear-to-r from-purple-50 to-pink-50">
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center">
                 <FolderOpen className="w-6 h-6 mr-2" />
                 Trạng thái Album
@@ -466,10 +466,10 @@ export default function Dashboard() {
                       <motion.div
                         className={`h-full rounded-full ${
                           album.progress === 100
-                            ? "bg-linear-to-r from-green-500 to-emerald-500"
+                            ? "bg-gradient-to-r from-green-500 to-emerald-500"
                             : album.progress >= 60
-                            ? "bg-linear-to-r from-blue-500 to-cyan-500"
-                            : "bg-linear-to-r from-yellow-500 to-orange-500"
+                            ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                            : "bg-gradient-to-r from-yellow-500 to-orange-500"
                         }`}
                         initial={{ width: 0 }}
                         animate={{ width: `${album.progress}%` }}

@@ -128,7 +128,7 @@ export default function AdminSidebar() {
         <div className="flex items-center justify-center p-4 border-b border-gray-800">
           <Camera className="w-8 h-8 text-blue-500" />
           {sidebarOpen && (
-            <span className="ml-2 text-xl font-bold whitespace-nowrap">
+            <span className="ml-2 text-xl font-bold whitespace-nowrap ">
               PhotoAdmin
             </span>
           )}

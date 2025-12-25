@@ -1,98 +1,93 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
+import { useEffect, useState } from "react";
+import { useSettingsStore } from "@/stores/settingStore";
+import SettingsForm from "@/components/admin/features/setting/SettingsForm";
+import { showToast } from "nextjs-toast-notify"; // Hoặc sử dụng Toast library khác
 
+export default function SettingsPage() {
+  const { setting, fetchSettings, saveSettings, loading, error } =
+    useSettingsStore();
 
-export default function Settings() {
+  const [mode, setMode] = useState<"view" | "edit">("view");
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  // Hiển thị error nếu có
+  useEffect(() => {
+    if (error) {
+      showToast.error(error);
+    }
+  }, [error]);
+
+  const handleSave = async (data: any) => {
+    try {
+      await saveSettings(data);
+      showToast.success("Cập nhật cài đặt thành công!");
+      setMode("view");
+    } catch (err) {
+      showToast.error("Không thể lưu cài đặt");
+      console.error("Save settings error:", err);
+    }
+  };
+
+  const handleEdit = () => {
+    setMode("edit");
+  };
+
+  const handleCancel = () => {
+    setMode("view");
+  };
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">Cài đặt hệ thống</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <nav className="space-y-2">
-              <button className="w-full text-left px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium">
-                Cài đặt chung
-              </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                Hồ sơ
-              </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                Bảo mật
-              </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                Thông báo
-              </button>
-            </nav>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Cài đặt hệ thống</h1>
+          <p className="text-gray-600 mt-2">
+            Quản lý cấu hình website và thông tin liên hệ
+          </p>
         </div>
 
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-            <div>
-              <h2 className="text-xl font-bold mb-4">Cài đặt chung</h2>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tiêu đề trang
-              </label>
-              <input 
-                type="text" 
-                defaultValue="My Photography Portfolio"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description trang
-              </label>
-              <textarea 
-                rows={3}
-                defaultValue="Professional photography services for weddings, portraits, and events"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email liên hệ
-              </label>
-              <input 
-                type="email" 
-                defaultValue="contact@photography.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Thời gian địa phương
-              </label>
-              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>UTC+7 (Bangkok, Hanoi)</option>
-                <option>UTC+0 (London)</option>
-                <option>UTC-5 (New York)</option>
-              </select>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div>
-                <p className="font-medium">Chế độ bảo trì</p>
-                <p className="text-sm text-gray-500">Tạm thời vô hiệu hóa trang web để bảo trì</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            <div className="pt-4">
-              <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Lưu thay đổi
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Sidebar menu */}
+          <div className="lg:col-span-1">
+            <div className="bg-white border rounded-lg p-4 space-y-1">
+              <button className="w-full text-left px-4 py-3 bg-blue-50 text-blue-700 font-medium rounded-md">
+                🏠 Cài đặt chung
+              </button>
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-md">
+                💼 Giao diện & Theme
+              </button>
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-md">
+                📧 Email & SMTP
+              </button>
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-md">
+                🔒 Bảo mật
               </button>
             </div>
+          </div>
+
+          {/* Main form */}
+          <div className="lg:col-span-2">
+            {loading && !setting ? (
+              <div className="bg-white border rounded-lg p-8 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Đang tải cài đặt...</p>
+              </div>
+            ) : (
+              <SettingsForm
+                data={setting}
+                mode={mode}
+                loading={loading}
+                onEdit={handleEdit}
+                onCancel={handleCancel}
+                onSubmit={handleSave}
+              />
+            )}
           </div>
         </div>
       </div>
