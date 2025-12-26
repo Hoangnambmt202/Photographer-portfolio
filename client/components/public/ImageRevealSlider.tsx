@@ -31,7 +31,7 @@ const ImageRevealSlider = () => {
   );
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center  py-24 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center  py-24 px-6">
       <div className="max-w-4xl w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -138,9 +138,9 @@ const ImageRevealSlider = () => {
             </motion.div>
           </motion.div>
 
-          {/* Overlay linear khi hover */}
+          {/* Overlay gradient khi hover */}
           <motion.div
-            className="absolute inset-0 bg-linear-to-r from-gray-500/0 via-white/10 to-gray-500/0 pointer-events-none"
+            className="absolute inset-0 bg-gradient-to-r from-gray-500/0 via-white/10 to-gray-500/0 pointer-events-none"
             animate={{
               opacity: isDragging ? 1 : 0
             }}

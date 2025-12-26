@@ -20,7 +20,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       {/* Animated background elements - smaller on mobile */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -right-20 w-40 h-40 md:-top-40 md:-right-40 md:w-80 md:h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -33,7 +33,7 @@ export default function AdminLogin() {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6 sm:p-8">
           {/* Header - smaller on mobile */}
           <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-linear-to-br from-purple-500 to-blue-600 rounded-2xl mb-3 sm:mb-4 shadow-lg">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl mb-3 sm:mb-4 shadow-lg">
               <svg
                 className="w-6 h-6 sm:w-8 sm:h-8 text-white"
                 fill="none"
@@ -176,7 +176,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-linear-to-r from-purple-500 to-blue-600 text-white font-semibold py-2.5 sm:py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-4 text-sm sm:text-base"
+              className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-2.5 sm:py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-4 text-sm sm:text-base"
             >
               {loading ? (
                 <div className="flex items-center justify-center">

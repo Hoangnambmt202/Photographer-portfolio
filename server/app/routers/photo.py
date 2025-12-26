@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from slugify import slugify
 import cloudinary.uploader
 from datetime import datetime
@@ -12,6 +12,7 @@ from app.config.database import get_db
 from app.schemas.photo import PhotoResponse
 from app.schemas.response import BaseResponse
 from app.models.photo import Photo, PhotoStatus
+from app.models.tag import Tag
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/photos", tags=["Photos"])
@@ -31,7 +32,7 @@ def _unique_slug(db: Session, base_slug: str) -> str:
 
 
 # 🟩 1. POST /photos (Tạo mới)
-@router.post("/", response_model=BaseResponse)
+@router.post("", response_model=BaseResponse)
 async def create_photo(
     title: str = Form(...),
     description: str = Form(None),

@@ -22,7 +22,6 @@ const getStoredAccessToken = () => {
 
 const authHeaders = (): Record<string, string> => {
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
   };
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -60,6 +59,7 @@ export async function getAlbums(params: {
   return res.json();
 }
 
+// TẠO ALBUM
 export async function createAlbum(data: any) {
   const payload = {
     title: data.title,
@@ -79,7 +79,7 @@ export async function createAlbum(data: any) {
 
   return res.json();
 }
-
+// UPĐATE ALBUM
 export async function updateAlbum(id: number, data: any) {
   
   const payload = {
