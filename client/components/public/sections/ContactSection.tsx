@@ -19,7 +19,7 @@ const ContactSection = () => {
           className="w-full h-full object-cover"
           
         />
-        <div className="absolute inset-0 bg-linear-to-br from-black/70 to-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 to-black/50"></div>
       </div>
       
       <div className="relative py-24 px-6 flex items-center min-h-screen">

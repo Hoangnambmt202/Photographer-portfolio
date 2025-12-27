@@ -21,49 +21,54 @@ import math
 router = APIRouter(prefix="/api/albums", tags=["Albums"])
 
 
+
 # ------------------------------------------------------
 # CREATE ALBUM
 # ------------------------------------------------------
-class AlbumCreateRequest(BaseModel):
-    title: str
-    slug: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[str] = "draft"
-    category: Optional[int] = None
-    tags: Optional[List[dict]] = []  # [{id: 1, value: "tag1"}, ...]
-
-
 @router.post("", response_model=BaseResponse)
 async def create_album(
-    request: AlbumCreateRequest,  # ← Nhận JSON qua Pydantic model
+    title: str = Form(...),
+    description: str = Form(None),
+    status: str = Form("draft"),
+    cover_image: UploadFile = File(None),
+    category: str = Form(None),  # JSON array as string
+    tags: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin),
 ):
     # Nếu không có slug, tạo từ title
-    slug = request.slug if request.slug else slugify(request.title)
+    slug = slugify(title)
 
     # Kiểm tra slug tồn tại
     if db.query(Album).filter(Album.slug == slug).first():
         raise HTTPException(status_code=400, detail="Slug đã tồn tại")
 
+    # Upload cover
+    cover_url = None
+    if cover_image:
+        upload = cloudinary.uploader.upload(
+            cover_image.file, folder="photographer_albums", resource_type="image"
+        )
+        cover_url = upload.get("secure_url")
     # Tạo album (không có cover_image trong JSON)
     album = Album(
-        title=request.title,
-        description=request.description,
+        title=title,
+        description=description,
         slug=slug,
-        cover_image=None,  # Có thể upload riêng sau
-        status=request.status,
-        category_id=request.category,
+        cover_image=cover_url,
+        status=status,
+        category_id=category,
     )
     db.add(album)
     db.commit()
     db.refresh(album)
 
     # Xử lý Tags
-    if request.tags:
+    if tags:
         try:
+            tags_list = json.loads(tags)
             final_tag_objs = []
-            for tag_item in request.tags:
+            for tag_item in tags_list:
                 # ---- Tag cũ: có id ----
                 if "id" in tag_item and tag_item["id"]:
                     tag = db.query(Tag).filter(Tag.id == tag_item["id"]).first()
@@ -72,12 +77,11 @@ async def create_album(
                         continue
 
                 # ---- Tag mới: chỉ có name hoặc value ----
-                # Lấy name từ 'name' hoặc 'value'
                 tag_name = tag_item.get("name") or tag_item.get("value")
                 if not tag_name:
                     continue
-
                 tag_name = tag_name.strip()
+
                 if not tag_name:
                     continue
 
@@ -107,12 +111,18 @@ async def create_album(
         message="Tạo album thành công",
         data=AlbumResponse.model_validate(album),
     )
+class PaginatedAlbums(BaseModel):
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    data: list[AlbumResponse]
 
 
 # ------------------------------------------------------
 # GET ALL ALBUMS
 # ------------------------------------------------------
-@router.get("", response_model=BaseResponse)
+@router.get("", response_model=PaginatedAlbums)
 def get_albums(
     search: str | None = None,
     status: str | None = None,
@@ -150,16 +160,8 @@ def get_albums(
         item["photo_quantity"] = photo_quantity
         data.append(item)
 
-    return BaseResponse(
-        status="success",
-        message="Danh sách album",
-        data={
-            "total": total,
-            "page": page,
-            "limit": limit,
-            "total_pages": math.ceil(total / limit),
-            "data": data,
-        },
+    return PaginatedAlbums(
+        total=total, page=page, limit=limit, total_pages=math.ceil(total / limit), data=data
     )
 
 
@@ -185,7 +187,12 @@ def get_album(album_id: int, db: Session = Depends(get_db)):
 @router.put("/{album_id}", response_model=BaseResponse)
 async def update_album(
     album_id: int,
-    request: AlbumUpdateRequest,
+    title: str = Form(None),
+    description: str = Form(None),
+    status: str = Form(None),
+    cover_image: UploadFile = File(None),
+    tags: Optional[str] = Form(None),
+    category: str = Form(None),
     db: Session = Depends(get_db),
     current_admin=Depends(get_current_admin),
 ):
@@ -194,34 +201,30 @@ async def update_album(
         raise HTTPException(status_code=404, detail="Album không tồn tại")
 
     # ---- Update fields ----
-    if request.title is not None:
-        album.title = request.title
-        album.slug = slugify(request.title)
-
-    if request.description is not None:
-        album.description = request.description
-
-    if request.status is not None:
-        album.status = request.status
-
-    if request.category is not None:
-        album.category_id = request.category
-
-    if request.cover_image is not None:
-        album.cover_image = request.cover_image
-
-    # ---- Update tags (THEO ID) ----
-    if request.tags is not None:
-        tags = db.query(Tag).filter(Tag.id.in_(request.tags)).all()
-
-        # (Optional) validate thiếu tag
-        if len(tags) != len(request.tags):
-            raise HTTPException(
-                status_code=400,
-                detail="Một hoặc nhiều tag không tồn tại",
-            )
-
-        album.tags = tags  # 👈 gán trực tiếp
+    if cover_image:
+        upload = cloudinary.uploader.upload(
+            cover_image.file, folder="albums/covers", resource_type="image"
+        )
+        album.cover_image = upload.get("secure_url")
+    if title:
+        album.title = title
+        album.slug = slugify(title)
+    if description is not None:
+        album.description = description
+    if status:
+        album.status = status
+    if category is not None:
+        album.category_id = category
+    # Update tags
+    if tags:
+        try:
+            tag_id_list = json.loads(tags)
+            if isinstance(tag_id_list, list):
+                tags = db.query(Tag).filter(Tag.id.in_(tag_id_list)).all()
+                album.tags = tags
+        except (json.JSONDecodeError, ValueError):
+            pass
+       
 
     db.commit()
     db.refresh(album)

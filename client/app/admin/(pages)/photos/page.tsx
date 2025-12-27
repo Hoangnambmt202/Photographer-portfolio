@@ -77,8 +77,8 @@ export default function PhotosPage() {
       />
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4  h-screen py-2 overflow-y-auto scrollbar-hide">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 !m-0 py-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 h-full py-2 overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Upload ảnh</h2>
               <button
@@ -102,8 +102,8 @@ export default function PhotosPage() {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={totalItems} // tổng item từ backend
-        itemsPerPage={itemsPerPage} // số item mỗi trang
+        totalItems={totalItems} 
+        itemsPerPage={itemsPerPage} 
         onPageChange={handlePageChange}
       />
       <DeleteModal

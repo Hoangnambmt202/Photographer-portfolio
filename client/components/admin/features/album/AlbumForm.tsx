@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import TagSelect from "@/components/admin/TagSelect";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { AlbumStatus } from "@/types";
+import InputImage from "@/components/common/InputImage";
 
 interface AlbumFormProps {
   onClose?: () => void;
@@ -55,7 +56,7 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
     <form
       onSubmit={handleSubmit}
       className="space-y-4 p-6"
-      // XÓA HOÀN TOÀN encType="multipart/form-data"
+      encType="multipart/form-data"
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -113,12 +114,12 @@ export default function AlbumForm({ onClose, onAlbumCreated }: AlbumFormProps) {
       />
       
       {/* TẠM THỜI COMMENT PHẦN INPUT IMAGE */}
-      {/*
+      
       <div>
         <label htmlFor="">Ảnh thumbnail album</label>
         <InputImage />
       </div>
-      */}
+     
 
       <div>
         <label className="block text-sm mb-2">Trạng thái</label>

@@ -119,7 +119,7 @@ export default function PhotoDetailModal({
             <h2 className="text-lg font-semibold text-gray-900">
               {photo.title}
             </h2>
-            <div className="h-0.5 w-10 bg-linear-to-r from-blue-500 to-purple-500 rounded-full mt-1" />
+            <div className="h-0.5 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-1" />
           </div>
 
           {/* Description */}

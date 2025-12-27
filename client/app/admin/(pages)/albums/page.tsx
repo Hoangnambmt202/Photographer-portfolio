@@ -89,7 +89,7 @@ export default function AlbumsPage() {
               key={album.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="h-48 bg-linear-to-br from-blue-100 to-purple-100 relative">
+              <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 relative">
                 <Image
                   src={(album.cover_image ?? placeholderImage) as string}
                   width={100}
@@ -189,8 +189,8 @@ export default function AlbumsPage() {
         )}
       </div>
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 ">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-h-140 max-w-md mx-4  overflow-y-auto scrollbar-hide">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 !m-0 py-4 ">
+          <div className="bg-white h-full rounded-xl shadow-2xl w-full max-h-140 max-w-md mx-4  overflow-y-auto scrollbar-hide">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">
                 {modalMode === "add" ? "Thêm album mới" : "Chỉnh sửa album"}

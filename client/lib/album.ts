@@ -53,6 +53,8 @@ export async function getAlbums(params: {
     method: "GET",
     credentials: "include",
     headers: authHeaders(),
+    next: { revalidate: 0 },
+    cache: "no-store",
   });
 
   if (!res.ok) throw new Error(await res.text());
@@ -61,18 +63,24 @@ export async function getAlbums(params: {
 
 // TẠO ALBUM
 export async function createAlbum(data: any) {
-  const payload = {
-    title: data.title,
-    slug: data.slug,
-    description: data.description || "",
-    category: data.category,
-    status: data.status || "draft",
-    tags: data.tags,
-  };
+  const form = new FormData();
+
+  if (data.title) form.append("title", data.title);
+  if (data.description) form.append("description", data.description);
+  if (data.status) form.append("status", data.status);
+  if (data.cover_image instanceof File) {
+    form.append("cover_image", data.cover_image);
+  }
+  if (data.category) {
+    form.append("category", data.category.toString());
+  }
+  if (data.tags && Array.isArray(data.tags)) {
+    form.append("tags", JSON.stringify(data.tags));
+  }
 
   const res = await fetch(`${ALBUMS_API}`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: form,
     credentials: "include",
     headers: authHeaders(),
   });
@@ -82,17 +90,23 @@ export async function createAlbum(data: any) {
 // UPĐATE ALBUM
 export async function updateAlbum(id: number, data: any) {
   
-  const payload = {
-    title: data.title,
-    slug: data.slug,
-    description: data.description || "",
-    category: data.category,
-    status: data.status || "draft",
-    tags: data.tags,
-  };
+   const form = new FormData();
+
+  if (data.title) form.append("title", data.title);
+  if (data.description) form.append("description", data.description);
+  if (data.status) form.append("status", data.status);
+  if (data.cover_image instanceof File) {
+    form.append("cover_image", data.cover_image);
+  }
+  if (data.tags && Array.isArray(data.tags)) {
+    form.append("tags", JSON.stringify(data.tags));
+  }
+  if (data.category) {
+    form.append("category", data.category.toString());
+  }
   const res = await fetch(`${ALBUMS_API}/${id}`, {
     method: "PUT",
-    body: JSON.stringify(payload),
+    body: form,
     credentials: "include",
     headers: authHeaders(),
   });

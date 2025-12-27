@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { motion, useMotionValue, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
-const CoverFlowCarousel = () => {
+const CoverFlowCarousel = ({data} : {data: any[]}) => {
   const images = [
     { id: 1, url: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&h=600&fit=crop' },
     { id: 2, url: 'https://images.unsplash.com/photo-1541849546-216549ae216d?w=800&h=600&fit=crop' },
@@ -77,9 +78,9 @@ const CoverFlowCarousel = () => {
          {/* Heading */}
       
         {/* Left Blur */}
-        <div className="absolute left-0 md:left-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-linear-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
+        <div className="absolute left-0 md:left-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-gradient-to-r from-white via-white/60 to-transparent z-20 pointer-events-none" />
         {/* Right Blur */}
-        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-linear-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-48 md:w-58 bg-gradient-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
 
         <motion.div
           drag="x"
@@ -90,7 +91,7 @@ const CoverFlowCarousel = () => {
           style={{ x: dragX }}
           className="relative w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
         >
-          {images.map((image, index) => {
+          {data.map((image: any, index:number) => {
             const offset = index - currentIndex;
             const absOffset = Math.abs(offset);
 
@@ -135,7 +136,7 @@ const CoverFlowCarousel = () => {
                   <Image
                     width={100}
                     height={100}
-                    src={image.url}
+                    src={image.image_url || image.url}
                     alt={`Slide ${index + 1}`}
                     className="w-full h-full object-cover cursor-grab"
                     draggable={false}
