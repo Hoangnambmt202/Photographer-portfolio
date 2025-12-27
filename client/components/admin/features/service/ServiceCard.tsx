@@ -26,7 +26,7 @@ export default function ServiceCard({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
       {/* Header với hình ảnh */}
-      <div className="h-48 relative bg-linear-to-br from-blue-100 via-purple-100 to-pink-100">
+      <div className="h-48 relative bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
         {service.cover_image ? (
           <Image
             width={100}

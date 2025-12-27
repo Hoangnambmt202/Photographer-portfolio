@@ -20,7 +20,7 @@ const HeroSection = () => {
         className="absolute inset-0"
         style={{ y }}
       >
-        <div className="absolute inset-0 bg-linear-to-br from-gray-900 to-gray-700">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-700">
           <Image
             width={100}
             height={100}

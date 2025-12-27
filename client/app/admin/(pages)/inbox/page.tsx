@@ -307,7 +307,7 @@ export default function InboxPage() {
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                       {getInitials(conv.userName)}
                     </div>
                     {conv.isOnline && (
@@ -369,7 +369,7 @@ export default function InboxPage() {
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                   {getInitials(selectedConversation.userName)}
                 </div>
                 {selectedConversation.isOnline && (
@@ -534,7 +534,7 @@ export default function InboxPage() {
           </div>
 
           <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-semibold">
+            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-semibold">
               {getInitials(selectedConversation.userName)}
             </div>
             <h4 className="font-semibold text-lg text-gray-900">

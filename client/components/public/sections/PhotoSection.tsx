@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import {motion} from "framer-motion";
 import { Alex_Brush } from "next/font/google";
+import { Photo } from "@/types";
 
 const alex_brush_font = Alex_Brush({
   weight: "400",
@@ -34,7 +36,7 @@ const PhotoGridItem = ({ src, alt, className, index }:{src:string, alt:string, c
         transition={{ duration: 0.7, ease: "easeOut" }}
       />
       <motion.div 
-        className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
         initial={{ opacity: 0 }}
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -42,22 +44,92 @@ const PhotoGridItem = ({ src, alt, className, index }:{src:string, alt:string, c
     </motion.div>
   );
 };
+const GRID_LAYOUT = [
+  "col-span-12 md:col-span-8 row-span-2",
+  "col-span-6 md:col-span-4 row-span-2",
+  "col-span-6 md:col-span-3",
+  "col-span-6 md:col-span-5",
+  "col-span-12 md:col-span-4",
+  "col-span-6 md:col-span-4 row-span-2",
+  "col-span-6 md:col-span-4",
+  "col-span-12 md:col-span-4",
+];
+
+
+ const MOCK_PHOTOS = [
+  {
+    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80",
+    alt: "Mock photo 1",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
+    alt: "Mock photo 2",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1606216794079-e48e879d0d70?w=600&q=80",
+    alt: "Mock photo 3",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80",
+    alt: "Mock photo 4",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=800&q=80",
+    alt: "Mock photo 5",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80",
+    alt: "Mock photo 6",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80",
+    alt: "Mock photo 7",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&q=80",
+    alt: "Mock photo 8",
+  },
+];
+const buildGridPhotos = (photosFromApi?: any[]) => {
+  const sourcePhotos =
+    photosFromApi && photosFromApi.length > 0
+      ? photosFromApi.map((p) => ({
+          src: p.image_url,
+          alt: p.title,
+        }))
+      : MOCK_PHOTOS;
+
+  return sourcePhotos.map((photo, index) => ({
+    ...photo,
+    className: GRID_LAYOUT[index % GRID_LAYOUT.length],
+  }));
+};
 
 // Photos Section Component
-const PhotoSection = () => {
+const PhotoSection = ({data}: {data: any[]}) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+   const gridPhotos = buildGridPhotos(data);
+// const buildPhotoGrid = (
+//   apiPhotos: Photo[] | undefined,
+// ) => {
+//   const source = apiPhotos && apiPhotos.length > 0
+//     ? apiPhotos
+//     : MOCK_PHOTOS;
 
-  const photos = [
-    { src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80", alt: "Photo 1", className: "col-span-12 md:col-span-8 row-span-2" },
-    { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80", alt: "Photo 2", className: "col-span-6 md:col-span-4 row-span-2" },
-    { src: "https://images.unsplash.com/photo-1606216794079-e48e879d0d70?w=600&q=80", alt: "Photo 3", className: "col-span-6 md:col-span-3" },
-    { src: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80", alt: "Photo 4", className: "col-span-6 md:col-span-5" },
-    { src: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=800&q=80", alt: "Photo 5", className: "col-span-12 md:col-span-4" },
-    { src: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80", alt: "Photo 6", className: "col-span-6 md:col-span-4 row-span-2" },
-    { src: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80", alt: "Photo 7", className: "col-span-6 md:col-span-4" },
-    { src: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&q=80", alt: "Photo 8", className: "col-span-12 md:col-span-4" },
-  ];
+//   return PHOTO_LAYOUT.map((layout, index) => {
+//     const photo = source[index];
+
+//     return {
+//       src: photo?.image_url || photo?.src,
+//       alt: photo?.title || photo?.alt || "Photo",
+//       className: layout.className,
+//     };
+//   });
+// };
+
+  
+
 
   return (
     <section ref={ref} id="photos" className="min-h-screen bg-white py-24 px-6">
@@ -88,7 +160,7 @@ const PhotoSection = () => {
         </motion.div>
 
         <div className="grid grid-cols-12 gap-4 auto-rows-[200px]">
-          {photos.map((img, index) => (
+          {gridPhotos.map((img, index) => (
             <PhotoGridItem
               key={index}
               src={img.src}

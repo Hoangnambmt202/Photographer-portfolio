@@ -1,4 +1,3 @@
-"use client";
 import HeroSection from "@/components/public/sections/HeroSection";
 import AlbumSection from "@/components/public/sections/AlbumSection";
 import ServicesSection from "@/components/public/sections/ServiceSection";
@@ -9,19 +8,24 @@ import ImageRevealSlider from "@/components/public/ImageRevealSlider";
 import CoverFlowCarousel from "@/components/public/CoverFlowCarousel";
 
 
-export default function Home() {
+import { getAlbums } from "@/lib/album";
+import { getPhotos } from "@/lib/photo";
+export default async function Home() {
+const albumRes = await getAlbums({page: 1, limit: 6, filters: {}});
+const photoRes = await getPhotos({page: 1, limit: 10, filters: {}});
+
   return (
     <>
       {/* Hero Section */}
       <HeroSection />
 
       {/* Portfolio Section - Creative Grid */}
-      <AlbumSection />
+      <AlbumSection data={albumRes.data} />
 
-      <CoverFlowCarousel />
-      <PhotoSection />
+      <CoverFlowCarousel data={photoRes.data} />
+      <PhotoSection data={photoRes.data} />
 
-      <ImageRevealSlider />
+      <ImageRevealSlider  />
 
       {/* Services Section */}
       <ServicesSection />

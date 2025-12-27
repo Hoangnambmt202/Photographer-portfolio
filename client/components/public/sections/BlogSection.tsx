@@ -14,7 +14,7 @@ const BlogSection = () => {
   ];
 
   return (
-    <section ref={ref} id="blog" className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-24 px-6">
+    <section ref={ref} id="blog" className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-24 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.div 
           className="text-center mb-16"

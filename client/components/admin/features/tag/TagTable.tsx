@@ -136,7 +136,7 @@ export default function TagTable() {
             
             <button
               onClick={openAddModal}
-              className="px-4 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
             >
               <Plus className="w-4 h-4" />
               Thêm Tag Mới
@@ -170,7 +170,7 @@ export default function TagTable() {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-linear-to-r from-gray-50 to-gray-100">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
             <tr>
               <th className="p-4 w-12">
                 <input
