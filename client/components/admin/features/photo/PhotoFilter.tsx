@@ -75,7 +75,7 @@ export default function PhotoFilters({
           className="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
         >
           <option value="all">Tất cả album</option>
-          {albums.map((a: any) => (
+          {albums?.map((a: any) => (
             <option key={a.id} value={a.id}>
               {a.title}
             </option>

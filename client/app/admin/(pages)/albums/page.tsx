@@ -29,7 +29,7 @@ export default function AlbumsPage() {
     closeModal,
   } = useAlbumStore();
   const { categories, fetchCategories } = useCategoryStore();
-
+console.log(albums);
   // Filter states
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -56,7 +56,6 @@ export default function AlbumsPage() {
   const handlePageChange = (page: number) => {
     setPage(page);
   };
-
   const placeholderImage =
     "https://images.unsplash.com/photo-1654124803058-c814dc42f60c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
@@ -83,7 +82,7 @@ export default function AlbumsPage() {
 
       {/* Albums Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {albums.length > 0 ? (
+        {albums ? (
           albums.map((album) => (
             <div
               key={album.id}
@@ -219,7 +218,7 @@ export default function AlbumsPage() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         item="album"
-        itemName={albums.find((album) => album.id === deleteId)?.title}
+        itemName={"heelo"}
       />
     </div>
   );
