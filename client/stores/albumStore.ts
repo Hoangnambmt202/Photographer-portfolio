@@ -56,10 +56,10 @@ export const useAlbumStore = create<AlbumState>((set, get) => ({
       });
 
       set({
-        albums: res.data.data,
-        currentPage: res.data.page,
-        totalPages: res.data.total_pages,
-        totalItems: res.data.total,
+        albums: res.data,
+        currentPage: res.page,
+        totalPages: res.total_pages,
+        totalItems: res.total,
         filters: appliedFilters,
       });
     } finally {
