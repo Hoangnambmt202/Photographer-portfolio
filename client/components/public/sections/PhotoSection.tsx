@@ -1,17 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client'
+"use client";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { Alex_Brush } from "next/font/google";
 import { Photo } from "@/types";
 
 const alex_brush_font = Alex_Brush({
   weight: "400",
-  subsets: ['vietnamese'],
-})
+  subsets: ["vietnamese"],
+});
 
-const PhotoGridItem = ({ src, alt, className, index }:{src:string, alt:string, className:string, index:number}) => {
+const PhotoGridItem = ({
+  src,
+  alt,
+  className,
+  index,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  index: number;
+}) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -21,10 +31,10 @@ const PhotoGridItem = ({ src, alt, className, index }:{src:string, alt:string, c
       className={`group relative overflow-hidden rounded-lg shadow-xl ${className}`}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-      transition={{ 
-        duration: 0.6, 
+      transition={{
+        duration: 0.6,
         delay: index * 0.1,
-        ease: [0.25, 0.4, 0.25, 1]
+        ease: [0.25, 0.4, 0.25, 1],
       }}
       whileHover={{ scale: 1.02 }}
     >
@@ -35,7 +45,7 @@ const PhotoGridItem = ({ src, alt, className, index }:{src:string, alt:string, c
         whileHover={{ scale: 1.1 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
       />
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
         initial={{ opacity: 0 }}
         whileHover={{ opacity: 1 }}
@@ -55,8 +65,7 @@ const GRID_LAYOUT = [
   "col-span-12 md:col-span-4",
 ];
 
-
- const MOCK_PHOTOS = [
+const MOCK_PHOTOS = [
   {
     src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80",
     alt: "Mock photo 1",
@@ -106,35 +115,15 @@ const buildGridPhotos = (photosFromApi?: any[]) => {
 };
 
 // Photos Section Component
-const PhotoSection = ({data}: {data: any[]}) => {
+const PhotoSection = ({ data }: { data: any[] }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-   const gridPhotos = buildGridPhotos(data);
-// const buildPhotoGrid = (
-//   apiPhotos: Photo[] | undefined,
-// ) => {
-//   const source = apiPhotos && apiPhotos.length > 0
-//     ? apiPhotos
-//     : MOCK_PHOTOS;
-
-//   return PHOTO_LAYOUT.map((layout, index) => {
-//     const photo = source[index];
-
-//     return {
-//       src: photo?.image_url || photo?.src,
-//       alt: photo?.title || photo?.alt || "Photo",
-//       className: layout.className,
-//     };
-//   });
-// };
-
-  
-
+  const gridPhotos = buildGridPhotos(data);
 
   return (
     <section ref={ref} id="photos" className="min-h-screen bg-white py-24 px-6">
       <div className="max-w-7xl mx-auto">
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -143,19 +132,20 @@ const PhotoSection = ({data}: {data: any[]}) => {
           <h2 className="text-5xl md:text-6xl font-light text-black mb-4 tracking-tight">
             Những bức ảnh của tôi
           </h2>
-          <motion.div 
+          <motion.div
             className="w-20 h-1 bg-black mx-auto mb-6"
             initial={{ width: 0 }}
             animate={isInView ? { width: 80 } : { width: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           />
-          <motion.p 
+          <motion.p
             className="text-xl text-gray-600 font-light"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            Ảnh không chỉ là ảnh, mà còn là nơi lưu giữ những khoảnh khắc vô giá!
+            Ảnh không chỉ là ảnh, mà còn là nơi lưu giữ những khoảnh khắc vô
+            giá!
           </motion.p>
         </motion.div>
 
@@ -169,14 +159,18 @@ const PhotoSection = ({data}: {data: any[]}) => {
               index={index}
             />
           ))}
-          
-          <motion.div 
+
+          <motion.div
             className="col-span-12 md:col-span-8 md:row-span-1 flex items-center justify-center p-6"
             initial={{ opacity: 0, rotate: -5 }}
-            animate={isInView ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: -5 }}
+            animate={
+              isInView ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: -5 }
+            }
             transition={{ duration: 0.8 }}
           >
-            <p className={`"text-4xl md:text-5xl lg:text-6xl leading-relaxed text-right  text-gray-800" ${alex_brush_font.className}`}>
+            <p
+              className={`"text-4xl md:text-5xl lg:text-6xl leading-relaxed text-right  text-gray-800" ${alex_brush_font.className}`}
+            >
               Hãy để tôi ghi lại <br /> những khoảnh khắc đẹp nhất của bạn
             </p>
           </motion.div>
@@ -186,4 +180,4 @@ const PhotoSection = ({data}: {data: any[]}) => {
   );
 };
 
-export default PhotoSection
+export default PhotoSection;

@@ -1,4 +1,4 @@
-import { ServiceFormData, ServiceFilterParams } from "@/types/service.types";
+import { ServiceFormData, ServiceFilterParams, PaginatedServices } from "@/types/service.types";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -30,18 +30,27 @@ const authHeaders = (): Record<string, string> => {
 };
 
 // GET ALL SERVICES với filter
-export async function getServices(params?: ServiceFilterParams) {
+export async function getServices(params: {
+page?: number,
+limit?:number,
+filters?: ServiceFilterParams,
+}):Promise<PaginatedServices> {
   const query = new URLSearchParams();
-  
-  if (params?.search) query.append("search", params.search);
-  if (params?.status) query.append("status", params.status);
-  if (params?.category_id) query.append("category_id", String(params.category_id));
-  if (params?.tag_id) query.append("tag_id", String(params.tag_id));
-  if (params?.min_price) query.append("min_price", String(params.min_price));
-  if (params?.max_price) query.append("max_price", String(params.max_price));
-  if (params?.featured !== undefined) query.append("featured", String(params.featured));
-  if (params?.page) query.append("page", String(params.page));
-  if (params?.limit) query.append("limit", String(params.limit));
+
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+
+  if (params.filters) {
+    Object.entries(params.filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+
+      if (Array.isArray(value)) {
+        query.append(key, value.join(","));
+      } else {
+        query.append(key, String(value));
+      }
+    });
+  }
   
   const res = await fetch(`${SERVICE_API}?${query.toString()}`, {
     method: "GET",
@@ -54,28 +63,8 @@ export async function getServices(params?: ServiceFilterParams) {
     throw new Error(`API Error (${res.status}): ${errorText}`);
   }
   
-  const response = await res.json();
+  return res.json();
   
-  // Chuyển đổi data để tương thích với frontend
-  if (response.data && Array.isArray(response.data.data)) {
-    return {
-      ...response,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: response.data.data.map((service: any) => ({
-        ...service,
-        // Giữ tương thích với component cũ
-        isActive: service.status === "active",
-        category: service.category?.name || "",
-        maxPeople: service.max_people || 0,
-        includedItems: service.included_items ? service.included_items.split(',').map((item: string) => item.trim()) : [],
-        // Thêm các trường mặc định nếu không có
-        rating: service.rating || 5,
-        totalBookings: service.total_bookings || 0,
-      }))
-    };
-  }
-  
-  return response;
 }
 
 // CREATE SERVICE

@@ -7,7 +7,7 @@ export interface Service {
   final_price: number; // Giá sau giảm
   duration: string;
   max_people: number;
-  included_items: string | string[]; // Lưu dạng string
+  included_items: string; 
   status: "active" | "inactive" | "draft";
   category_id: number;
   category: {
@@ -15,7 +15,7 @@ export interface Service {
     name: string;
     slug: string;
   };
-  cover_image: string;
+  cover_image?: string | null;
   discount_percent: number;
   is_featured: boolean;
   display_order: number;
@@ -50,19 +50,13 @@ export interface ServiceFormData {
 
 export type ServiceModalMode = "create" | "edit" | "view";
 
-// Interface cho API response
-export interface ServiceApiResponse {
-  status: string;
-  message: string;
-  data: Service | Service[] | {
-    total: number;
-    page: number;
-    limit: number;
-    total_pages: number;
-    data: Service[];
-  };
+export interface PaginatedServices {
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  data: Service[];
 }
-
 // Interface cho filter params
 export interface ServiceFilterParams {
   search?: string;
@@ -72,6 +66,5 @@ export interface ServiceFilterParams {
   min_price?: number;
   max_price?: number;
   featured?: boolean;
-  page?: number;
-  limit?: number;
+
 }

@@ -10,10 +10,12 @@ import CoverFlowCarousel from "@/components/public/CoverFlowCarousel";
 
 import { getAlbums } from "@/lib/album";
 import { getPhotos } from "@/lib/photo";
+import { getServices } from "@/lib/service";
+
 export default async function Home() {
 const albumRes = await getAlbums({page: 1, limit: 6, filters: {}});
 const photoRes = await getPhotos({page: 1, limit: 10, filters: {}});
-
+const serviceRes = await getServices({page: 1, limit:10, filters:{}})
   return (
     <>
       {/* Hero Section */}
@@ -28,7 +30,7 @@ const photoRes = await getPhotos({page: 1, limit: 10, filters: {}});
       <ImageRevealSlider  />
 
       {/* Services Section */}
-      <ServicesSection />
+      <ServicesSection data={serviceRes.data} />
 
       {/* Blog Section */}
       <BlogSection />
