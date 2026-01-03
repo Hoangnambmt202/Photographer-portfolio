@@ -58,7 +58,7 @@ const CoverFlowCarousel = ({ data }: { data: any[] }) => {
       <div className="absolute inset-0 blur-sm">
         <Image
           src="https://images.unsplash.com/photo-1496602910407-bacda74a0fe4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y291cGxlfGVufDB8fDB8fHwy"
-          alt="image"
+          alt="Couple background photo"
           fill
         />
       </div>

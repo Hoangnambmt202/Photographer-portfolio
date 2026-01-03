@@ -15,7 +15,7 @@ interface ServiceState {
   page: number;
   totalPages: number;
 
-  fetchServices: (params?: ServiceFilterParams) => Promise<void>;
+  fetchServices: (page:number, limit:number, filters?: ServiceFilterParams) => Promise<void>;
   createService: (data: ServiceFormData) => Promise<Service>;
   updateService: (id: number, data: ServiceFormData) => Promise<Service>;
   deleteService: (id: number) => Promise<void>;
@@ -29,19 +29,24 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   page: 1,
   totalPages: 1,
 
-  fetchServices: async (params?: ServiceFilterParams) => {
+  fetchServices: async (page, limit, filters?: ServiceFilterParams) => {
     set({ loading: true });
     try {
-      const response = await getServices(params);
+      const response = await getServices({
+        page:page,
+        limit:limit,
+        filters:filters
+
+      });
       
       // Xử lý response từ API
       if (response.data && typeof response.data === 'object' && 'data' in response.data) {
         // Response có phân trang
         set({ 
           services: response.data.data as Service[],
-          total: response.data.total,
-          page: response.data.page,
-          totalPages: response.data.total_pages,
+          total: response.total,
+          page: response.page,
+          totalPages: response.total_pages,
           loading: false 
         });
       } else {

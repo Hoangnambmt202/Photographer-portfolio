@@ -50,7 +50,7 @@ export default function ServicesPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = {
       page: currentPage,
-      limit,
+      limit
     };
 
     if (debouncedSearchTerm) params.search = debouncedSearchTerm;
@@ -60,7 +60,7 @@ export default function ServicesPage() {
       if (category) params.category_id = category.id;
     }
 
-    fetchServices(params);
+    fetchServices(1, 10, {});
   }, [
     debouncedSearchTerm,
     filterStatus,
