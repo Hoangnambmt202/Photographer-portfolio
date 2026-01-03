@@ -130,7 +130,6 @@ def get_services(
     # Sắp xếp theo created_at (mới nhất trước)
     services = (
         query.order_by(Service.display_order.asc(), Service.created_at.desc())
-        .offset((page - 1) * limit)
         .limit(limit)
         .all()
     )
