@@ -7,33 +7,31 @@ import PhotoSection from "@/components/public/sections/PhotoSection";
 import ImageRevealSlider from "@/components/public/ImageRevealSlider";
 import CoverFlowCarousel from "@/components/public/CoverFlowCarousel";
 
-
 import { getAlbums } from "@/lib/album";
 import { getPhotos } from "@/lib/photo";
+import { getServices } from "@/lib/service";
+
 export default async function Home() {
-const albumRes = await getAlbums({page: 1, limit: 6, filters: {}});
-const photoRes = await getPhotos({page: 1, limit: 10, filters: {}});
+  const [albumRes, photoRes, serviceRes] = await Promise.all([
+    getAlbums({ page: 1, limit: 6, filters: {} }),
+    getPhotos({ page: 1, limit: 10, filters: {} }),
+    getServices({ page: 1, limit: 10, filters: {} }),
+  ]);
 
   return (
     <>
-      {/* Hero Section */}
       <HeroSection />
 
-      {/* Portfolio Section - Creative Grid */}
       <AlbumSection data={albumRes.data} />
 
       <CoverFlowCarousel data={photoRes.data} />
       <PhotoSection data={photoRes.data} />
 
-      <ImageRevealSlider  />
+      <ImageRevealSlider />
 
-      {/* Services Section */}
-      <ServicesSection />
+      <ServicesSection data={serviceRes.data} />
 
-      {/* Blog Section */}
       <BlogSection />
-
-      {/* Contact Section */}
       <ContactSection />
     </>
   );

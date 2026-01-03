@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from slugify import slugify
 from typing import Optional, List
+from pydantic import BaseModel
 import math
 
 from app.config.database import get_db
@@ -73,17 +74,26 @@ async def create_service(
     )
 
 
-@router.get("", response_model=BaseResponse)
+# GET /services
+class PaginatedServices(BaseModel):
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    data: list[ServiceResponse]
+
+
+@router.get("", response_model=PaginatedServices)
 def get_services(
-    search: Optional[str] = None,
+    search: Optional[str] = Query(None, description="Từ khóa tìm kiếm"),
     status: Optional[str] = None,
     category_id: Optional[int] = None,
     tag_id: Optional[int] = None,
     min_price: Optional[int] = None,
     max_price: Optional[int] = None,
     featured: Optional[bool] = None,
-    page: int = 1,
-    limit: int = 12,
+    page: int = Query(1, ge=1, description="Số trang hiện tại"),
+    limit: int = Query(10, ge=1, le=100, description="Số bản ghi mỗi trang"),
     db: Session = Depends(get_db),
 ):
     query = db.query(Service)
@@ -115,27 +125,18 @@ def get_services(
     #     query = query.filter(Service.status == ServiceStatus.active)
 
     total = query.count()
-
-    # Sắp xếp theo display_order, sau đó theo created_at
+    offset = (page - 1) * limit
+    total_pages = (total + limit - 1) // limit
+    # Sắp xếp theo created_at (mới nhất trước)
     services = (
-        query.order_by(Service.display_order, Service.created_at.desc())
+        query.order_by(Service.display_order.asc(), Service.created_at.desc())
         .offset((page - 1) * limit)
         .limit(limit)
         .all()
     )
 
-    data = [ServiceResponse.model_validate(service) for service in services]
-
-    return BaseResponse(
-        status="success",
-        message="Danh sách dịch vụ",
-        data={
-            "total": total,
-            "page": page,
-            "limit": limit,
-            "total_pages": math.ceil(total / limit),
-            "data": data,
-        },
+    return PaginatedServices(
+        total=total, page=page, limit=limit, total_pages=total_pages, data=services
     )
 
 

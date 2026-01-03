@@ -1,27 +1,41 @@
-'use client'
-import { useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, animate , PanInfo } from 'framer-motion';
-import { MoveHorizontal } from 'lucide-react';
-import Image from 'next/image';
+"use client";
+import { useState, useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  PanInfo,
+} from "framer-motion";
+import { MoveHorizontal } from "lucide-react";
+import Image from "next/image";
 
 const ImageRevealSlider = () => {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const sliderPosition = useMotionValue(50);
-  
-  // Ảnh demo - thay thế bằng ảnh của bạn
-  const beforeImage = "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&h=600&fit=crop";
-  const afterImage = "https://images.unsplash.com/photo-1682687221038-404cb8830901?w=800&h=600&fit=crop";
 
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  // Ảnh demo - thay thế bằng ảnh của bạn
+  const beforeImage =
+    "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&h=600&fit=crop";
+  const afterImage =
+    "https://images.unsplash.com/photo-1682687221038-404cb8830901?w=800&h=600&fit=crop";
+
+  const handleDrag = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     if (!containerRef.current) return;
-    
+
     const containerRect = containerRef.current.getBoundingClientRect();
     const containerWidth = containerRect.width;
     const offsetX = info.point.x - containerRect.left;
-    
+
     // Tính phần trăm với giới hạn 0-100
-    const percentage = Math.max(0, Math.min(100, (offsetX / containerWidth) * 100));
+    const percentage = Math.max(
+      0,
+      Math.min(100, (offsetX / containerWidth) * 100)
+    );
     sliderPosition.set(percentage);
   };
 
@@ -65,13 +79,13 @@ const ImageRevealSlider = () => {
           }}
         >
           {/* Ảnh After (nền) */}
-          <div className="absolute inset-0">
+          <div className="relative inset-0 min-h-[500px]">
             <Image
-            width={100}
-            height={100}
               src={afterImage}
               alt="After"
-              className="w-full h-full object-cover"
+              className="object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
             />
             <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full">
               <span className="text-white font-semibold">After</span>
@@ -84,11 +98,11 @@ const ImageRevealSlider = () => {
             style={{ clipPath }}
           >
             <Image
-            width={100}
-            height={100}
               src={beforeImage}
               alt="Before"
-              className="w-full h-full object-cover"
+              className="object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
             />
             <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full">
               <span className="text-white font-semibold">Before</span>
@@ -130,7 +144,7 @@ const ImageRevealSlider = () => {
                 transition={{
                   repeat: isDragging ? 0 : Infinity,
                   duration: 1.5,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               >
                 <MoveHorizontal className="w-8 h-8 text-gray-800" />
@@ -142,7 +156,7 @@ const ImageRevealSlider = () => {
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-gray-500/0 via-white/10 to-gray-500/0 pointer-events-none"
             animate={{
-              opacity: isDragging ? 1 : 0
+              opacity: isDragging ? 1 : 0,
             }}
             transition={{ duration: 0.3 }}
           />
