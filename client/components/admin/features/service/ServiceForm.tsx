@@ -185,12 +185,11 @@ const ServiceFormModal: FC<ServiceFormModalProps> = ({
               <>
                 <h4 className="font-semibold text-gray-900">Bao gồm:</h4>
                 <ul className="list-disc ml-5 mt-2">
-                  {(Array.isArray(service.included_items)
-                    ? service.included_items
-                    : service.included_items?.split(",") ?? []
-                  ).map((item, idx) => (
-                    <li key={idx}>{item.trim()}</li>
-                  ))}
+                  {(service.included_items?.split(",") ?? []).map(
+                    (item, idx) => (
+                      <li key={idx}>{item.trim()}</li>
+                    )
+                  )}
                 </ul>
               </>
             )}

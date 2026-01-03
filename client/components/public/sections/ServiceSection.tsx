@@ -278,8 +278,9 @@ const ServicesSection = ({ data }: { data: Service[] }) => {
                     </h4>
                   </div>
                   <div className="space-y-3">
-                    {selectedService.included_items
+                    {(selectedService.included_items || "")
                       .split(",")
+                      .filter((item: string) => item.trim())
                       .map((item: string, i: number) => (
                         <motion.div
                           key={i}

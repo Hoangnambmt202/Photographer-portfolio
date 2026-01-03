@@ -127,9 +127,9 @@ def get_services(
     total = query.count()
     offset = (page - 1) * limit
     total_pages = (total + limit - 1) // limit
-    # Sắp xếp theo display_order, sau đó theo created_at
+    # Sắp xếp theo created_at (mới nhất trước)
     services = (
-        query.order_by(Service.created_at.desc())
+        query.order_by(Service.display_order.asc(), Service.created_at.desc())
         .offset((page - 1) * limit)
         .limit(limit)
         .all()

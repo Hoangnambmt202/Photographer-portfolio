@@ -6,70 +6,6 @@ import { motion, useMotionValue, PanInfo } from "framer-motion";
 import Image from "next/image";
 
 const CoverFlowCarousel = ({ data }: { data: any[] }) => {
-  console.log(data);
-  const images = [
-    {
-      id: 1,
-      url: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&h=600&fit=crop",
-    },
-    {
-      id: 2,
-      url: "https://images.unsplash.com/photo-1541849546-216549ae216d?w=800&h=600&fit=crop",
-    },
-    {
-      id: 3,
-      url: "https://images.unsplash.com/photo-1579869847557-1f67382cc158?w=800&h=600&fit=crop",
-    },
-    {
-      id: 4,
-      url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop",
-    },
-    {
-      id: 5,
-      url: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop",
-    },
-    {
-      id: 6,
-      url: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&h=600&fit=crop",
-    },
-    {
-      id: 7,
-      url: "https://images.unsplash.com/photo-1541480551145-2370a440d585?w=800&h=600&fit=crop",
-    },
-    {
-      id: 8,
-      url: "https://images.unsplash.com/photo-1516496636080-14fb876e029d?w=800&h=600&fit=crop",
-    },
-    {
-      id: 9,
-      url: "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&h=600&fit=crop",
-    },
-    {
-      id: 10,
-      url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop",
-    },
-    {
-      id: 11,
-      url: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&h=600&fit=crop",
-    },
-    {
-      id: 12,
-      url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-    },
-    {
-      id: 13,
-      url: "https://images.unsplash.com/photo-1754993313857-d7e6370c24bf?w=800&h=600&fit=crop",
-    },
-    {
-      id: 14,
-      url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop",
-    },
-    {
-      id: 15,
-      url: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800&h=600&fit=crop",
-    },
-  ];
-
   const initialIndex = data?.length ? Math.floor(data.length / 2) : 0;
 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -98,7 +34,7 @@ const CoverFlowCarousel = ({ data }: { data: any[] }) => {
       setCurrentIndex(currentIndex - 1);
     } else if (
       (offset < -threshold || velocity < -400) &&
-      currentIndex < images.length - 1
+      currentIndex < data.length - 1
     ) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -163,7 +99,7 @@ const CoverFlowCarousel = ({ data }: { data: any[] }) => {
             const scale = 1 - absOffset * 0.22;
             const opacity = absOffset < 3 ? 1 - absOffset * 0.3 : 0;
             const blur = absOffset > 0 ? Math.min(absOffset * 4, 12) : 0;
-            const zIndex = data.length - absOffset || images.length - absOffset;
+            const zIndex = data.length - absOffset;
 
             return (
               <motion.div
@@ -197,7 +133,7 @@ const CoverFlowCarousel = ({ data }: { data: any[] }) => {
                 >
                   <Image
                     src={image.image_url || image.url}
-                    alt={image.title}
+                    alt={image.title || "Carousel image"}
                     fill
                     sizes="(max-width: 768px) 100vw, 400px"
                     className=" object-cover cursor-grab"
