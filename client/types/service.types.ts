@@ -9,13 +9,12 @@ export interface Service {
   max_people: number;
   included_items: string; 
   status: "active" | "inactive" | "draft";
-  category_id: number;
   category: {
     id: number;
     name: string;
     slug: string;
   };
-  cover_image?: string | null;
+  cover_image?: string;
   discount_percent: number;
   is_featured: boolean;
   display_order: number;
@@ -39,7 +38,7 @@ export interface ServiceFormData {
   price: string; // Vẫn giữ string để format
   duration: string;
   max_people: string;
-  included_items: string | string[];
+  included_items: string;
   status: "active" | "inactive" | "draft";
   cover_image?: string;
   discount_percent?: number;
