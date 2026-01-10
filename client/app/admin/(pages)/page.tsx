@@ -7,7 +7,6 @@ import {
   Calendar,
   DollarSign,
   CheckCircle,
-  Clock,
   TrendingUp,
   FolderOpen,
   Eye,
@@ -143,23 +142,6 @@ export default function Dashboard() {
     { month: "T11", value: 95 },
     { month: "T12", value: 70 },
   ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
 
   const AnimatedCounter = ({ value }: { value: number | string }) => {
     const [count, setCount] = useState(0);
@@ -328,14 +310,14 @@ export default function Dashboard() {
                 <div className="flex items-end justify-between h-48 gap-2">
                     {revenueData.map((d, i) => (
                         <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                             <div className="w-full bg-gray-100 rounded-t-lg relative h-full flex items-end overflow-hidden">
+                             <div className="w-full h-40 bg-gray-100 rounded-t-lg relative flex  items-end overflow-visible">
                                 <motion.div 
                                     initial={{ height: 0 }}
                                     animate={{ height: `${d.value}%` }}
                                     className="w-full bg-green-500 opacity-80 group-hover:opacity-100 transition-opacity rounded-t-sm relative"
                                 >
                                      {/* Tooltip on hover */}
-                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
                                         {d.value}M
                                      </div>
                                 </motion.div>
