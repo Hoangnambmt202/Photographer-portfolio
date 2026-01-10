@@ -59,10 +59,12 @@ export async function getPhotos(params: {
     method: "GET",
     credentials: "include",
     headers: authHeaders(),
+    cache: "force-cache",
+    next: { revalidate: 60, tags: ["photos"], }
   });
 
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return await res.json();
 }
 // GET PHOTO BY ID
 export async function getPhotoById(id: number) {

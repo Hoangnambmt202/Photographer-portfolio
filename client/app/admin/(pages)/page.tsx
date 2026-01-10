@@ -13,14 +13,12 @@ import {
   Eye,
   Send,
   ImageIcon,
+  MoreHorizontal,
 } from "lucide-react";
 
 export default function Dashboard() {
   const [animateStats, setAnimateStats] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => setAnimateStats(true), 300);
-  }, []);
+    useEffect(() => { setTimeout(() => setAnimateStats(true), 300); }, []);
 
   // Mock data
   const stats = [
@@ -191,296 +189,183 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-4 md:p-8">
-      <div className="max-w-[1600px] mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8"
-        >
-          <p className="text-gray-600 text-lg">
-            Chào mừng trở lại! Hôm nay là{" "}
-            {new Date().toLocaleDateString("vi-VN", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden cursor-pointer group"
-            >
-              <div className="p-6 relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <p className="text-gray-500 text-sm font-medium mb-2">
-                      {stat.label}
-                    </p>
-                    <motion.p
-                      className="text-4xl font-bold text-gray-900"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 + 0.3 }}
-                    >
-                      <AnimatedCounter value={stat.value} />
-                    </motion.p>
-                  </div>
-                  <motion.div
-                    className={`p-3 bg-gradient-to-br ${stat.color} rounded-xl shadow-lg`}
-                    whileHover={{ rotate: 10, scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </motion.div>
-                </div>
-                <div className="flex items-center text-sm">
-                  <TrendingUp
-                    className={`w-4 h-4 mr-1 ${
-                      stat.trendUp ? "text-green-600" : "text-red-600"
-                    }`}
-                  />
-                  <span
-                    className={stat.trendUp ? "text-green-600" : "text-red-600"}
-                  >
-                    {stat.trend}
-                  </span>
-                  <span className="text-gray-500 ml-1">so với tháng trước</span>
-                </div>
-              </div>
-              <div className="h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Lịch hẹn sắp tới và doanh thu */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Upcoming Bookings */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
-          >
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <Calendar className="w-6 h-6 mr-2" />
-                Lịch hẹn sắp tới
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {upcomingBookings.map((booking, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.7 }}
-                    whileHover={{ y: -4, scale: 1.02 }}
-                    className="p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
-                  >
-                    <div
-                      className={`absolute top-0 left-0 w-1 h-full bg-gradient-to-b ${booking.color}`}
-                    />
-                    <div className="flex items-start justify-between mb-3 ml-3">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {booking.client}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {booking.type}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${booking.color} text-white`}
-                      >
-                        {booking.time}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 ml-3">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {booking.date}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Revenue Chart */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
-          >
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <TrendingUp className="w-6 h-6 mr-2" />
-                Doanh thu 6 tháng
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="flex items-end justify-between h-48 space-x-2">
-                {revenueData.map((data, index) => (
-                  <div
-                    key={index}
-                    className="flex-1 flex flex-col items-center justify-end h-full"
-                  >
-                    <motion.div
-                      className="w-full bg-gradient-to-t from-green-500 to-emerald-400 rounded-t-lg relative group cursor-pointer"
-                      initial={{ height: 0 }}
-                      animate={{ height: `${data.value}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 + 0.8 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {data.value}M
-                      </div>
-                    </motion.div>
-                    <p className="text-xs text-gray-600 mt-2 font-medium">
-                      {data.month}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
+        <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-500 mt-1">
+            {new Date().toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            </p>
         </div>
-        {/* Tình trạng ảnh và trạng thái album */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Photo Status */}
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
-          >
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-orange-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <ImageIcon className="w-6 h-6 mr-2" width={24} height={24} />
-                Tình trạng ảnh
-              </h2>
-            </div>
-            <div className="p-6 space-y-4">
-              {photoStatus.map((status, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 + 0.5 }}
-                  whileHover={{ x: 8 }}
-                  className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-all cursor-pointer"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-lg ${status.color}`}>
-                      <status.icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {status.label}
-                      </p>
-                      <p className="text-sm text-gray-500">Đang chờ xử lý</p>
-                    </div>
-                  </div>
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.7, type: "spring" }}
-                    className="text-2xl font-bold text-gray-900"
-                  >
-                    {status.count}
-                  </motion.div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 text-sm font-medium">
+            + Tạo Booking Mới
+        </button>
+      </motion.div>
 
-          {/* Album Status */}
+      {/* Stats Grid - Responsive 1 -> 2 -> 4 cols */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {stats.map((stat, index) => (
           <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:col-span-2"
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden group"
           >
-            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                <FolderOpen className="w-6 h-6 mr-2" />
-                Trạng thái Album
-              </h2>
-            </div>
-            <div className="p-6 space-y-4">
-              {albumStatus.map((album, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.6 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all cursor-pointer"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        {album.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        <Clock className="w-3 h-3 inline mr-1" />
-                        {album.date}
-                      </p>
-                    </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        album.progress === 100
-                          ? "bg-green-100 text-green-700"
-                          : album.progress >= 60
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {album.status}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Tiến độ</span>
-                      <span className="font-semibold text-gray-900">
-                        {album.progress}%
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div
-                        className={`h-full rounded-full ${
-                          album.progress === 100
-                            ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                            : album.progress >= 60
-                            ? "bg-gradient-to-r from-blue-500 to-cyan-500"
-                            : "bg-gradient-to-r from-yellow-500 to-orange-500"
-                        }`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${album.progress}%` }}
-                        transition={{ duration: 1, delay: index * 0.1 + 0.8 }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+             {/* Nội dung card giữ nguyên, chỉ đảm bảo class responsive */}
+             <div className="flex justify-between items-start">
+                <div>
+                    <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+                    <h3 className="text-3xl font-bold text-gray-900 mt-2">
+                        <AnimatedCounter value={stat.value} />
+                    </h3>
+                </div>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
+                    <stat.icon className="w-5 h-5" />
+                </div>
+             </div>
+             <div className="mt-4 flex items-center text-sm">
+                <span className={`font-medium ${stat.trendUp ? "text-green-600" : "text-red-600"} flex items-center`}>
+                    {stat.trendUp ? <TrendingUp className="w-3 h-3 mr-1"/> : null}
+                    {stat.trend}
+                </span>
+                <span className="text-gray-400 ml-2">vs tháng trước</span>
+             </div>
           </motion.div>
+        ))}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column (2/3 width on LG) */}
+        <div className="lg:col-span-2 space-y-6">
+            
+            {/* Lịch hẹn sắp tới */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-blue-500"/> Lịch hẹn sắp tới
+                    </h2>
+                    <button className="text-gray-400 hover:text-gray-600"><MoreHorizontal className="w-5 h-5"/></button>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {upcomingBookings.map((booking, i) => (
+                        <div key={i} className="flex items-center p-4 rounded-xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors group cursor-pointer">
+                            <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${booking.color} flex items-center justify-center text-white font-bold text-lg shadow-sm`}>
+                                {booking.client.charAt(0)}
+                            </div>
+                            <div className="ml-4 flex-1">
+                                <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{booking.client}</h4>
+                                <p className="text-xs text-gray-500">{booking.type} • {booking.time}</p>
+                            </div>
+                            <div className="text-xs font-medium bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">
+                                {booking.date}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Trạng thái Album */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                     <h2 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                        <FolderOpen className="w-5 h-5 text-purple-500"/> Trạng thái Album
+                    </h2>
+                </div>
+                <div className="overflow-x-auto"> {/* QUAN TRỌNG: Cho phép cuộn ngang bảng trên mobile */}
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-50 text-gray-500 font-medium">
+                            <tr>
+                                <th className="px-6 py-3">Tên Album</th>
+                                <th className="px-6 py-3">Tiến độ</th>
+                                <th className="px-6 py-3">Trạng thái</th>
+                                <th className="px-6 py-3">Deadline</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {albumStatus.map((album, i) => (
+                                <tr key={i} className="hover:bg-gray-50/50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{album.title}</td>
+                                    <td className="px-6 py-4 w-1/3">
+                                        <div className="w-full bg-gray-100 rounded-full h-2">
+                                            <div className="bg-blue-500 h-2 rounded-full transition-all duration-500" style={{width: `${album.progress}%`}}></div>
+                                        </div>
+                                        <span className="text-xs text-gray-400 mt-1 block">{album.progress}%</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            album.status === 'Hoàn tất' ? 'bg-green-100 text-green-700' : 
+                                            album.status === 'Mới bắt đầu' ? 'bg-gray-100 text-gray-700' : 'bg-yellow-100 text-yellow-700'
+                                        }`}>
+                                            {album.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-500">{album.date}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        {/* Right Column (1/3 width on LG) */}
+        <div className="space-y-6">
+            
+            {/* Revenue Chart (Simple Bars) */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-500"/> Doanh thu
+                </h2>
+                <div className="flex items-end justify-between h-48 gap-2">
+                    {revenueData.map((d, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                             <div className="w-full bg-gray-100 rounded-t-lg relative h-full flex items-end overflow-hidden">
+                                <motion.div 
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${d.value}%` }}
+                                    className="w-full bg-green-500 opacity-80 group-hover:opacity-100 transition-opacity rounded-t-sm relative"
+                                >
+                                     {/* Tooltip on hover */}
+                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                        {d.value}M
+                                     </div>
+                                </motion.div>
+                             </div>
+                             <span className="text-xs text-gray-400 font-medium">{d.month}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Photo Status List */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5 text-orange-500"/> Tình trạng ảnh
+                </h2>
+                <div className="space-y-3">
+                    {photoStatus.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${item.color.replace('text-', 'bg-').replace('600', '100')} ${item.color}`}>
+                                    <item.icon className="w-4 h-4"/>
+                                </div>
+                                <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                            </div>
+                            <span className="font-bold text-gray-900">{item.count}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
         </div>
       </div>
     </div>

@@ -55,7 +55,9 @@ filters?: ServiceFilterParams,
   const res = await fetch(`${SERVICE_API}?${query.toString()}`, {
     method: "GET",
     credentials: "include",
-    headers: authHeaders(),
+    // headers: authHeaders(),
+    cache: "force-cache",
+    next: { revalidate: 3600, tags: ["services"], },
   });
 
   if (!res.ok) {
@@ -63,7 +65,7 @@ filters?: ServiceFilterParams,
     throw new Error(`API Error (${res.status}): ${errorText}`);
   }
   
-  return res.json();
+  return await res.json();
   
 }
 

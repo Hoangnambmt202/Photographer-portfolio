@@ -1,10 +1,13 @@
+
 import { AlbumFilters } from "@/types";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 ).replace(/\/$/, "");
 const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
 const ALBUMS_API = `${API_ROOT}/albums`;
+
 
 const getStoredAccessToken = () => {
   if (typeof window === "undefined") return null;
@@ -53,12 +56,10 @@ export async function getAlbums(params: {
     method: "GET",
     credentials: "include",
     headers: authHeaders(),
-    next: { revalidate: 0 },
-    cache: "no-store",
   });
-
+  
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return await res.json();
 }
 
 // TẠO ALBUM
@@ -83,8 +84,10 @@ export async function createAlbum(data: any) {
     body: form,
     credentials: "include",
     headers: authHeaders(),
+    cache: "no-store",
+    
   });
-
+  
   return res.json();
 }
 // UPĐATE ALBUM
@@ -120,6 +123,7 @@ export async function deleteAlbum(id: number) {
     credentials: "include",
     headers: authHeaders(),
   });
+
   if (!res.ok) throw new Error("Không thể xóa album");
   return res.json();
 }
