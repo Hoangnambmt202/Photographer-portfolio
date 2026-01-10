@@ -1,3 +1,5 @@
+
+
 import HeroSection from "@/components/public/sections/HeroSection";
 import AlbumSection from "@/components/public/sections/AlbumSection";
 import ServicesSection from "@/components/public/sections/ServiceSection";
@@ -12,6 +14,7 @@ import { getPhotos } from "@/lib/photo";
 import { getServices } from "@/lib/service";
 
 export default async function Home() {
+  
   const [albumRes, photoRes, serviceRes] = await Promise.all([
     getAlbums({ page: 1, limit: 6, filters: {} }),
     getPhotos({ page: 1, limit: 10, filters: {} }),

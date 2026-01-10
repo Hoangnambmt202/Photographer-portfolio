@@ -113,13 +113,13 @@ export default function Header() {
             mobileMenuOpen ? "max-h-96" : "max-h-0"
           }`}
         >
-          <nav className="flex flex-col py-6 px-6 space-y-1">
+          <nav className="flex flex-col py-6 px-6 space-y-1 bg-white">
             {menuItems.map((item, index) => (
               <a
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleClick(e, item.href)}
-                className="px-4 py-3 text-black/70 hover:text-black hover:bg-gray-100 rounded-lg transition-all duration-300 text-sm font-light tracking-widest uppercase"
+                className="px-4 py-3 text-black/70 hover:text-black hover:bg-gray-100 rounded-lg transition-all duration-300 text-sm font-light tracking-widest uppercase text-right"
                 style={{
                   animation: mobileMenuOpen
                     ? `slideIn 0.3s ease-out ${index * 50}ms both`

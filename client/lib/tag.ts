@@ -37,6 +37,8 @@ export async function getTags() {
     credentials: "include",
     method: "GET",
     headers: authHeaders(),
+    cache: "force-cache",
+    next: { revalidate: 3600, tags: ["tags"], },
   });
 
   if (!res.ok) {
@@ -44,7 +46,7 @@ export async function getTags() {
     throw new Error(`Không thể tải danh sách tags: ${err}`);
   }
 
-  return  res.json();
+  return await res.json();
 }
 
 // ✅ Tạo tag mới

@@ -35,8 +35,9 @@ const authHeaders = (): Record<string, string> => {
 export async function getSettings(): Promise<SettingResponse> {
   const res = await fetch(`${SETTING_API}`, {
     credentials: "include",
-    cache: "no-store",
     headers: authHeaders(),
+    cache: "force-cache",
+    next: { revalidate: 3600, tags: ["settings"], },
   });
 
   if (!res.ok) {
