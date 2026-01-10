@@ -84,8 +84,8 @@ export default function SettingsForm({
 
   if (!data && mode === "view") {
     return (
-      <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Cài đặt chung</h2>
+      <>
+       <h2 className="text-xl font-semibold mb-4">Cài đặt chung</h2>
         <p className="text-gray-500 mb-4">Chưa có cài đặt nào được tạo</p>
         <button
           onClick={onEdit}
@@ -93,13 +93,13 @@ export default function SettingsForm({
         >
           Tạo cài đặt mới
         </button>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border p-6 space-y-6">
-      <div className="flex justify-between items-center mb-6">
+ <>
+   <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Cài đặt chung</h2>
 
         {mode === "view" ? (
@@ -249,6 +249,6 @@ export default function SettingsForm({
           </button>
         </div>
       )}
-    </div>
+ </>
   );
 }

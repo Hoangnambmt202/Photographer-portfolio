@@ -7,7 +7,7 @@ import SettingsForm from "@/components/admin/features/setting/SettingsForm";
 import { showToast } from "nextjs-toast-notify";
 import LoaderBlock from "@/components/common/LoaderBlock";
 
-export default function SettingsPage() {
+export default function GeneralPage() {
   const { setting, fetchSettings, saveSettings, loading, error } =
     useSettingsStore();
   const [mode, setMode] = useState<"view" | "edit">("view");
@@ -32,14 +32,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex-1 min-w-0">
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-        {loading && !setting ? (
+    <>
+    {loading && !setting ? (
           <LoaderBlock/>
         ) : (
-          <div className="p-4 sm:p-6 lg:p-8">
-            {/* Truyền thêm classNames vào Form để form tự responsive bên trong nếu cần */}
-            <SettingsForm
+          <SettingsForm
               data={setting}
               mode={mode}
               loading={loading}
@@ -47,9 +44,7 @@ export default function SettingsPage() {
               onCancel={() => setMode("view")}
               onSubmit={handleSave}
             />
-          </div>
         )}
-      </div>
-    </div>
+    </>
   );
 }

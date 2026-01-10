@@ -63,7 +63,7 @@ export default function AdminSidebar() {
       id: "settings",
       name: "Cài đặt",
       icon: Settings,
-      path: "/admin/settings",
+      path: "/admin/settings/general",
       submenu: [
         { id: "general", name: "Cài đặt chung", path: "/admin/settings/general" },
         { id: "profile", name: "Hồ sơ", path: "/admin/settings/profile" },
