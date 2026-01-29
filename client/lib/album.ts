@@ -1,13 +1,8 @@
-
 import { AlbumFilters } from "@/types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-).replace(/\/$/, "");
-const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+import { API_ROOT } from "./api-config";
 const ALBUMS_API = `${API_ROOT}/albums`;
-
 
 const getStoredAccessToken = () => {
   if (typeof window === "undefined") return null;
@@ -24,8 +19,7 @@ const getStoredAccessToken = () => {
 };
 
 const authHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {
-  };
+  const headers: Record<string, string> = {};
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
@@ -57,7 +51,7 @@ export async function getAlbums(params: {
     credentials: "include",
     headers: authHeaders(),
   });
-  
+
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
@@ -85,15 +79,13 @@ export async function createAlbum(data: any) {
     credentials: "include",
     headers: authHeaders(),
     cache: "no-store",
-    
   });
-  
+
   return res.json();
 }
 // UPĐATE ALBUM
 export async function updateAlbum(id: number, data: any) {
-  
-   const form = new FormData();
+  const form = new FormData();
 
   if (data.title) form.append("title", data.title);
   if (data.description) form.append("description", data.description);

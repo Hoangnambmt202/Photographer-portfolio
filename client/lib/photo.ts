@@ -1,11 +1,7 @@
 import { PaginatedPhotos, PhotoFilters, PhotoStatus } from "@/types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(
-  /\/$/,
-  ""
-);
-const API_ROOT = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+import { API_ROOT } from "./api-config";
 const PHOTOS_API = `${API_ROOT}/photos`;
 
 const getStoredAccessToken = () => {
@@ -15,9 +11,7 @@ const getStoredAccessToken = () => {
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return (
-      parsed?.state?.accessToken ||
-      parsed?.state?.state?.accessToken ||
-      null
+      parsed?.state?.accessToken || parsed?.state?.state?.accessToken || null
     );
   } catch {
     return null;
@@ -25,8 +19,7 @@ const getStoredAccessToken = () => {
 };
 
 const authHeaders = (): Record<string, string> => {
-  const headers: Record<string, string> = {
-  };
+  const headers: Record<string, string> = {};
   const token = getStoredAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
@@ -60,7 +53,7 @@ export async function getPhotos(params: {
     credentials: "include",
     headers: authHeaders(),
     cache: "force-cache",
-    next: { revalidate: 60, tags: ["photos"], }
+    next: { revalidate: 60, tags: ["photos"] },
   });
 
   if (!res.ok) throw new Error(await res.text());
@@ -79,7 +72,6 @@ export async function getPhotoById(id: number) {
   return res.json();
 }
 
-
 // ✅ Tạo ảnh (FormData hoặc JSON)
 export async function createPhoto(data: any) {
   const form = new FormData();
@@ -92,7 +84,7 @@ export async function createPhoto(data: any) {
   if (data.location) form.append("location", data.location);
 
   if (data.image_url instanceof File) {
-    form.append("image_url", data.image_url); 
+    form.append("image_url", data.image_url);
   }
 
   const res = await fetch(`${PHOTOS_API}`, {
@@ -115,7 +107,10 @@ export type CreatePhotosBulkMeta = {
   location?: string | null;
 };
 
-export async function createPhotosBulk(files: File[], data: CreatePhotosBulkMeta) {
+export async function createPhotosBulk(
+  files: File[],
+  data: CreatePhotosBulkMeta,
+) {
   const form = new FormData();
   for (const f of files) form.append("images", f);
 
@@ -141,7 +136,6 @@ export async function createPhotosBulk(files: File[], data: CreatePhotosBulkMeta
   return res.json();
 }
 
-
 export async function updatePhoto(id: number, data: any) {
   const res = await fetch(`${PHOTOS_API}/${id}`, {
     method: "PUT",
@@ -163,7 +157,6 @@ export async function deletePhoto(id: number) {
   return res.json();
 }
 
-
 // ✅ Lấy tất cả ảnh trong album
 export async function getAlbumPhotos(albumId: number) {
   const res = await fetch(`${API_ROOT}/albums/${albumId}/photos`, {
@@ -171,21 +164,20 @@ export async function getAlbumPhotos(albumId: number) {
     method: "GET",
     headers: authHeaders(),
   });
-  
+
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`Không thể tải danh sách ảnh trong album: ${err}`);
   }
-  
-  // trả về { status, message, data: Photo[] }
-  return res.json(); 
-}
 
+  // trả về { status, message, data: Photo[] }
+  return res.json();
+}
 
 // ✅ Reorder ảnh trong album (drag-drop)
 export async function reorderAlbumPhotos(
   albumId: number,
-  photos: Array<{ id: number; order: number }>
+  photos: Array<{ id: number; order: number }>,
 ) {
   const res = await fetch(`${API_ROOT}/albums/${albumId}/reorder-photos`, {
     method: "PATCH",
@@ -193,16 +185,15 @@ export async function reorderAlbumPhotos(
     credentials: "include",
     body: JSON.stringify({ photos }),
   });
-  
+
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`Không thể reorder ảnh: ${err}`);
   }
-  
-  // trả về { status, message, data: Photo[] }
-  return res.json(); 
-}
 
+  // trả về { status, message, data: Photo[] }
+  return res.json();
+}
 
 // ✅ Set featured photo cho album
 export async function setFeaturedPhoto(photoId: number, albumId: number) {
@@ -212,11 +203,11 @@ export async function setFeaturedPhoto(photoId: number, albumId: number) {
     credentials: "include",
     body: JSON.stringify({ album_id: albumId }),
   });
-  
+
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`Không thể set ảnh nổi bật: ${err}`);
   }
   // trả về { status, message, data: Photo }
-  return res.json(); 
+  return res.json();
 }

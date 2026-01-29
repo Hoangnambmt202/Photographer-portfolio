@@ -7,13 +7,13 @@
 ## 🏗️ Công nghệ sử dụng
 
 ### Frontend
-- ⚡ [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+
+- ⚡ [Next.js](https://nextjs.org/)
 - 🧩 [TypeScript](https://www.typescriptlang.org/)
 - 🎨 [Tailwind CSS](https://tailwindcss.com/)
-- 🔀 React Router DOM
-- 📡 Axios (fetch API)
 
 ### Backend
+
 - ⚙️ [FastAPI](https://fastapi.tiangolo.com/)
 - 🐘 [PostgreSQL](https://www.postgresql.org/)
 - 🧠 SQLAlchemy + Alembic (ORM & migration)
@@ -24,6 +24,7 @@
 ## ⚙️ Cài đặt & Chạy ứng dụng
 
 ### 1️⃣ Backend (FastAPI)
+
 ```bash
 cd backend
 python -m venv .venv
@@ -34,14 +35,13 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 Mở: http://127.0.0.1:8000/docs
 ```
-## 🚀 Deployment
 
-📬 Liên hệ
+Mọi thắc mắc, đóng góp, góp ý vui lòng liên hệ qua thông tin bên dưới 👇
 
-Tác giả: NamGoPhim
+## 📬 Liên hệ
 
-Email: nam23062002@gmail.com
+🧑🏻 Tác giả: Nam CodertoData
 
-Web: https://namgophim.vercel.app
+✉️ Email: nam23062002@gmail.com
 
-👉 Liên hệ với tôi ngay nhé
+⭐ Xem thêm tại 👉 : https://codertodata.vercel.app
