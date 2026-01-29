@@ -10,6 +10,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 import enum
 from sqlalchemy.dialects import postgresql
 
@@ -112,13 +113,13 @@ def upgrade() -> None:
 
     # Sử dụng enum types đã check
     album_status_type = postgresql.ENUM(
-        "active", "archived", "draft", name="albumstatus"
+        "active", "archived", "draft", name="albumstatus", create_type=False
     )
     photo_status_type = postgresql.ENUM(
-        "public", "private", "archived", "draft", name="photostatus"
+        "public", "private", "archived", "draft", name="photostatus", create_type=False
     )
     service_status_type = postgresql.ENUM(
-        "active", "inactive", "draft", name="servicestatus"
+        "active", "inactive", "draft", name="servicestatus", create_type=False
     )
 
     # === CREATE TABLES WITH EXISTENCE CHECKS ===
@@ -356,70 +357,61 @@ def upgrade() -> None:
     else:
         print("⏩ Table 'services' already exists, skipping...")
 
-
     # SETTINGS TABLE (HYBRID: CORE + JSONB)
-settings_exists = conn.execute(
-    text(
-        """
-    SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_name = 'settings'
-    )
-"""
-    )
-).scalar()
+    settings_exists = conn.execute(
+        text(
+            """
+        SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_name = 'settings'
+        )
+    """
+        )
+    ).scalar()
 
-if not settings_exists:
-    op.create_table(
-        "settings",
-        sa.Column("id", sa.Integer(), nullable=False),
-
-        # === CORE SETTINGS ===
-        sa.Column("site_name", sa.String(150), nullable=False),
-        sa.Column("site_description", sa.Text(), nullable=True),
-        sa.Column("logo_url", sa.String(255), nullable=True),
-
-        sa.Column("theme", sa.String(20), server_default="light"),
-        sa.Column("language", sa.String(10), server_default="vi"),
-        sa.Column("currency", sa.String(10), server_default="VND"),
-        sa.Column("timezone", sa.String(50), server_default="Asia/Ho_Chi_Minh"),
-
-        sa.Column("contact_email", sa.String(150), nullable=True),
-        sa.Column("contact_phone", sa.String(50), nullable=True),
-        sa.Column("address", sa.String(255), nullable=True),
-
-        sa.Column(
-            "is_maintenance",
-            sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=True,
-        ),
-
-        # === DYNAMIC SETTINGS ===
-        sa.Column(
+    if not settings_exists:
+        op.create_table(
             "settings",
-            postgresql.JSONB(astext_type=sa.Text()),
-            server_default=sa.text("'{}'::jsonb"),
-            nullable=False,
-        ),
+            sa.Column("id", sa.Integer(), nullable=False),
+            # === CORE SETTINGS ===
+            sa.Column("site_name", sa.String(150), nullable=False),
+            sa.Column("site_description", sa.Text(), nullable=True),
+            sa.Column("logo_url", sa.String(255), nullable=True),
+            sa.Column("theme", sa.String(20), server_default="light"),
+            sa.Column("language", sa.String(10), server_default="vi"),
+            sa.Column("currency", sa.String(10), server_default="VND"),
+            sa.Column("timezone", sa.String(50), server_default="Asia/Ho_Chi_Minh"),
+            sa.Column("contact_email", sa.String(150), nullable=True),
+            sa.Column("contact_phone", sa.String(50), nullable=True),
+            sa.Column("address", sa.String(255), nullable=True),
+            sa.Column(
+                "is_maintenance",
+                sa.Boolean(),
+                server_default=sa.text("false"),
+                nullable=True,
+            ),
+            # === DYNAMIC SETTINGS ===
+            sa.Column(
+                "settings",
+                postgresql.JSONB(astext_type=sa.Text()),
+                server_default=sa.text("'{}'::jsonb"),
+                nullable=False,
+            ),
+            sa.Column("updated_by", sa.Integer(), nullable=True),
+            sa.Column(
+                "created_at",
+                sa.DateTime(timezone=True),
+                server_default=sa.text("now()"),
+                nullable=True,
+            ),
+            sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+            sa.PrimaryKeyConstraint("id"),
+        )
 
-        sa.Column("updated_by", sa.Integer(), nullable=True),
-
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=True,
-        ),
-        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
-
-        sa.PrimaryKeyConstraint("id"),
-    )
-
-    # Indexes cho core fields
-    op.create_index("ix_settings_theme", "settings", ["theme"])
-    op.create_index("ix_settings_language", "settings", ["language"])
-    op.create_index("ix_settings_is_maintenance", "settings", ["is_maintenance"])
+        # Indexes cho core fields
+        op.create_index("ix_settings_theme", "settings", ["theme"])
+        op.create_index("ix_settings_language", "settings", ["language"])
+        op.create_index("ix_settings_is_maintenance", "settings", ["is_maintenance"])
 
         print("✅ Created table: settings (hybrid)")
     else:
@@ -429,11 +421,11 @@ if not settings_exists:
     contacts_exists = conn.execute(
         text(
             """
-        SELECT EXISTS (
-            SELECT FROM information_schema.tables 
-            WHERE table_name = 'contacts'
-        )
-    """
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'contacts'
+            )
+            """
         )
     ).scalar()
 

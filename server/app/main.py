@@ -92,6 +92,10 @@ app.include_router(tag.router)
 app.include_router(service.router)
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.get("/")
 def root():
     return {"message": "Welcome to Photographer Portfolio API"}

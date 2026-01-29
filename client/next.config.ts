@@ -17,15 +17,16 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
       {
-        protocol:"https",
-        hostname:"images.unsplash.com",
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
       {
-        protocol:"https",
-        hostname:"img.freepik.com",
-      }
+        protocol: "https",
+        hostname: "img.freepik.com",
+      },
     ],
   },
+  output: "standalone",
 };
 
 export default nextConfig;

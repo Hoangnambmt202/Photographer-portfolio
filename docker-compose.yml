@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16
+    container_name: photographer_db
+    environment:
+      POSTGRES_DB: photographer_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - photographer_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: photographer_server
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:password@db:5432/photographer_db?sslmode=disable
+      - JWT_SECRET_KEY=9f846972d55c09ad590acbfa2bf5de0a853a13c440a35bf7f6f0885e8e558c01
+      - JWT_ALGORITHM=HS256
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - photographer_network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: photographer_client
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - INTERNAL_API_URL=http://server:8000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - photographer_network
+
+networks:
+  photographer_network:
+    driver: bridge
+
+volumes:
+  pgdata:

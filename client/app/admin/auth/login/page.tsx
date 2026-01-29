@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
+import LoaderInline from "@/components/common/LoaderInline";
 
 export default function AdminLogin() {
   const { login, error, loading, fetchProfile } = useAuthStore();
@@ -18,67 +19,73 @@ export default function AdminLogin() {
     e.preventDefault();
     await login(email, password);
     await fetchProfile();
-    router.push('/admin');
+    router.push("/admin");
   };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black selection:bg-purple-500/30">
-      
       {/* --- BACKGROUND ANIMATION --- */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black opacity-80" />
-        
+
         {/* Animated Orbs*/}
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1], 
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
             x: [0, 50, 0],
-            y: [0, -30, 0]
+            y: [0, -30, 0],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]" 
+          className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px]"
         />
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.1, 1], 
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
             opacity: [0.2, 0.4, 0.2],
             x: [0, -30, 0],
-            y: [0, 50, 0]
+            y: [0, 50, 0],
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]" 
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+          className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]"
         />
-        
+
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
       </div>
 
       {/* --- MAIN CARD --- */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative z-10 w-full max-w-md px-4"
       >
         <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
-          
           {/* Decorative Line Top */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
 
           <div className="p-8 md:p-10">
             {/* Header */}
             <div className="text-center mb-10">
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                 className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-zinc-800 to-zinc-900 border border-white/5 shadow-inner mb-6 relative group"
               >
                 <div className="absolute inset-0 rounded-2xl bg-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <ShieldCheck className="w-8 h-8 text-white relative z-10" strokeWidth={1.5} />
+                <ShieldCheck
+                  className="w-8 h-8 text-white relative z-10"
+                  strokeWidth={1.5}
+                />
               </motion.div>
-              
+
               <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
                 Welcome Back
               </h1>
@@ -89,14 +96,16 @@ export default function AdminLogin() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              
               {/* Email Field */}
               <div className="space-y-2">
-                <motion.div 
-                  className={`relative group bg-zinc-950/50 rounded-xl border transition-colors duration-300 ${focusedInput === 'email' ? 'border-purple-500/50 shadow-[0_0_15px_-3px_rgba(168,85,247,0.3)]' : 'border-white/5 hover:border-white/10'}`}
+                <motion.div
+                  className={`relative group bg-zinc-950/50 rounded-xl border transition-colors duration-300 ${focusedInput === "email" ? "border-purple-500/50 shadow-[0_0_15px_-3px_rgba(168,85,247,0.3)]" : "border-white/5 hover:border-white/10"}`}
                 >
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className={`w-5 h-5 transition-colors duration-300 ${focusedInput === 'email' ? 'text-purple-400' : 'text-zinc-500'}`} strokeWidth={1.5} />
+                    <Mail
+                      className={`w-5 h-5 transition-colors duration-300 ${focusedInput === "email" ? "text-purple-400" : "text-zinc-500"}`}
+                      strokeWidth={1.5}
+                    />
                   </div>
                   <input
                     type="email"
@@ -104,7 +113,7 @@ export default function AdminLogin() {
                     placeholder="admin@delightlearner.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onFocus={() => setFocusedInput('email')}
+                    onFocus={() => setFocusedInput("email")}
                     onBlur={() => setFocusedInput(null)}
                     required
                   />
@@ -113,11 +122,14 @@ export default function AdminLogin() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <motion.div 
-                  className={`relative group bg-zinc-950/50 rounded-xl border transition-colors duration-300 ${focusedInput === 'password' ? 'border-purple-500/50 shadow-[0_0_15px_-3px_rgba(168,85,247,0.3)]' : 'border-white/5 hover:border-white/10'}`}
+                <motion.div
+                  className={`relative group bg-zinc-950/50 rounded-xl border transition-colors duration-300 ${focusedInput === "password" ? "border-purple-500/50 shadow-[0_0_15px_-3px_rgba(168,85,247,0.3)]" : "border-white/5 hover:border-white/10"}`}
                 >
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className={`w-5 h-5 transition-colors duration-300 ${focusedInput === 'password' ? 'text-purple-400' : 'text-zinc-500'}`} strokeWidth={1.5} />
+                    <Lock
+                      className={`w-5 h-5 transition-colors duration-300 ${focusedInput === "password" ? "text-purple-400" : "text-zinc-500"}`}
+                      strokeWidth={1.5}
+                    />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -125,7 +137,7 @@ export default function AdminLogin() {
                     placeholder="••••••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocusedInput('password')}
+                    onFocus={() => setFocusedInput("password")}
                     onBlur={() => setFocusedInput(null)}
                     required
                   />
@@ -134,7 +146,11 @@ export default function AdminLogin() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-500 hover:text-white transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" strokeWidth={1.5} /> : <Eye className="w-5 h-5" strokeWidth={1.5} />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" strokeWidth={1.5} />
+                    ) : (
+                      <Eye className="w-5 h-5" strokeWidth={1.5} />
+                    )}
                   </button>
                 </motion.div>
               </div>
@@ -142,7 +158,7 @@ export default function AdminLogin() {
               {/* Error Message with Shake Animation */}
               <AnimatePresence>
                 {error && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, height: 0 }}
@@ -164,7 +180,7 @@ export default function AdminLogin() {
                 <div className="relative z-10 flex items-center justify-center gap-2">
                   {loading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <LoaderInline />
                       <span>Đang xác thực...</span>
                     </>
                   ) : (
@@ -174,21 +190,20 @@ export default function AdminLogin() {
                     </>
                   )}
                 </div>
-                
+
                 {/* Shine effect on hover */}
                 <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-0" />
               </motion.button>
-
             </form>
           </div>
-          
+
           {/* Footer Area */}
           <div className="px-8 py-4 bg-zinc-950/30 border-t border-white/5 flex justify-between items-center text-xs text-zinc-500">
-             <span>© 2025 Taithai ADMIN</span>
-             <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Bảo mật hệ thống
-             </span>
+            <span>© 2025 Taithai ADMIN</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Bảo mật hệ thống
+            </span>
           </div>
         </div>
       </motion.div>

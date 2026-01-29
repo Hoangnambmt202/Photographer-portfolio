@@ -1,6 +1,4 @@
 
-"use client";
-
 import "@/styles/globals.css";
 import Header from "@/components/public/layouts/Header";
 import BackToTopButton from "@/components/common/BackToTopButton";

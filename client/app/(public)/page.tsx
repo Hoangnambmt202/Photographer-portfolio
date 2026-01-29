@@ -1,5 +1,3 @@
-
-
 import HeroSection from "@/components/public/sections/HeroSection";
 import AlbumSection from "@/components/public/sections/AlbumSection";
 import ServicesSection from "@/components/public/sections/ServiceSection";
@@ -12,9 +10,16 @@ import CoverFlowCarousel from "@/components/public/CoverFlowCarousel";
 import { getAlbums } from "@/lib/album";
 import { getPhotos } from "@/lib/photo";
 import { getServices } from "@/lib/service";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Photographer",
+  description: "Photographer Portfolio",
+};
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  
   const [albumRes, photoRes, serviceRes] = await Promise.all([
     getAlbums({ page: 1, limit: 6, filters: {} }),
     getPhotos({ page: 1, limit: 10, filters: {} }),
